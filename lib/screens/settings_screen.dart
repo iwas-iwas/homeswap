@@ -166,12 +166,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         //title: 'Misc',
                         tiles: [
                           SettingsTile(
-                              onTap: () {},
-                              // onTap: () async {
-                              //   {
-                              //     await FirebaseAuth.instance.signOut();
-                              //   }
-                              // },
+                              //   onTap: () {},
+                              onTap: () async {
+                                {
+                                  await FirebaseAuth.instance.signOut();
+                                  Navigator.popUntil(
+                                      context, ModalRoute.withName("/"));
+                                }
+                              },
                               title: 'Terms of Service - sign out',
                               leading: Icon(Icons.description)),
                         ],

@@ -1,58 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import '../auth_screen.dart';
 import './active_swap.dart';
 import './received_swaps.dart';
 import './send_swaps.dart';
 import '../../constants.dart';
-
-// class SwapsScreen extends StatefulWidget {
-//   @override
-//   _SwapsScreenState createState() => _SwapsScreenState();
-// }
-
-// class _SwapsScreenState extends State<SwapsScreen> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return new DefaultTabController(
-//       length: 3,
-//       child: new Scaffold(
-//         appBar: new AppBar(
-//           centerTitle: false,
-//           title: Padding(
-//             padding: EdgeInsets.only(bottom: 40, top: 40),
-//             child: Text('Requests'),
-//           ),
-//           backgroundColor: Colors.white,
-//           flexibleSpace: new Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             mainAxisAlignment: MainAxisAlignment.end,
-//             children: [
-//               Padding(
-//                 padding: const EdgeInsets.only(top: 20.0),
-//                 child: new TabBar(
-//                   isScrollable: true,
-//                   tabs: [
-//                     Text("Active", style: TextStyle(color: Colors.black)),
-//                     new Text("Received", style: TextStyle(color: Colors.black)),
-//                     new Text("Send", style: TextStyle(color: Colors.black)),
-//                     // new Tab(icon: new Icon(Icons.swap_horizontal_circle)),
-//                     // new Tab(icon: new Icon(Icons.history)),
-//                   ],
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//         body: TabBarView(
-//           children: [
-//             ActiveSwapsScreen(),
-//             ReceivedSwapsScreen(),
-//             SendSwapsScreen(),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
 
 class SwapsScreen extends StatefulWidget {
   // final String title;
@@ -71,10 +23,18 @@ class _SwapsScreenState extends State<SwapsScreen>
 
   TabController _tabController;
 
-  @override
+  bool _isAnon = false;
+
   void initState() {
     super.initState();
-    _tabController = TabController(vsync: this, length: 3);
+    final user = FirebaseAuth.instance.currentUser;
+    if (user.isAnonymous) {
+      setState(() {
+        _isAnon = true;
+      });
+    } else {
+      _tabController = TabController(vsync: this, length: 3);
+    }
   }
 
   // void _toggleTab() {
@@ -84,6 +44,59 @@ class _SwapsScreenState extends State<SwapsScreen>
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    if (_isAnon)
+      return Scaffold(
+        //key: _scaffoldKey,
+        //backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Colors.white,
+        //body: AuthForm(_submitAuthForm, _isLoading, _scaffoldKey),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Swaps',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Sign up to view and mange your active, received and send swaps.',
+                  style: TextStyle(fontSize: 18),
+                ),
+                SizedBox(height: 15),
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: 10),
+                  width: size.width * 0.9,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: FlatButton(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                      color: kPrimaryColor,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AuthScreen(
+                              isAnon: true,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'Signup',
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: PreferredSize(

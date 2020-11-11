@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:io';
+import '../constants.dart';
 import '../credentials.dart';
 import 'dart:async';
 import 'package:geocoder/geocoder.dart';
@@ -14,6 +15,8 @@ import 'package:flutter_google_places/flutter_google_places.dart';
 import '../widgets/listings_uuid.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
+
+import 'auth_screen.dart';
 
 const kGoogleApiKey = PLACES_API_KEY;
 
@@ -63,11 +66,25 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
 
   bool _isLoading = false;
 
-  @override
+  bool _isAnon = false;
+
   void initState() {
     super.initState();
-    _isButtonDisabled = false;
+    final user = FirebaseAuth.instance.currentUser;
+    if (user.isAnonymous) {
+      setState(() {
+        _isAnon = true;
+      });
+    } else {
+      _isButtonDisabled = false;
+    }
   }
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _isButtonDisabled = false;
+  // }
 
   void _sendMessage(modalState) async {
     modalState(() {
@@ -739,6 +756,59 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    if (_isAnon)
+      return Scaffold(
+        //key: _scaffoldKey,
+        //backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Colors.white,
+        //body: AuthForm(_submitAuthForm, _isLoading, _scaffoldKey),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Personal Listings',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  'Sign up to add and manage your spaces.',
+                  style: TextStyle(fontSize: 18),
+                ),
+                SizedBox(height: 15),
+                Container(
+                  margin: EdgeInsets.symmetric(vertical: 10),
+                  width: size.width * 0.9,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: FlatButton(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                      color: kPrimaryColor,
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => AuthScreen(
+                              isAnon: true,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Text(
+                        'Signup',
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
     return Scaffold(
       body: Container(
         child: Column(
