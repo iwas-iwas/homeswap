@@ -1,6 +1,7 @@
 import 'package:conspacesapp/screens/auth_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
+import '../constants.dart';
 import './language_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -107,15 +108,102 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     if (_isAnon)
       return Scaffold(
-          //key: _scaffoldKey,
-          //backgroundColor: Theme.of(context).primaryColor,
-          backgroundColor: Colors.white,
-          //body: AuthForm(_submitAuthForm, _isLoading, _scaffoldKey),
-          body: AuthScreen(
-            isAnon: true,
-          ));
+        //key: _scaffoldKey,
+        //backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Colors.white,
+        //body: AuthForm(_submitAuthForm, _isLoading, _scaffoldKey),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: ListView(scrollDirection: Axis.vertical, children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Profile',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Sign up to explore your next workplace.',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  SizedBox(height: 15),
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 10),
+                    width: size.width * 0.9,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: FlatButton(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                        color: kPrimaryColor,
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => AuthScreen(
+                                isAnon: true,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          'Signup',
+                        ),
+                      ),
+                    ),
+                  ),
+                  SettingsList(
+                    shrinkWrap: true,
+                    physics: ClampingScrollPhysics(),
+                    backgroundColor: Colors.white,
+                    sections: [
+                      SettingsSection(
+                        //title: 'Misc',
+                        tiles: [
+                          SettingsTile(
+                              onTap: () {},
+                              // onTap: () async {
+                              //   {
+                              //     await FirebaseAuth.instance.signOut();
+                              //   }
+                              // },
+                              title: 'Terms of Service - sign out',
+                              leading: Icon(Icons.description)),
+                        ],
+                      ),
+                      CustomSection(
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding:
+                                  const EdgeInsets.only(top: 22, bottom: 8),
+                              child: Image.asset(
+                                'assets/images/settings.png',
+                                height: 50,
+                                width: 50,
+                                color: Color(0xFF777777),
+                              ),
+                            ),
+                            Text(
+                              'Version: 1.0.0',
+                              style: TextStyle(color: Color(0xFF777777)),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ]),
+          ),
+        ),
+      );
     return Scaffold(
       backgroundColor: Colors.white,
       //appBar: AppBar(title: Text('Settings UI')),
@@ -198,14 +286,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 _userEmail is String ? _userEmail : 'loading email...',
                 style: TextStyle(fontSize: 15, color: Colors.black),
               ),
-              // Padding(
-              //   padding: const EdgeInsets.only(left: 8.0, top: 10, bottom: 10),
-              //   child: Align(
-              //       alignment: Alignment.centerLeft,
-              //       child: Text('Settings',
-              //           style: TextStyle(
-              //               fontWeight: FontWeight.bold, fontSize: 25))),
-              // ),
               SettingsList(
                 shrinkWrap: true,
                 physics: ClampingScrollPhysics(),
@@ -235,6 +315,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             //Navigator.of(context).pop();
                             //Navigator.of(context).pushReplacementNamed('/');
                             await FirebaseAuth.instance.signOut();
+                            Navigator.popUntil(
+                                context,
+                                ModalRoute.withName(
+                                    "/")); // this will only be executed if anonymously users try to sign in, when they still are in the same session they executed the conversion to full user.
+                            ;
                           }
                         },
                       ),

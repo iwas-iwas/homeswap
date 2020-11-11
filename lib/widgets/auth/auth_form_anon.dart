@@ -222,10 +222,13 @@ class _AuthFormAnonState extends State<AuthFormAnon> {
                 CupertinoButton(
                   minSize: double.minPositive,
                   padding: EdgeInsets.zero,
-                  onPressed: () async {
-                    //Navigator.of(context).pop();
-                    await FirebaseAuth.instance.signOut();
+                  onPressed: () {
+                    Navigator.of(context).pop();
                   },
+                  // onPressed: () async {
+                  //   //Navigator.of(context).pop();
+                  //   await FirebaseAuth.instance.signOut();
+                  // },
                   child: Text(
                     'Cancel',
                     style: TextStyle(color: kPrimaryColor),

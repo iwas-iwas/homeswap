@@ -49,16 +49,6 @@ class _AuthScreenState extends State<AuthScreen> {
     bool isLogin,
     BuildContext ctx,
   ) async {
-    // setState(() {
-    //   _isLoading = true;
-    // });
-
-    // final currentUser = FirebaseAuth.instance.currentUser;
-
-    // final crediential =
-    //     EmailAuthProvider.credential(email: email, password: password);
-    // await currentUser.linkWithCredential(crediential);
-
     try {
       setState(() {
         _isLoading = true;
@@ -70,18 +60,6 @@ class _AuthScreenState extends State<AuthScreen> {
           EmailAuthProvider.credential(email: email, password: password);
       await currentUser.linkWithCredential(crediential);
 
-      // UPLOAD IMAGE
-
-      // final ref returns reference to the image
-      // final ref = FirebaseStorage.instance
-      //     .ref()
-      //     .child('user_images')
-      //     .child(authResult.user.uid + '.jpg');
-
-      // // here we get the image reference (url) from the image file and set it in the user document
-      // await ref.putFile(image).onComplete;
-
-      // final url = await ref.getDownloadURL();
       String token = await _messaging.getToken();
 
       await FirebaseFirestore.instance
