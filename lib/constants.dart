@@ -11,5 +11,5 @@ final FirebaseStorage _storage = FirebaseStorage.instance;
 final storageRef = _storage.ref();
 final DateFormat timeFormat = DateFormat('E, h:mm a');
 
-const kPrimaryColor = Color(0xFF3532a7);
+const kPrimaryColor = Color(0xFF4845c7);
 const kPrimaryLightColor = Color(0xFFe2e2f6);
