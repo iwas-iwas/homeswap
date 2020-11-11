@@ -1,3 +1,4 @@
+import 'package:conspacesapp/screens/auth_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
 import './language_screen.dart';
@@ -11,6 +12,9 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
 class SettingsScreen extends StatefulWidget {
+  bool isAnon;
+
+  SettingsScreen({this.isAnon = false});
   @override
   _SettingsScreenState createState() => _SettingsScreenState();
 }
@@ -23,6 +27,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   var _userImage;
   var _userEmail;
   File _storedImage;
+  bool _isAnon = false;
 
   void initState() {
     super.initState();
@@ -79,22 +84,38 @@ class _SettingsScreenState extends State<SettingsScreen> {
     //FocusScope.of(context).unfocus();
     // grab the curren user
     final user = FirebaseAuth.instance.currentUser;
-    // use current user to grab the uid and fetch user data (e.g. username)
-    final userData = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .get()
-        .then((value) => {
-              setState(() {
-                _userName = value.data()['username'];
-                _userImage = value.data()['image_url'];
-                _userEmail = value.data()['email'];
-              })
-            });
+
+    if (user.isAnonymous) {
+      setState(() {
+        _isAnon = true;
+      });
+    } else {
+      // use current user to grab the uid and fetch user data (e.g. username)
+      final userData = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get()
+          .then((value) => {
+                setState(() {
+                  _userName = value.data()['username'];
+                  _userImage = value.data()['image_url'];
+                  _userEmail = value.data()['email'];
+                })
+              });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isAnon)
+      return Scaffold(
+          //key: _scaffoldKey,
+          //backgroundColor: Theme.of(context).primaryColor,
+          backgroundColor: Colors.white,
+          //body: AuthForm(_submitAuthForm, _isLoading, _scaffoldKey),
+          body: AuthScreen(
+            isAnon: true,
+          ));
     return Scaffold(
       backgroundColor: Colors.white,
       //appBar: AppBar(title: Text('Settings UI')),
@@ -215,7 +236,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             //Navigator.of(context).pushReplacementNamed('/');
                             await FirebaseAuth.instance.signOut();
                           }
-                          ;
                         },
                       ),
                     ],

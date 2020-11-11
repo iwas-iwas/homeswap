@@ -55,9 +55,9 @@ import '../../constants.dart';
 // }
 
 class SwapsScreen extends StatefulWidget {
-  final String title;
+  // final String title;
 
-  const SwapsScreen({Key key, this.title}) : super(key: key);
+  // const SwapsScreen({Key key, this.title}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {

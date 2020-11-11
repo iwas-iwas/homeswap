@@ -10,12 +10,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/svg.dart';
 import '../../components/text_field_container.dart';
 
-class AuthForm extends StatefulWidget {
-  AuthForm(
+class AuthFormAnon extends StatefulWidget {
+  AuthFormAnon(
     this.submitFn,
     this.isLoading,
     this.scaffoldKey,
-    this.submitAnonymously,
+    this.convertUser,
   );
 
   final bool isLoading;
@@ -29,17 +29,17 @@ class AuthForm extends StatefulWidget {
     BuildContext ctx,
   ) submitFn;
 
-  final Function submitAnonymously;
+  final Function convertUser;
 
   @override
-  _AuthFormState createState() => _AuthFormState();
+  _AuthFormAnonState createState() => _AuthFormAnonState();
 }
 
-class _AuthFormState extends State<AuthForm> {
+class _AuthFormAnonState extends State<AuthFormAnon> {
   //bool _showForgotPassword = false;
   final _formKey = GlobalKey<FormState>();
   // switch between login and signup mode
-  var _isLogin = true;
+  //var _isLogin = true;
   var _userEmail = '';
   var _userName = '';
   var _userPassword = '';
@@ -49,31 +49,36 @@ class _AuthFormState extends State<AuthForm> {
   //   _userImageFile = image;
   // }
 
-  Future submitAnon() async {
-    await widget.submitAnonymously();
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => TabsScreen(),
-      ),
-    );
+  Future convertUser() async {
+    final isValid = _formKey.currentState.validate();
+    // makes sure the keyboard closes
+    FocusScope.of(context).unfocus();
+
+    if (isValid) {
+      // trigger onsaved of all form fields
+      _formKey.currentState.save();
+
+      await widget.convertUser(
+        _userEmail.trim(),
+        _userPassword.trim(),
+        _userName.trim(),
+        //_userImageFile,
+        false, //islogin is false
+        context,
+      );
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TabsScreen(),
+        ),
+      );
+    }
   }
 
   void _trySubmit() {
     final isValid = _formKey.currentState.validate();
     // makes sure the keyboard closes
     FocusScope.of(context).unfocus();
-
-    // dont start to submit the form if no image has been picked
-    // if (_userImageFile == null && !_isLogin) {
-    //   Scaffold.of(context).showSnackBar(
-    //     SnackBar(
-    //       content: Text('Please pick an image.'),
-    //       backgroundColor: Theme.of(context).errorColor,
-    //     ),
-    //   );
-    //   return;
-    // }
 
     // if all validators return null
     if (isValid) {
@@ -85,7 +90,7 @@ class _AuthFormState extends State<AuthForm> {
         _userPassword.trim(),
         _userName.trim(),
         //_userImageFile,
-        _isLogin,
+        false, //islogin is false
         context,
       );
     }
@@ -106,7 +111,7 @@ class _AuthFormState extends State<AuthForm> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  _isLogin ? 'Sign In' : 'Sign Up',
+                  'Sign Up',
                   style: TextStyle(fontWeight: FontWeight.bold),
                 ),
                 SvgPicture.asset(
@@ -141,33 +146,33 @@ class _AuthFormState extends State<AuthForm> {
                     },
                   ),
                 ),
-                if (!_isLogin) // only show username is signup mode, not in login
-                  TextFieldContainer(
-                    child: TextFormField(
-                      key: ValueKey('username'),
-                      validator: (value) {
-                        if (value.isEmpty || value.length < 4) {
-                          return 'Please enter at least 4 characters';
-                        }
-                        // all good
-                        return null;
-                      },
-                      keyboardType: TextInputType.emailAddress,
-                      //onChanged: onChanged,
-                      cursorColor: kPrimaryColor,
-                      decoration: InputDecoration(
-                        icon: Icon(
-                          Icons.person,
-                          color: kPrimaryColor,
-                        ),
-                        hintText: "Username",
-                        border: InputBorder.none,
+                //if (!_isLogin) // only show username is signup mode, not in login
+                TextFieldContainer(
+                  child: TextFormField(
+                    key: ValueKey('username'),
+                    validator: (value) {
+                      if (value.isEmpty || value.length < 4) {
+                        return 'Please enter at least 4 characters';
+                      }
+                      // all good
+                      return null;
+                    },
+                    keyboardType: TextInputType.emailAddress,
+                    //onChanged: onChanged,
+                    cursorColor: kPrimaryColor,
+                    decoration: InputDecoration(
+                      icon: Icon(
+                        Icons.person,
+                        color: kPrimaryColor,
                       ),
-                      onSaved: (value) {
-                        _userName = value;
-                      },
+                      hintText: "Username",
+                      border: InputBorder.none,
                     ),
+                    onSaved: (value) {
+                      _userName = value;
+                    },
                   ),
+                ),
                 TextFieldContainer(
                   child: TextFormField(
                     obscureText: true,
@@ -206,66 +211,61 @@ class _AuthFormState extends State<AuthForm> {
                         padding:
                             EdgeInsets.symmetric(vertical: 20, horizontal: 40),
                         color: kPrimaryColor,
-                        onPressed: _trySubmit,
+                        onPressed: convertUser,
                         child: Text(
-                          _isLogin ? 'Login' : 'Signup',
+                          'Signup',
                         ),
                       ),
                     ),
                   ),
-                if (_isLogin && !widget.isLoading)
-                  CupertinoButton(
-                    minSize: double.minPositive,
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) =>
-                              ForgotPassword(widget.scaffoldKey),
-                        ),
-                      );
-                    },
-                    child: Text(
-                      'Forgot password?',
-                      style: TextStyle(color: kPrimaryColor),
-                    ),
-                  ),
-                //if (widget.isLoading) CircularProgressIndicator(),
-                if (!widget.isLoading)
-                  CupertinoButton(
-                    //minSize: double.minPositive,
-                    padding: EdgeInsets.zero,
-                    onPressed: () {
-                      setState(() {
-                        _isLogin = !_isLogin;
-                      });
-                    },
-                    child: Text(
-                      _isLogin
-                          ? 'Create new account'
-                          : 'I already have an account',
-                      style: TextStyle(color: kPrimaryColor),
-                    ),
-                  ),
-                if (_isLogin) OrDivider(),
-                if (widget.isLoading) CircularProgressIndicator(),
-                if (_isLogin && !widget.isLoading)
-                  CupertinoButton(
-                    //minSize: double.minPositive,
-                    padding: EdgeInsets.zero,
-                    onPressed: submitAnon,
-                    child: Text(
-                      'Continue without Account',
-                      style: TextStyle(color: kPrimaryColor),
-                    ),
-                  ),
-
-                if (!_isLogin)
-                  Text(
-                    'By signing up on Conspaces, you agree to our Terms & Conditions and Privacy Policy',
+                //if (_isLogin && !widget.isLoading)
+                CupertinoButton(
+                  minSize: double.minPositive,
+                  padding: EdgeInsets.zero,
+                  onPressed: () async {
+                    //Navigator.of(context).pop();
+                    await FirebaseAuth.instance.signOut();
+                  },
+                  child: Text(
+                    'Cancel',
                     style: TextStyle(color: kPrimaryColor),
                   ),
+                ),
+                //if (widget.isLoading) CircularProgressIndicator(),
+                // if (!widget.isLoading)
+                //   CupertinoButton(
+                //     //minSize: double.minPositive,
+                //     padding: EdgeInsets.zero,
+                //     onPressed: () {
+                //       setState(() {
+                //         _isLogin = !_isLogin;
+                //       });
+                //     },
+                //     child: Text(
+                //       _isLogin
+                //           ? 'Create new account'
+                //           : 'I already have an account',
+                //       style: TextStyle(color: kPrimaryColor),
+                //     ),
+                //   ),
+                // //if (_isLogin) OrDivider(),
+                // if (widget.isLoading) CircularProgressIndicator(),
+                // if (_isLogin && !widget.isLoading)
+                //   CupertinoButton(
+                //     //minSize: double.minPositive,
+                //     padding: EdgeInsets.zero,
+                //     onPressed: submitAnon,
+                //     child: Text(
+                //       'Continue without Account',
+                //       style: TextStyle(color: kPrimaryColor),
+                //     ),
+                //   ),
+
+                //if (!_isLogin)
+                Text(
+                  'By signing up on Conspaces, you agree to our Terms & Conditions and Privacy Policy',
+                  style: TextStyle(color: kPrimaryColor),
+                ),
               ],
             ),
           ),

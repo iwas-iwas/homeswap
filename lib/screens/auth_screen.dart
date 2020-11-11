@@ -1,3 +1,5 @@
+import 'package:conspacesapp/screens/Welcome/welcome_screen.dart';
+import 'package:conspacesapp/widgets/auth/auth_form_anon.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +10,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 
+import 'Welcome/components/body.dart';
+
 class AuthScreen extends StatefulWidget {
+  bool isAnon;
+
+  AuthScreen({this.isAnon = false});
   @override
   _AuthScreenState createState() => _AuthScreenState();
 }
@@ -20,6 +27,94 @@ class _AuthScreenState extends State<AuthScreen> {
 
   Future sendPasswordResetEmail(String email) async {
     return _auth.sendPasswordResetEmail(email: email);
+  }
+
+  // Create Anonymous User
+  Future signInAnonymously() {
+    setState(() {
+      _isLoading = true;
+    });
+    // return _auth.signInAnonymously();
+    _auth.signInAnonymously();
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  Future convertUserWithEmail(
+    String email,
+    String password,
+    String username,
+    //File image,
+    bool isLogin,
+    BuildContext ctx,
+  ) async {
+    // setState(() {
+    //   _isLoading = true;
+    // });
+
+    // final currentUser = FirebaseAuth.instance.currentUser;
+
+    // final crediential =
+    //     EmailAuthProvider.credential(email: email, password: password);
+    // await currentUser.linkWithCredential(crediential);
+
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      final currentUser = FirebaseAuth.instance.currentUser;
+
+      final crediential =
+          EmailAuthProvider.credential(email: email, password: password);
+      await currentUser.linkWithCredential(crediential);
+
+      // UPLOAD IMAGE
+
+      // final ref returns reference to the image
+      // final ref = FirebaseStorage.instance
+      //     .ref()
+      //     .child('user_images')
+      //     .child(authResult.user.uid + '.jpg');
+
+      // // here we get the image reference (url) from the image file and set it in the user document
+      // await ref.putFile(image).onComplete;
+
+      // final url = await ref.getDownloadURL();
+      String token = await _messaging.getToken();
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .set({
+        'username': username,
+        'email': email,
+        'token': token,
+        'image_url': null,
+      });
+    } on PlatformException catch (err) {
+      var message = 'An error occurred, pelase check your credentials!';
+
+      if (err.message != null) {
+        message = err.message;
+      }
+
+      Scaffold.of(ctx).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Theme.of(ctx).errorColor,
+        ),
+      );
+      setState(() {
+        _isLoading = false;
+      });
+    } catch (err) {
+      print(err);
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void _submitAuthForm(
@@ -100,11 +195,23 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.isAnon) {
+      return Scaffold(
+        //key: _scaffoldKey,
+        //backgroundColor: Theme.of(context).primaryColor,
+        backgroundColor: Colors.white,
+        //body: AuthForm(_submitAuthForm, _isLoading, _scaffoldKey),
+        body: AuthFormAnon(
+            _submitAuthForm, _isLoading, _scaffoldKey, convertUserWithEmail),
+      );
+    }
     return Scaffold(
       key: _scaffoldKey,
       //backgroundColor: Theme.of(context).primaryColor,
       backgroundColor: Colors.white,
-      body: AuthForm(_submitAuthForm, _isLoading, _scaffoldKey),
+      //body: AuthForm(_submitAuthForm, _isLoading, _scaffoldKey),
+      body: AuthForm(
+          _submitAuthForm, _isLoading, _scaffoldKey, signInAnonymously),
     );
   }
 }
