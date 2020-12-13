@@ -1,15 +1,15 @@
+import 'package:conspacesapp/payment/components.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import './screens/tabs_screen.dart';
 import './screens/auth_screen.dart';
 import './screens/slpash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:provider/provider.dart';
-import './widgets/database_service.dart';
-import './widgets/storage_service.dart';
-import './screens/Signup/signup_screen.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+import 'package:flutter/services.dart';
+import './credentials.dart';
 
 void main() => runApp(
       MyApp(),
@@ -22,7 +22,40 @@ void main() => runApp(
 //   ));
 // }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  _MyAppState createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    initPlatformState();
+  }
+
+  Future<void> initPlatformState() async {
+    appData.isPro = false;
+
+    await Purchases.setDebugLogsEnabled(true);
+    await Purchases.setup(RABBIT_API_KEY);
+
+    PurchaserInfo purchaserInfo;
+    try {
+      purchaserInfo = await Purchases.getPurchaserInfo();
+      print(purchaserInfo.toString());
+      if (purchaserInfo.entitlements.all['all_features'] != null) {
+        appData.isPro = purchaserInfo.entitlements.all['all_features'].isActive;
+      } else {
+        appData.isPro = false;
+      }
+    } on PlatformException catch (e) {
+      print(e);
+    }
+
+    print('#### is user pro? ${appData.isPro}');
+  }
+
   @override
   Widget build(BuildContext context) {
     final Future<FirebaseApp> _initialization = Firebase.initializeApp();
