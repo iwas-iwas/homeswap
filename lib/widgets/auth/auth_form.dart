@@ -111,43 +111,18 @@ class _AuthFormState extends State<AuthForm> {
                 ),
                 SvgPicture.asset(
                   "assets/icons/black-logo.svg",
-                  height: size.height * 0.20,
+                  height: size.height * 0.15,
                 ),
-                SizedBox(height: size.height * 0.03),
+                SizedBox(height: size.height * 0.01),
                 //if (!_isLogin) UserImagePicker(_pickedImage),
-                TextFieldContainer(
-                  child: TextFormField(
-                    key: ValueKey('email'),
-                    validator: (value) {
-                      if (value.isEmpty || !value.contains('@')) {
-                        return 'Please enter a valid email adress';
-                      }
-                      // all good
-                      return null;
-                    },
-                    keyboardType: TextInputType.emailAddress,
-                    //onChanged: onChanged,
-                    cursorColor: kPrimaryColor,
-                    decoration: InputDecoration(
-                      icon: Icon(
-                        Icons.person,
-                        color: kPrimaryColor,
-                      ),
-                      hintText: "Email",
-                      border: InputBorder.none,
-                    ),
-                    onSaved: (value) {
-                      _userEmail = value;
-                    },
-                  ),
-                ),
-                if (!_isLogin) // only show username is signup mode, not in login
-                  TextFieldContainer(
+                SizedBox(
+                  height: size.height * 0.08,
+                  child: TextFieldContainer(
                     child: TextFormField(
-                      key: ValueKey('username'),
+                      key: ValueKey('email'),
                       validator: (value) {
-                        if (value.isEmpty || value.length < 4) {
-                          return 'Please enter at least 4 characters';
+                        if (value.isEmpty || !value.contains('@')) {
+                          return 'Please enter a valid email adress';
                         }
                         // all good
                         return null;
@@ -160,46 +135,84 @@ class _AuthFormState extends State<AuthForm> {
                           Icons.person,
                           color: kPrimaryColor,
                         ),
-                        hintText: "Username",
+                        hintText: "Email",
+                        hintStyle: TextStyle(fontSize: size.height * 0.014),
                         border: InputBorder.none,
                       ),
                       onSaved: (value) {
-                        _userName = value;
+                        _userEmail = value;
                       },
                     ),
                   ),
-                TextFieldContainer(
-                  child: TextFormField(
-                    obscureText: true,
-                    key: ValueKey('password'),
-                    validator: (value) {
-                      if (value.isEmpty || value.length < 7) {
-                        return 'Password must be atleast 7 characters long';
-                      }
-                      // all good
-                      return null;
-                    },
-                    keyboardType: TextInputType.emailAddress,
-                    //onChanged: onChanged,
-                    cursorColor: kPrimaryColor,
-                    decoration: InputDecoration(
-                      icon: Icon(
-                        Icons.lock,
-                        color: kPrimaryColor,
+                ),
+                if (!_isLogin) // only show username is signup mode, not in login
+                  SizedBox(
+                    height: size.height * 0.08,
+                    child: TextFieldContainer(
+                      child: TextFormField(
+                        key: ValueKey('username'),
+                        validator: (value) {
+                          if (value.isEmpty || value.length < 4) {
+                            return 'Please enter at least 4 characters';
+                          }
+                          // all good
+                          return null;
+                        },
+                        keyboardType: TextInputType.emailAddress,
+                        //onChanged: onChanged,
+                        cursorColor: kPrimaryColor,
+                        decoration: InputDecoration(
+                          icon: Icon(
+                            Icons.person,
+                            color: kPrimaryColor,
+                          ),
+                          hintText: "Username",
+                          hintStyle: TextStyle(fontSize: size.height * 0.014),
+                          border: InputBorder.none,
+                        ),
+                        onSaved: (value) {
+                          _userName = value;
+                        },
                       ),
-                      hintText: "Password",
-                      border: InputBorder.none,
                     ),
-                    onSaved: (value) {
-                      _userPassword = value;
-                    },
+                  ),
+                SizedBox(
+                  height: size.height * 0.08,
+                  child: TextFieldContainer(
+                    child: TextFormField(
+                      obscureText: true,
+                      key: ValueKey('password'),
+                      validator: (value) {
+                        if (value.isEmpty || value.length < 7) {
+                          return 'Password must be atleast 7 characters long';
+                        }
+                        // all good
+                        return null;
+                      },
+                      keyboardType: TextInputType.emailAddress,
+                      //onChanged: onChanged,
+                      cursorColor: kPrimaryColor,
+                      decoration: InputDecoration(
+                        icon: Icon(
+                          Icons.lock,
+                          color: kPrimaryColor,
+                        ),
+                        hintText: "Password",
+                        hintStyle: TextStyle(fontSize: size.height * 0.014),
+                        border: InputBorder.none,
+                      ),
+                      onSaved: (value) {
+                        _userPassword = value;
+                      },
+                    ),
                   ),
                 ),
                 if (widget.isLoading) CircularProgressIndicator(),
                 if (!widget.isLoading)
                   Container(
-                    margin: EdgeInsets.symmetric(vertical: 10),
+                    margin: EdgeInsets.symmetric(vertical: size.height * 0.01),
                     width: size.width * 0.8,
+                    //height: size.height * 0.08,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(29),
                       child: FlatButton(
@@ -228,13 +241,15 @@ class _AuthFormState extends State<AuthForm> {
                     },
                     child: Text(
                       'Forgot password?',
-                      style: TextStyle(color: kPrimaryColor),
+                      style: TextStyle(
+                          color: kPrimaryColor, fontSize: size.height * 0.014),
                     ),
                   ),
+                if (_isLogin) SizedBox(height: size.height * 0.01),
                 //if (widget.isLoading) CircularProgressIndicator(),
                 if (!widget.isLoading)
                   CupertinoButton(
-                    //minSize: double.minPositive,
+                    minSize: double.minPositive,
                     padding: EdgeInsets.zero,
                     onPressed: () {
                       setState(() {
@@ -245,19 +260,23 @@ class _AuthFormState extends State<AuthForm> {
                       _isLogin
                           ? 'Create new account'
                           : 'I already have an account',
-                      style: TextStyle(color: kPrimaryColor),
+                      style: TextStyle(
+                          color: kPrimaryColor, fontSize: size.height * 0.016),
                     ),
                   ),
+
                 if (_isLogin) OrDivider(),
                 if (widget.isLoading) CircularProgressIndicator(),
+
                 if (_isLogin && !widget.isLoading)
                   CupertinoButton(
-                    //minSize: double.minPositive,
+                    minSize: double.minPositive,
                     padding: EdgeInsets.zero,
                     onPressed: submitAnon,
                     child: Text(
                       'Continue without Account',
-                      style: TextStyle(color: kPrimaryColor),
+                      style: TextStyle(
+                          color: kPrimaryColor, fontSize: size.height * 0.016),
                     ),
                   ),
 

@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import './property_style.dart';
-import 'package:async/async.dart';
-import 'package:async/async.dart' show StreamZip;
 import '../screens/tabs_screen.dart';
 
 class Listings extends StatelessWidget {
@@ -25,7 +23,7 @@ class Listings extends StatelessWidget {
       //crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 15, right: 15, top: 25),
+          padding: const EdgeInsets.only(left: 15, right: 15, top: 0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -37,7 +35,6 @@ class Listings extends StatelessWidget {
                       builder: (context) => TabsScreen(),
                     ),
                   );
-                  // Navigator.pop(context);
                 },
                 child: Icon(
                   Icons.arrow_back_ios,
