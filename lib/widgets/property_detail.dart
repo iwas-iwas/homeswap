@@ -88,7 +88,6 @@ class _DetailState extends State<Detail> {
   }
 
   bool checkOverlap(List<Timestamp> endA, dynamic startB) {
-    print('${endA.length}: endA.length');
     // if enda => startb return true else return false (start a <= endb already done in .where firebase fiter)
     for (int i = 0; i < endA.length; i++) {
       int check = (endA[i].toDate()).compareTo(startB);
@@ -97,12 +96,11 @@ class _DetailState extends State<Detail> {
         return true; // compareTo returns 0 if equal and a positive integer if a is greater than b. in both cases the date-ranges are overlapping
       }
     }
-    print('date range is available!');
     return false;
   }
 
-  Future<int> dateRangeAvailabilityCheck(currentUserId, selectedDate) async {
-    print('checking daterange overlap..');
+  Future<int> dateRangeAvailabilityCheck(
+      currentUserId, selectedDate, requestSendToThisUser) async {
     // CHECK DATE RANGE
     // TODO: This only checks the overlap for active swaps of the current user. also may include the receiving user!
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
@@ -131,7 +129,6 @@ class _DetailState extends State<Detail> {
       return 2;
     }
 
-    print('checking greater 10 send requests...');
     // CHECK GREATER TEN SEND REQUESTS
     QuerySnapshot sendRequests = await FirebaseFirestore.instance
         .collection('users')
@@ -148,13 +145,29 @@ class _DetailState extends State<Detail> {
       return 1;
     }
 
-    print('something went wrong.');
+    QuerySnapshot alreadySendRequestToUser = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUserId)
+        .collection('requests')
+        .where('type', isEqualTo: 'send')
+        .where('status', isEqualTo: "pending")
+        .where('RequestSendToUser', isEqualTo: requestSendToThisUser)
+        .get();
+
+    // if date overlap and not too many send requests check if the user already send a request to the user (need to check received aswell prbly)
+    if (alreadySendRequestToUser.docs.isNotEmpty) {
+      print('already send to that user');
+      return 0;
+    }
+
+    print('all good.');
     return 3;
   }
 
   sendRequestFirebase(dynamic propertyUserId, dynamic currentUserId,
       dynamic propertyId, selectedDate, globalKey) {
-    dateRangeAvailabilityCheck(currentUserId, selectedDate).then((unavailable) {
+    dateRangeAvailabilityCheck(currentUserId, selectedDate, propertyUserId)
+        .then((unavailable) {
       // SnackBar snackBar = SnackBar(
       //   content: Text(
       //     'will be overwritten.',
@@ -182,6 +195,17 @@ class _DetailState extends State<Detail> {
             style: TextStyle(color: Colors.white),
           ),
           backgroundColor: Colors.black,
+        );
+        Navigator.of(context).pop();
+
+        globalKey.currentState.showSnackBar(snackBar);
+      } else if (unavailable == 0) {
+        SnackBar snackBar = SnackBar(
+          content: Text(
+            "Request could not be sent. You cannot have multiple pending requests with the same user.",
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Color(0xFF4845c7),
         );
         Navigator.of(context).pop();
 
@@ -226,7 +250,7 @@ class _DetailState extends State<Detail> {
             'Swap Request has been send.',
             style: TextStyle(color: Colors.white),
           ),
-          backgroundColor: Colors.black,
+          backgroundColor: Color(0xFF4845c7),
         );
         Navigator.of(context).pop();
 
@@ -306,7 +330,6 @@ class _DetailState extends State<Detail> {
                                 groupValue: _selectedProperty,
                                 onChanged: (selectedProperty) {
                                   modalState(() {
-                                    print("selected ${selectedProperty}");
                                     _selectedProperty = selectedProperty;
                                   });
                                 },
@@ -348,27 +371,33 @@ class _DetailState extends State<Detail> {
                           ],
                         ),
                         SizedBox(height: 10),
-                        RaisedButton.icon(
-                          icon: Icon(Icons.add),
-                          color:
-                              (_selectedProperty != '' && _selectedDate != null)
+                        Container(
+                          color: Color(0xFF4845c7),
+                          child: SafeArea(
+                            child: RaisedButton.icon(
+                              icon: Icon(Icons.add),
+                              color: (_selectedProperty != '' &&
+                                      _selectedDate != null)
                                   ? Color(0xFF4845c7)
                                   : Colors.grey,
-                          label: Text('Submit Request'),
-                          elevation: 0,
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
-                          onPressed: () {
-                            (_selectedProperty != '' && _selectedDate != null)
-                                ? sendRequestFirebase(
-                                    propertyUserId,
-                                    currentUserId,
-                                    propertyId,
-                                    //_selectedDate.toString())
-                                    _selectedDate,
-                                    scaffoldKey)
-                                : null;
-                          },
+                              label: Text('Submit Request'),
+                              elevation: 0,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              onPressed: () {
+                                (_selectedProperty != '' &&
+                                        _selectedDate != null)
+                                    ? sendRequestFirebase(
+                                        propertyUserId,
+                                        currentUserId,
+                                        propertyId,
+                                        //_selectedDate.toString())
+                                        _selectedDate,
+                                        scaffoldKey)
+                                    : null;
+                              },
+                            ),
+                          ),
                         ),
                       ],
                     );
@@ -387,180 +416,7 @@ class _DetailState extends State<Detail> {
 
     return Scaffold(
       key: _scaffoldKey,
-      body:
-          // Stack(
-          //   children: [
-          // Hero(
-          //   //tag: property.frontImage,
-          //   tag: Text("hero_property"),
-          //   child: Container(
-          //     height: size.height * 0.55,
-          //     decoration: BoxDecoration(
-          //       image: DecorationImage(
-          //         image: NetworkImage(widget.userImage),
-          //         fit: BoxFit.cover,
-          //       ),
-          //     ),
-          //     child: Container(
-          //       decoration: BoxDecoration(
-          //         gradient: LinearGradient(
-          //             begin: Alignment.topCenter,
-          //             end: Alignment.bottomCenter,
-          //             stops: [
-          //               0.4,
-          //               1.0
-          //             ],
-          //             colors: [
-          //               Colors.transparent,
-          //               Colors.black..withOpacity(0.7),
-          //             ]),
-          //       ),
-          //     ),
-          //   ),
-          // ),
-          // Container(
-          //   height: size.height * 0.35,
-          //   child: Column(
-          //     crossAxisAlignment: CrossAxisAlignment.start,
-          //     children: [
-          //       Padding(
-          //         padding: EdgeInsets.symmetric(
-          //           horizontal: 24,
-          //           vertical: 48,
-          //         ),
-          //         child: Row(
-          //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //           children: [
-          //             GestureDetector(
-          //               onTap: () {
-          //                 Navigator.pop(context);
-          //               },
-          //               child: Icon(
-          //                 Icons.arrow_back_ios,
-          //                 color: Colors.white,
-          //                 size: 24,
-          //               ),
-          //             ),
-          //           ],
-          //         ),
-          //       ),
-          //       // Expanding for "For Rent Container" positioning
-          //       Expanded(
-          //         child: Container(),
-          //       ),
-          //       // Padding(
-          //       //   padding: EdgeInsets.symmetric(
-          //       //     horizontal: 24,
-          //       //     vertical: 8,
-          //       //   ),
-          //       //   // Container: For Rent label
-          //       //   child: Container(
-          //       //     decoration: BoxDecoration(
-          //       //       color: Colors.yellow[700],
-          //       //       borderRadius: BorderRadius.all(
-          //       //         Radius.circular(5),
-          //       //       ),
-          //       //     ),
-          //       //     width: 80,
-          //       //     padding: EdgeInsets.symmetric(vertical: 4),
-          //       //     child: Center(
-          //       //       child: Text(
-          //       //         "Textfield",
-          //       //         style: TextStyle(
-          //       //           color: Colors.white,
-          //       //           fontSize: 14,
-          //       //           fontWeight: FontWeight.bold,
-          //       //         ),
-          //       //       ),
-          //       //     ),
-          //       //   ),
-          //       // ),
-
-          //       Padding(
-          //         padding: EdgeInsets.symmetric(horizontal: size.width * 0.055),
-          //         child: Row(
-          //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //           children: [
-          //             SizedBox(
-          //               width: size.width * 0.8,
-          //               child: AutoSizeText(
-          //                 widget.propertyTitle,
-          //                 style: TextStyle(
-          //                   color: Colors.white,
-          //                   fontSize: 18,
-          //                   fontWeight: FontWeight.bold,
-          //                 ),
-          //                 maxLines: 2,
-          //               ),
-          //             ),
-          //             // Text(
-          //             //   "Another Text",
-          //             //   style: TextStyle(
-          //             //     color: Colors.white,
-          //             //     fontSize: 18,
-          //             //     fontWeight: FontWeight.bold,
-          //             //   ),
-          //             // ),
-          //           ],
-          //         ),
-          //       ),
-
-          //       Padding(
-          //         padding: EdgeInsets.only(
-          //             left: size.width * 0.055,
-          //             right: size.width * 0.055,
-          //             top: size.height * 0.012,
-          //             bottom: size.height * 0.018),
-          //         child: Row(
-          //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //           children: [
-          //             Row(
-          //               children: [
-          //                 Icon(
-          //                   Icons.location_on,
-          //                   color: Colors.white,
-          //                   size: 16,
-          //                 ),
-          //                 SizedBox(
-          //                   width: 4,
-          //                 ),
-          //                 Text(
-          //                   widget.propertyLocation,
-          //                   style: TextStyle(
-          //                     color: Colors.white,
-          //                     fontSize: 16,
-          //                   ),
-          //                 ),
-          //                 SizedBox(
-          //                   width: 8,
-          //                 ),
-          //                 Icon(
-          //                   Icons.zoom_out_map,
-          //                   color: Colors.white,
-          //                   size: 14,
-          //                 ),
-          //                 SizedBox(
-          //                   width: 4,
-          //                 ),
-          //                 Text(
-          //                   ("${widget.sqm.round().toString()} m²"),
-          //                   style: TextStyle(
-          //                     color: Colors.white,
-          //                     fontSize: 16,
-          //                   ),
-          //                 ),
-          //               ],
-          //             ),
-          //           ],
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
-          // 65% of the screen for the meta-data info below the frontimage
-
-          //child: Center(
-          SafeArea(
+      body: SafeArea(
         child: SingleChildScrollView(
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -569,9 +425,7 @@ class _DetailState extends State<Detail> {
                   left: 24, right: 24, top: 0, bottom: 16),
               child: InkWell(
                 onTap: () {
-                  print('omega');
                   Navigator.pop(context);
-                  print('lul');
                 },
                 child: Icon(
                   Icons.arrow_back_ios,
