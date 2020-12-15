@@ -196,7 +196,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
     //_isButtonDisabled = false;
   }
 
-  void _startAddNewProperty(BuildContext ctx) {
+  void _startAddNewProperty(BuildContext ctx, Size size) {
     final GlobalKey<ScaffoldState> _scaffoldKey =
         new GlobalKey<ScaffoldState>();
 
@@ -370,21 +370,22 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                       _bedroomController,
                                       _bedroomValidator,
                                       modalState),
-                                  SizedBox(width: 25),
+                                  //SizedBox(width: 25),
+                                  //SizedBox(width: size.width * 0.05),
                                   buildFeature(
                                       Icons.desktop_mac,
                                       "Workspaces",
                                       _workspaceController,
                                       _workspaceValidator,
                                       modalState),
-                                  SizedBox(width: 25),
+                                  //SizedBox(width: 25),
                                   buildFeature(
                                       Icons.wc,
                                       "Bathroom",
                                       _bathroomController,
                                       _bathroomValidator,
                                       modalState),
-                                  SizedBox(width: 25),
+                                  //SizedBox(width: 25),
                                   buildFeature(
                                       Icons.kitchen,
                                       "Kitchen",
@@ -401,7 +402,9 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                   children: [
                                     Text('Square Meter: '),
                                     SizedBox(
-                                      width: 100,
+                                      //width: 100,
+                                      width: size.width * 0.1,
+
                                       child: TextField(
                                         controller: _sqmController,
                                         decoration: InputDecoration(
@@ -430,25 +433,30 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                 ),
                                 Row(
                                   children: [
-                                    Text('Wifi Available: '),
-                                    Checkbox(
-                                      value: _wifi,
-                                      onChanged: (bool value) {
-                                        modalState(() {
-                                          //_wifi = value;
-                                          final snackBar = SnackBar(
-                                              content: Text(
-                                                  'Conspaces requires all Spaces to have Wifi available'));
-                                          // Find the Scaffold in the widget tree and use it to show a SnackBar.
-                                          _scaffoldKey.currentState
-                                              .showSnackBar(snackBar);
-                                        });
-                                      },
+                                    Text('Wifi Available '),
+                                    SizedBox(
+                                      width: size.width * 0.05,
+                                      //width: 1,
+                                      child: Checkbox(
+                                        value: _wifi,
+                                        onChanged: (bool value) {
+                                          modalState(() {
+                                            //_wifi = value;
+                                            final snackBar = SnackBar(
+                                                content: Text(
+                                                    'Conspaces requires all Spaces to have Wifi available'));
+                                            // Find the Scaffold in the widget tree and use it to show a SnackBar.
+                                            _scaffoldKey.currentState
+                                                .showSnackBar(snackBar);
+                                          });
+                                        },
+                                      ),
                                     ),
                                   ],
                                 ),
                               ],
                             ),
+
                             // Row(
                             //   children: [
                             //     Text('Wifi: '),
@@ -476,7 +484,8 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                             Row(
                               children: [
                                 Container(
-                                  width: 150,
+                                  //width: 150,
+                                  width: size.width * 0.3,
                                   height: 100,
                                   decoration: BoxDecoration(
                                     border: Border.all(
@@ -494,9 +503,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                         ),
                                   alignment: Alignment.center,
                                 ),
-                                SizedBox(
-                                  width: 10,
-                                ),
+                                SizedBox(width: size.width * 0.05),
                                 Expanded(
                                   child: FlatButton.icon(
                                     icon: Icon(Icons.camera),
@@ -521,7 +528,8 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                             Row(
                               children: [
                                 Container(
-                                  width: 150,
+                                  //width: 150,
+                                  width: size.width * 0.3,
                                   height: 100,
                                   decoration: BoxDecoration(
                                     border: Border.all(
@@ -540,7 +548,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                   alignment: Alignment.center,
                                 ),
                                 SizedBox(
-                                  width: 10,
+                                  width: size.width * 0.05,
                                 ),
                                 Expanded(
                                   child: FlatButton.icon(
@@ -557,7 +565,8 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                             Row(
                               children: [
                                 Container(
-                                  width: 150,
+                                  //width: 150,
+                                  width: size.width * 0.3,
                                   height: 100,
                                   decoration: BoxDecoration(
                                     border: Border.all(
@@ -575,7 +584,9 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                         ),
                                   alignment: Alignment.center,
                                 ),
-                                SizedBox(width: 10),
+                                SizedBox(
+                                  width: size.width * 0.05,
+                                ),
                                 Expanded(
                                   child: FlatButton.icon(
                                     icon: Icon(Icons.camera),
@@ -595,45 +606,51 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                   ),
                   _isLoading
                       ? CircularProgressIndicator()
-                      : RaisedButton.icon(
-                          icon: Icon(Icons.add),
-                          label: Text('Add property'),
-                          onPressed: ((!_titleController.text.isEmpty &&
-                                      _storedImage != null &&
-                                      !_isButtonDisabled &&
-                                      _pickedLocation != '' &&
-                                      _pickedLocation != null &&
-                                      //_pickedDestination != '' &&
-                                      // entweder pickeddestination hat eine adresse oder es wurde noDestination ausgewählt (free for all)
-                                      //_pickedDestination != null)
-                                      _pickedDestination == 'Free for all' &&
-                                      _noDestination == true &&
-                                      _bedroomCount > 0 &&
-                                      _sqm > 0 &&
-                                      _kitchenCount > 0 &&
-                                      _workspaceCount > 0 &&
-                                      _bathroomCount > 0 &&
-                                      _wifi == true) ||
-                                  (!_titleController.text.isEmpty &&
-                                      _storedImage != null &&
-                                      !_isButtonDisabled &&
-                                      _pickedLocation != '' &&
-                                      _pickedLocation != null &&
-                                      _pickedDestination != '' &&
-                                      _noDestination == false &&
-                                      _pickedDestination != null &&
-                                      _bedroomCount > 0 &&
-                                      _sqm > 0 &&
-                                      _kitchenCount > 0 &&
-                                      _workspaceCount > 0 &&
-                                      _bathroomCount > 0 &&
-                                      _wifi == true))
-                              ? () => _sendMessage(modalState)
-                              : null,
-                          elevation: 0,
-                          materialTapTargetSize:
-                              MaterialTapTargetSize.shrinkWrap,
+                      : Container(
                           color: Color(0xFF4845c7),
+                          child: SafeArea(
+                            child: RaisedButton.icon(
+                              icon: Icon(Icons.add),
+                              label: Text('Add property'),
+                              onPressed: ((!_titleController.text.isEmpty &&
+                                          _storedImage != null &&
+                                          !_isButtonDisabled &&
+                                          _pickedLocation != '' &&
+                                          _pickedLocation != null &&
+                                          //_pickedDestination != '' &&
+                                          // entweder pickeddestination hat eine adresse oder es wurde noDestination ausgewählt (free for all)
+                                          //_pickedDestination != null)
+                                          _pickedDestination ==
+                                              'Free for all' &&
+                                          _noDestination == true &&
+                                          // _bedroomCount > 0 &&
+                                          // _sqm > 0 &&
+                                          // _kitchenCount > 0 &&
+                                          // _workspaceCount > 0 &&
+                                          // _bathroomCount > 0 &&
+                                          _wifi == true) ||
+                                      (!_titleController.text.isEmpty &&
+                                          _storedImage != null &&
+                                          !_isButtonDisabled &&
+                                          _pickedLocation != '' &&
+                                          _pickedLocation != null &&
+                                          _pickedDestination != '' &&
+                                          _noDestination == false &&
+                                          _pickedDestination != null &&
+                                          // _bedroomCount > 0 &&
+                                          // _sqm > 0 &&
+                                          // _kitchenCount > 0 &&
+                                          // _workspaceCount > 0 &&
+                                          // _bathroomCount > 0 &&
+                                          _wifi == true))
+                                  ? () => _sendMessage(modalState)
+                                  : null,
+                              elevation: 0,
+                              materialTapTargetSize:
+                                  MaterialTapTargetSize.shrinkWrap,
+                              color: Color(0xFF4845c7),
+                            ),
+                          ),
                         ),
                 ],
               );
@@ -709,8 +726,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
             controller: givenController,
             decoration: InputDecoration(
               hintText: "0",
-              errorText:
-                  givenValidator ? 'Bedroom Count can\'t be empty' : null,
+              errorText: givenValidator ? 'Count can\'t be empty' : null,
             ),
             keyboardType: TextInputType.number,
             inputFormatters: <TextInputFormatter>[
@@ -822,7 +838,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _startAddNewProperty(context),
+        onPressed: () => _startAddNewProperty(context, size),
         child: Icon(Icons.add),
         backgroundColor: const Color(0xFF4845c7),
       ),
