@@ -39,6 +39,12 @@ dependencies:
   intl: ^0.16.1
   google_maps_flutter: ^1.0.3
 
+  firebase_analytics: ^5.0.11
+
+  numberpicker: ^1.3.0
+
+  
+
   # added for chat app
   firebase_messaging: ^6.0.9
   uuid: ^2.0.4
@@ -51,7 +57,8 @@ dependencies:
   auto_size_text: ^2.1.0
   device_preview: ^0.4.4
   url_launcher: ^5.7.10
-
+  rflutter_alert: ^1.0.3
+  purchases_flutter: ^1.1.1
 
 
 
@@ -68,7 +75,7 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/icons/ios_logo.png"
+  image_path: "assets/icons/conspaces_logo.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
