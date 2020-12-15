@@ -1,4 +1,5 @@
 import 'package:conspacesapp/screens/user_listings_screen.dart';
+
 import 'package:flutter/material.dart';
 import '../credentials.dart';
 import 'dart:async';
@@ -60,7 +61,7 @@ class _ExploreScreenTestState extends State<ExploreScreenTest> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(
-                            height: size.height * 0.05,
+                            height: size.height * 0.06,
                             child: Text(
                               'Explore',
                               style: TextStyle(

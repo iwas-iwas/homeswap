@@ -133,7 +133,6 @@ class SendSwapsScreen extends StatelessWidget {
 
           // initialized with a default value because whereIn can't receive an empty list
           // can be checked with if len if this list == 1, then there are no received swaps
-          // => show some default screen ala "no swap requests received yet"
           List<dynamic> sendToUserList = ['default'];
           List<dynamic> sendToPropertyList = ['default'];
           List<Timestamp> startDates = [Timestamp.now()];
@@ -152,10 +151,7 @@ class SendSwapsScreen extends StatelessWidget {
               stream: FirebaseFirestore.instance
                   .collection('properties')
                   .where('id', whereIn: sendToPropertyList)
-                  //TODO: ORDER BY HAT DEN BUILDER GEBROCHEN, DA VERMUTLICH DER USERID INDEX DER EINGERICHTET IST DADURCH AKTIV WURDE! GGF. WEITEREN INDEX ERSTELLEn FÜR LOCATION/DESTINATION
-                  //.orderBy('createdAt', descending: true)
                   .snapshots(),
-              // whenever the properties collection receives a new value, the function inside of the builder argument is executed
               builder: (ctx, streamSnapshot) {
                 if (streamSnapshot.connectionState == ConnectionState.waiting) {
                   return Center(
@@ -166,7 +162,6 @@ class SendSwapsScreen extends StatelessWidget {
                   return Text('Loading');
                 }
 
-                //final documents = streamSnapshot.data.docs;
                 final documents = streamSnapshot.data.docs;
 
                 // List<dynamic> finalProperties = ['default'];

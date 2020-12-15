@@ -104,6 +104,8 @@ class _SwapsScreenState extends State<SwapsScreen>
         child: AppBar(
           backgroundColor: Colors.white,
           centerTitle: false,
+          // AppBar title stays left with "automaticallyImplyLeading" set to false.
+          automaticallyImplyLeading: false,
           title: Padding(
             padding: const EdgeInsets.only(top: 40, bottom: 40),
             child: Text('Requests',

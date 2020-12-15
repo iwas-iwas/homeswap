@@ -1,8 +1,10 @@
+import 'package:conspacesapp/payment/components.dart';
+import 'package:conspacesapp/payment/parental_gate.dart';
+import 'package:conspacesapp/payment/upgrade.dart';
 import 'package:conspacesapp/screens/auth_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:settings_ui/settings_ui.dart';
 import '../constants.dart';
-import './language_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -157,6 +159,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   ),
+                  SizedBox(height: 10),
+                  Text(
+                    'Already have an account? Click Login to enter your account.',
+                    style: TextStyle(fontSize: 18),
+                  ),
+                  SizedBox(height: 15),
+                  Container(
+                    margin: EdgeInsets.symmetric(vertical: 10),
+                    width: size.width * 0.9,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: FlatButton(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                        color: kPrimaryColor,
+                        onPressed: () async {
+                          {
+                            await FirebaseAuth.instance.signOut();
+                            Navigator.popUntil(
+                                context, ModalRoute.withName("/"));
+                          }
+                        },
+                        child: Text(
+                          'Login',
+                        ),
+                      ),
+                    ),
+                  ),
                   SettingsList(
                     shrinkWrap: true,
                     physics: ClampingScrollPhysics(),
@@ -287,6 +317,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
               Text(
                 _userEmail is String ? _userEmail : 'loading email...',
                 style: TextStyle(fontSize: 15, color: Colors.black),
+              ),
+              Container(
+                margin: EdgeInsets.symmetric(vertical: 10),
+                width: size.width * 0.9,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: FlatButton(
+                    padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                    color: kPrimaryColor,
+                    onPressed: () {
+                      if (appData.isPro) {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => UpgradeScreen(),
+                                settings:
+                                    RouteSettings(name: 'Upgrade Screen')));
+                      } else {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => ParentalGate(),
+                                settings:
+                                    RouteSettings(name: 'Parental Gate')));
+                      }
+                    },
+                    child: Text(
+                      'Purchase a subscription',
+                    ),
+                  ),
+                ),
               ),
               SettingsList(
                 shrinkWrap: true,

@@ -10,6 +10,8 @@ import 'package:flutter/foundation.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:flutter/services.dart';
 import './credentials.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 
 void main() => runApp(
       MyApp(),
@@ -64,6 +66,9 @@ class _MyAppState extends State<MyApp> {
         future: _initialization,
         builder: (context, appSnapshot) {
           return MaterialApp(
+            navigatorObservers: [
+              FirebaseAnalyticsObserver(analytics: FirebaseAnalytics()),
+            ],
             debugShowCheckedModeBanner: false,
             title: 'Conspaces',
             theme: ThemeData(

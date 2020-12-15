@@ -147,7 +147,7 @@ class PropertyStyle extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           SizedBox(
-                            width: size.width * 0.8,
+                            width: size.width * 0.64,
                             child: AutoSizeText(
                               propertyTitle,
                               style: TextStyle(
@@ -158,14 +158,6 @@ class PropertyStyle extends StatelessWidget {
                               maxLines: 2,
                             ),
                           ),
-                          // Text(
-                          //   "Another Text",
-                          //   style: TextStyle(
-                          //     color: Colors.white,
-                          //     fontSize: 18,
-                          //     fontWeight: FontWeight.bold,
-                          //   ),
-                          // ),
                         ],
                       ),
                       SizedBox(
@@ -211,25 +203,25 @@ class PropertyStyle extends StatelessWidget {
                               ),
                             ],
                           ),
-                          Row(
-                            children: [
-                              Icon(
-                                Icons.star,
-                                color: Colors.yellow[700],
-                                size: 14,
-                              ),
-                              SizedBox(
-                                width: 4,
-                              ),
-                              Text(
-                                "5.0",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          )
+                          // Row(
+                          //   children: [
+                          //     Icon(
+                          //       Icons.star,
+                          //       color: Colors.yellow[700],
+                          //       size: 14,
+                          //     ),
+                          //     SizedBox(
+                          //       width: 4,
+                          //     ),
+                          //     Text(
+                          //       "5.0",
+                          //       style: TextStyle(
+                          //         color: Colors.white,
+                          //         fontSize: 14,
+                          //       ),
+                          //     ),
+                          //   ],
+                          // )
                         ],
                       ),
                     ],

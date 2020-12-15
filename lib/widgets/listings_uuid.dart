@@ -325,7 +325,8 @@ class _ListingsUniqueState extends State<ListingsUnique> {
       _scaffoldKey,
       String currentMainImage,
       String currentFirstAdditionalImage,
-      String currentSecondAdditionalImage) {
+      String currentSecondAdditionalImage,
+      Size size) {
     if (currentDestination == 'ffa') {
       currentDestination = 'Free for all';
     }
@@ -467,7 +468,8 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                           Row(
                             children: [
                               Container(
-                                width: 150,
+                                //width: 150,
+                                width: size.width * 0.3,
                                 height: 100,
                                 decoration: BoxDecoration(
                                   border:
@@ -517,7 +519,8 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                           Row(
                             children: [
                               Container(
-                                width: 150,
+                                //width: 150,
+                                width: size.width * 0.3,
                                 height: 100,
                                 decoration: BoxDecoration(
                                   border:
@@ -541,9 +544,7 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                                           ),
                                 alignment: Alignment.center,
                               ),
-                              SizedBox(
-                                width: 10,
-                              ),
+                              SizedBox(width: size.width * 0.05),
                               Expanded(
                                 child: FlatButton.icon(
                                   icon: Icon(Icons.camera),
@@ -555,11 +556,12 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                               ),
                             ],
                           ),
-                          SizedBox(height: 10),
+                          SizedBox(width: size.width * 0.05),
                           Row(
                             children: [
                               Container(
-                                width: 150,
+                                // width: 150,
+                                width: size.width * 0.3,
                                 height: 100,
                                 decoration: BoxDecoration(
                                   border:
@@ -583,7 +585,7 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                                           ),
                                 alignment: Alignment.center,
                               ),
-                              SizedBox(width: 10),
+                              SizedBox(width: size.width * 0.05),
                               Expanded(
                                 child: FlatButton.icon(
                                   icon: Icon(Icons.camera),
@@ -600,15 +602,20 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                     ),
                   ),
                 ),
-                RaisedButton.icon(
-                  icon: Icon(Icons.add),
-                  label: Text('Update Property'),
-                  onPressed: !_isButtonDisabled
-                      ? () => _sendMessage(propertyId)
-                      : null,
-                  elevation: 0,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                Container(
                   color: Color(0xFF4845c7),
+                  child: SafeArea(
+                    child: RaisedButton.icon(
+                      icon: Icon(Icons.add),
+                      label: Text('Update Property'),
+                      onPressed: !_isButtonDisabled
+                          ? () => _sendMessage(propertyId)
+                          : null,
+                      elevation: 0,
+                      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      color: Color(0xFF4845c7),
+                    ),
+                  ),
                 ),
               ],
             );
@@ -782,20 +789,21 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                                         }
 
                                         _startEditProperty(
-                                          context,
-                                          _pickedDestination != ''
-                                              ? _pickedDestination
-                                              : documents[index]
-                                                  .data()['destination'],
-                                          documents[index].id,
-                                          user.uid,
-                                          _scaffoldKey,
-                                          documents[index].data()['userImage'],
-                                          documents[index]
-                                              .data()['firstAdditionalImage'],
-                                          documents[index]
-                                              .data()['secondAdditionalImage'],
-                                        );
+                                            context,
+                                            _pickedDestination != ''
+                                                ? _pickedDestination
+                                                : documents[index]
+                                                    .data()['destination'],
+                                            documents[index].id,
+                                            user.uid,
+                                            _scaffoldKey,
+                                            documents[index]
+                                                .data()['userImage'],
+                                            documents[index]
+                                                .data()['firstAdditionalImage'],
+                                            documents[index].data()[
+                                                'secondAdditionalImage'],
+                                            size);
                                       },
                                       child: Icon(
                                         Icons.edit,

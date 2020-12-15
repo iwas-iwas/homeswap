@@ -13,3 +13,10 @@ final DateFormat timeFormat = DateFormat('E, h:mm a');
 
 const kPrimaryColor = Color(0xFF4845c7);
 const kPrimaryLightColor = Color(0xFFe2e2f6);
+
+const kColorPrimaryLight = Color(0xff424B67);
+const kColorPrimaryDark = Color(0xff21293E);
+const kColorAccent = Colors.blue;
+const kColorText = Color(0xffDBEDF3);
+
+const kColorPrimary = Colors.white;

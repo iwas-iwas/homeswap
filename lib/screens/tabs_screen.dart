@@ -1,20 +1,8 @@
-//import 'package:conspaces/screens/listings_screen.dart';
-import 'package:conspacesapp/constants.dart';
 import 'package:conspacesapp/screens/explore_screen_old.dart';
-
 import './swaps/swaps_screen.dart';
 import 'package:flutter/material.dart';
-//import 'package:flutter_fire/screens/chat_screen.dart';
-import 'explore_screen.dart';
-//import 'google_search.dart';
 import './user_listings_screen.dart';
-import './profile_screen.dart';
-import './chat_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import './settings_screen.dart';
-//import '../widgets/app_drawer.dart';
-//import './saved_screen.dart';
-import './Welcome/welcome_screen.dart';
 
 class TabsScreen extends StatefulWidget {
   // bool chatScreenIndex;
