@@ -13,25 +13,27 @@ class ListingsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      body: Container(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // GestureDetector(
-            //   onTap: () {
-            //     Navigator.pop(context);
-            //   },
-            //   child: Padding(
-            //     padding: const EdgeInsets.only(top: 40, left: 10),
-            //     child: Icon(
-            //       Icons.arrow_back_ios,
-            //       color: Colors.black,
-            //       size: 24,
-            //     ),
-            //   ),
-            // ),
-            Expanded(child: Listings(pickedLocation, pickedDestination)),
-          ],
+      body: SafeArea(
+        child: Container(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // GestureDetector(
+              //   onTap: () {
+              //     Navigator.pop(context);
+              //   },
+              //   child: Padding(
+              //     padding: const EdgeInsets.only(top: 40, left: 10),
+              //     child: Icon(
+              //       Icons.arrow_back_ios,
+              //       color: Colors.black,
+              //       size: 24,
+              //     ),
+              //   ),
+              // ),
+              Expanded(child: Listings(pickedLocation, pickedDestination)),
+            ],
+          ),
         ),
       ),
     );
