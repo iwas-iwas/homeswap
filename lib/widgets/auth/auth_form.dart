@@ -2,7 +2,9 @@ import 'package:conspacesapp/screens/Signup/components/or_divider.dart';
 import 'package:conspacesapp/screens/tabs_screen.dart';
 import 'package:conspacesapp/widgets/auth/forgot_password.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../constants.dart';
 import 'package:flutter/material.dart';
 import '../../screens/Signup/components/background.dart';
@@ -116,7 +118,8 @@ class _AuthFormState extends State<AuthForm> {
                 SizedBox(height: size.height * 0.01),
                 //if (!_isLogin) UserImagePicker(_pickedImage),
                 SizedBox(
-                  height: size.height * 0.08,
+                  //height: size.height * 0.08,
+                  //height: size.height * 0.1,
                   child: TextFieldContainer(
                     child: TextFormField(
                       key: ValueKey('email'),
@@ -147,7 +150,8 @@ class _AuthFormState extends State<AuthForm> {
                 ),
                 if (!_isLogin) // only show username is signup mode, not in login
                   SizedBox(
-                    height: size.height * 0.08,
+                    //height: size.height * 0.08,
+                    //height: size.height * 0.1,
                     child: TextFieldContainer(
                       child: TextFormField(
                         key: ValueKey('username'),
@@ -177,14 +181,15 @@ class _AuthFormState extends State<AuthForm> {
                     ),
                   ),
                 SizedBox(
-                  height: size.height * 0.08,
+                  //height: size.height * 0.08,
+                  //height: size.height * 0.1,
                   child: TextFieldContainer(
                     child: TextFormField(
                       obscureText: true,
                       key: ValueKey('password'),
                       validator: (value) {
                         if (value.isEmpty || value.length < 7) {
-                          return 'Password must be atleast 7 characters long';
+                          return 'Please enter atleast 7 characters';
                         }
                         // all good
                         return null;
@@ -242,9 +247,13 @@ class _AuthFormState extends State<AuthForm> {
                     child: Text(
                       'Forgot password?',
                       style: TextStyle(
-                          color: kPrimaryColor, fontSize: size.height * 0.014),
+                        color: kPrimaryColor,
+                        //fontSize: size.height * 0.014,
+                        fontSize: 15,
+                      ),
                     ),
                   ),
+                SizedBox(height: 5),
                 if (_isLogin) SizedBox(height: size.height * 0.01),
                 //if (widget.isLoading) CircularProgressIndicator(),
                 if (!widget.isLoading)
@@ -261,12 +270,14 @@ class _AuthFormState extends State<AuthForm> {
                           ? 'Create new account'
                           : 'I already have an account',
                       style: TextStyle(
-                          color: kPrimaryColor, fontSize: size.height * 0.016),
+                        color: kPrimaryColor,
+                        //fontSize: size.height * 0.016,
+                      ),
                     ),
                   ),
 
-                if (_isLogin) OrDivider(),
-                if (widget.isLoading) CircularProgressIndicator(),
+                if (_isLogin && !widget.isLoading) OrDivider(),
+                //if (widget.isLoading) CircularProgressIndicator(),
 
                 if (_isLogin && !widget.isLoading)
                   CupertinoButton(
@@ -276,15 +287,18 @@ class _AuthFormState extends State<AuthForm> {
                     child: Text(
                       'Continue without Account',
                       style: TextStyle(
-                          color: kPrimaryColor, fontSize: size.height * 0.016),
+                        color: kPrimaryColor,
+                        //fontSize: size.height * 0.016,
+                      ),
                     ),
                   ),
 
                 if (!_isLogin)
-                  Text(
-                    'By signing up on Conspaces, you agree to our Terms & Conditions and Privacy Policy',
-                    style: TextStyle(color: kPrimaryColor),
-                  ),
+                  // Text(
+                  //   'By signing up on Conspaces, you agree to our Terms & Conditions and Privacy Policy',
+                  //   style: TextStyle(color: kPrimaryColor),
+                  // ),
+                  privacyPolicyLinkAndTermsOfService()
               ],
             ),
           ),
@@ -292,4 +306,58 @@ class _AuthFormState extends State<AuthForm> {
       ),
     );
   }
+}
+
+Widget privacyPolicyLinkAndTermsOfService() {
+  return Container(
+    alignment: Alignment.center,
+    padding: EdgeInsets.all(10),
+    child: Center(
+        child: Text.rich(
+      TextSpan(
+          text: 'By creating an account, you agree with our \n',
+          style: TextStyle(
+            fontSize: 16,
+            color: kPrimaryColor,
+          ),
+          children: <TextSpan>[
+            TextSpan(
+                text: 'Terms of Service',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: kPrimaryColor,
+                  decoration: TextDecoration.underline,
+                ),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
+                    launch(
+                        'https://docs.flutter.io/flutter/services/UrlLauncher-class.html');
+                    // code to open / launch privacy policy link here
+                  }),
+            TextSpan(
+                text: ' & ',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: kPrimaryColor,
+                ),
+                children: <TextSpan>[
+                  TextSpan(
+                      text: 'Privacy Policy',
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: kPrimaryColor,
+                          decoration: TextDecoration.underline),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          launch(
+                              'https://www.iubenda.com/privacy-policy/18657475');
+                          // code to open / launch privacy policy link here
+                        })
+                ])
+          ]),
+      textAlign: TextAlign.center,
+      //maxLines: 2,
+      //overflow: TextOverflow.ellipsis
+    )),
+  );
 }
