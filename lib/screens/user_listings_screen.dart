@@ -1,10 +1,10 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:uuid/uuid.dart';
 import 'dart:io';
 import '../constants.dart';
 import '../credentials.dart';
@@ -31,6 +31,8 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
   String _pickedLocation = '';
   double _pickedLongitude;
   double _pickedLatitude;
+  String _pickedFullAddress = '';
+  String _pickedFullDestination = '';
   String _pickedDestination = '';
   final _titleController = TextEditingController();
   var _enteredMessage;
@@ -171,6 +173,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
           firstAdditionalImageUrl != '' ? firstAdditionalImageUrl : null,
       'secondAdditionalImage':
           secondAdditionalImageUrl != '' ? secondAdditionalImageUrl : null,
+      'fullAddress': _pickedFullAddress,
       //'userImage': userData.data()['image_url']
     });
 
@@ -201,6 +204,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
         new GlobalKey<ScaffoldState>();
 
     showModalBottomSheet(
+        //isScrollControlled: true,
         context: context,
         builder: (context) {
           return Scaffold(
@@ -247,17 +251,24 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                             SizedBox(
                               height: 20,
                             ),
-                            Row(
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text((_pickedLocation != '' &&
-                                        _pickedLocation != null)
-                                    ? _pickedLocation
-                                    : 'No Location Chosen'),
+                                // Text((_pickedLocation != '' &&
+                                //         _pickedLocation != null)
+                                //     ? _pickedLocation
+                                //     : 'No Location Selected'),
+
+                                AutoSizeText(
+                                    (_pickedFullAddress != '' &&
+                                            _pickedFullAddress != null)
+                                        ? _pickedFullAddress
+                                        : 'No Location Selected',
+                                    maxLines: 2),
                                 SizedBox(width: 10),
                                 InkWell(
                                   child: Text(
-                                    'Choose Location',
+                                    'Select Location',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         color: Colors.black),
@@ -273,6 +284,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                         _pickedLocation = location[0];
                                         _pickedLatitude = location[1];
                                         _pickedLongitude = location[2];
+                                        _pickedFullAddress = location[3];
                                       });
                                     });
                                   },
@@ -290,19 +302,21 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                             SizedBox(
                               height: 20,
                             ),
-                            Row(
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 _noDestination == true
                                     ? Text('Free for all')
-                                    : Text((_pickedDestination != '' &&
-                                            _pickedDestination != null)
-                                        ? _pickedDestination
-                                        : 'No Destination Chosen'),
+                                    : AutoSizeText(
+                                        (_pickedFullDestination != '' &&
+                                                _pickedFullDestination != null)
+                                            ? _pickedFullDestination
+                                            : 'No Destination Selected',
+                                        maxLines: 2),
                                 SizedBox(width: 10),
                                 InkWell(
                                   child: Text(
-                                    'Choose Destination',
+                                    'Select Destination',
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         color: Colors.black),
@@ -316,6 +330,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                         displayPrediction(p).then((location) {
                                       modalState(() {
                                         _pickedDestination = location[0];
+                                        _pickedFullDestination = location[3];
                                         // _pickedLatitude = location[1];
                                         // _pickedLongitude = location[2];
                                         if (_noDestination == true &&
@@ -336,7 +351,10 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                   onChanged: (bool value) {
                                     modalState(() {
                                       _noDestination = value;
-                                      _pickedDestination = 'Free for all';
+                                      _pickedDestination =
+                                          _noDestination ? 'Free for all' : '';
+                                      _pickedFullDestination =
+                                          _noDestination ? 'Free for all' : '';
                                       // if (_noDestination == true &&
                                       //     _pickedDestination != null &&
                                       //     _pickedDestination != '') {
@@ -403,9 +421,10 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                     Text('Square Meter: '),
                                     SizedBox(
                                       //width: 100,
-                                      width: size.width * 0.1,
+                                      width: size.width * 0.11,
 
                                       child: TextField(
+                                        //maxLength: 3,
                                         controller: _sqmController,
                                         decoration: InputDecoration(
                                           //labelText: 'Square Meter',
@@ -416,7 +435,9 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                         ),
                                         keyboardType: TextInputType.number,
                                         inputFormatters: <TextInputFormatter>[
-                                          FilteringTextInputFormatter.digitsOnly
+                                          FilteringTextInputFormatter
+                                              .digitsOnly,
+                                          LengthLimitingTextInputFormatter(4),
                                         ],
                                         onChanged: (value) {
                                           modalState(() {
@@ -443,6 +464,8 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                           modalState(() {
                                             //_wifi = value;
                                             final snackBar = SnackBar(
+                                                backgroundColor:
+                                                    Color(0xFF4845c7),
                                                 content: Text(
                                                     'Conspaces requires all Spaces to have Wifi available'));
                                             // Find the Scaffold in the widget tree and use it to show a SnackBar.
@@ -498,7 +521,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                           width: double.infinity,
                                         )
                                       : Text(
-                                          'No Image Taken',
+                                          'No Image Selected',
                                           textAlign: TextAlign.center,
                                         ),
                                   alignment: Alignment.center,
@@ -507,7 +530,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                 Expanded(
                                   child: FlatButton.icon(
                                     icon: Icon(Icons.camera),
-                                    label: Text('Take Picture'),
+                                    label: Text('Select Picture'),
                                     textColor: Theme.of(context).primaryColor,
                                     onPressed: () => _takePicture(modalState),
                                   ),
@@ -542,7 +565,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                           width: double.infinity,
                                         )
                                       : Text(
-                                          'No Image Taken',
+                                          'No Image Selected',
                                           textAlign: TextAlign.center,
                                         ),
                                   alignment: Alignment.center,
@@ -553,7 +576,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                 Expanded(
                                   child: FlatButton.icon(
                                     icon: Icon(Icons.camera),
-                                    label: Text('Take Picture'),
+                                    label: Text('Select Picture'),
                                     textColor: Theme.of(context).primaryColor,
                                     onPressed: () =>
                                         _takeFirstAdditionalPicture(modalState),
@@ -579,7 +602,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                           width: double.infinity,
                                         )
                                       : Text(
-                                          'No Image Taken',
+                                          'No Image Selected',
                                           textAlign: TextAlign.center,
                                         ),
                                   alignment: Alignment.center,
@@ -590,7 +613,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                 Expanded(
                                   child: FlatButton.icon(
                                     icon: Icon(Icons.camera),
-                                    label: Text('Take Picture'),
+                                    label: Text('Select Picture'),
                                     textColor: Theme.of(context).primaryColor,
                                     onPressed: () =>
                                         _takeSecondAdditionalPicture(
@@ -719,10 +742,15 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
             fontSize: 14,
           ),
         ),
+        SizedBox(
+          height: 7,
+        ),
         Container(
-          width: 10,
+          width: 17,
           height: 40,
           child: TextField(
+            //maxLengthEnforced: true,
+            //maxLength: 1,
             controller: givenController,
             decoration: InputDecoration(
               hintText: "0",
@@ -730,7 +758,8 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
             ),
             keyboardType: TextInputType.number,
             inputFormatters: <TextInputFormatter>[
-              FilteringTextInputFormatter.digitsOnly
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(1),
             ],
             onChanged: (value) {
               modalState(() {
@@ -862,7 +891,8 @@ Future<List<dynamic>> displayPrediction(Prediction p) async {
     var address = await Geocoder.google(kGoogleApiKey)
         .findAddressesFromQuery(p.description);
 
-    return [address.first.locality, lat, lng];
+    //print(address.first.addressLine);
+    return [address.first.locality, lat, lng, address.first.addressLine];
     //return address.first.addressLne;
   }
 }
