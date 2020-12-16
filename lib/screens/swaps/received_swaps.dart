@@ -24,9 +24,6 @@ class ReceivedSwapsScreen extends StatelessWidget {
     int index = 0;
 
     for (var i = 0; i <= documentLength - 1; i++) {
-      print(requestedByPropertyList.length);
-      print(startDates_copy.length);
-      print(endDates_copy.length);
       if (requestedByPropertyList.contains(currentProperty.id)) {
         // wo enthält requestedbypropertylist die request für eine proeprty die gerendert werden soll? im selben index sind in den beiden timestamp listen die start/end dates der request
         index = requestedByPropertyList
@@ -82,7 +79,6 @@ class ReceivedSwapsScreen extends StatelessWidget {
                     );
                     Scaffold.of(context).showSnackBar(snackBar);
                   } else {
-                    print('accepting request..');
                     FirebaseFirestore.instance
                         .collection('users')
                         .doc(currentUserId)
@@ -150,26 +146,27 @@ class ReceivedSwapsScreen extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (context) => Detail(
-                currentProperty.data()['title'],
-                currentProperty.data()['username'],
-                currentProperty.data()['userImage'],
-                currentProperty.data()['location'],
-                currentProperty.data()['userId'],
-                currentUserId,
-                currentProperty.id,
-                true,
-                currentProperty.data()['latitude'],
-                currentProperty.data()['longitude'],
-                currentProperty.data()['bathrooms'],
-                currentProperty.data()['bedrooms'],
-                currentProperty.data()['kitchen'],
-                currentProperty.data()['workspaces'],
-                currentProperty.data()['sqm'],
-                currentProperty.data()['firstAdditionalImage'],
-                currentProperty.data()['secondAdditionalImage'],
-                false,
-                currentProperty.data()['userProfileImage'],
-              ),
+                  currentProperty.data()['title'],
+                  currentProperty.data()['username'],
+                  currentProperty.data()['userImage'],
+                  currentProperty.data()['location'],
+                  currentProperty.data()['userId'],
+                  currentUserId,
+                  currentProperty.id,
+                  true,
+                  currentProperty.data()['latitude'],
+                  currentProperty.data()['longitude'],
+                  currentProperty.data()['bathrooms'],
+                  currentProperty.data()['bedrooms'],
+                  currentProperty.data()['kitchen'],
+                  currentProperty.data()['workspaces'],
+                  currentProperty.data()['sqm'],
+                  currentProperty.data()['firstAdditionalImage'],
+                  currentProperty.data()['secondAdditionalImage'],
+                  false,
+                  currentProperty.data()['userProfileImage'],
+                  currentProperty.data()['userMail'],
+                  false),
             ),
           );
         },

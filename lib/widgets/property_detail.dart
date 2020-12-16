@@ -35,6 +35,8 @@ class Detail extends StatefulWidget {
       this.secondAdditionalImage,
       this.isMe,
       this.userProfileImage,
+      this.userMail,
+      this.fromActive,
       {this.key});
 
   final Key key;
@@ -58,6 +60,8 @@ class Detail extends StatefulWidget {
   final String secondAdditionalImage;
   final bool isMe;
   final String userProfileImage;
+  final String userMail;
+  final bool fromActive;
 
   //final GlobalKey<ScaffoldState> scaffoldKey;
 
@@ -529,11 +533,11 @@ class _DetailState extends State<Detail> {
                                         if (widget.fromSwapsorListingsUnique) {
                                           SnackBar failSnackBar = SnackBar(
                                             content: Text(
-                                              'Failed to send Request. You can only send swap requests from the explore page.',
+                                              'Failed to send request. You can only send swap requests from the explore page.',
                                               style: TextStyle(
                                                   color: Colors.white),
                                             ),
-                                            backgroundColor: Colors.black,
+                                            backgroundColor: Color(0xFF4845c7),
                                           );
 
                                           _scaffoldKey.currentState
@@ -583,9 +587,9 @@ class _DetailState extends State<Detail> {
                                   child: Center(
                                     child: GestureDetector(
                                       onTap: () => Utils.openEmail(
-                                        toEmail: 'iwas.iwas@outlook.de',
-                                        subject: 'Hello World',
-                                        body: 'This works great!',
+                                        toEmail: widget.userMail,
+                                        subject: 'Email Subject',
+                                        body: 'Email Body',
                                       ),
                                       child: Icon(
                                         Icons.mail,
@@ -633,17 +637,23 @@ class _DetailState extends State<Detail> {
                             left: 24,
                             bottom: 16,
                           ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(8.0),
-                            child: Image.network(
-                                LocationHelper.generateLocationPreviewImage(
-                                    latitude: widget.latitude,
-                                    longitude: widget.longitude),
-                                fit: BoxFit.cover,
-                                width: double.infinity),
-                          )
-                          //child: LocationHelper.generateLocationPreviewImage(latitude: widget.latitude, longitude: widget.longitude)
-                          ),
+                          child: Column(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0),
+                                child: Image.network(
+                                    LocationHelper.generateLocationPreviewImage(
+                                        latitude: widget.latitude,
+                                        longitude: widget.longitude),
+                                    fit: BoxFit.cover,
+                                    width: double.infinity),
+                              ),
+                              SizedBox(height: 5),
+                              Text(widget.fromActive
+                                  ? 'exact location'
+                                  : 'The exact location will be displayed under your active swap summary once you have both decided to swap.'),
+                            ],
+                          )),
                       Padding(
                         padding: const EdgeInsets.only(
                             right: 24, left: 24, bottom: 24),

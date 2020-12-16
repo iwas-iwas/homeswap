@@ -21,14 +21,6 @@ class SendSwapsScreen extends StatelessWidget {
       List<Timestamp> startDates_copy = startDates;
       List<Timestamp> endDates_copy = endDates;
 
-      print(currentProperty.data()['latitude']);
-      print(currentProperty.data()['longitude']);
-      print(currentProperty.data()['bathrooms']);
-      print(currentProperty.data()['bedrooms']);
-      print(currentProperty.data()['kitchen']);
-      print(currentProperty.data()['workspaces']);
-      print(currentProperty.data()['sqm']);
-
       // List<Timestamp> startDatesFinal = [];
       // List<Timestamp> endDatesFinal = [];
       Timestamp startDateFinal = Timestamp.now();
@@ -36,17 +28,12 @@ class SendSwapsScreen extends StatelessWidget {
       int index = 0;
 
       for (var i = 0; i <= documentLength - 1; i++) {
-        print(sendToPropertyList.length);
-        print(startDates_copy.length);
-        print(endDates_copy.length);
         if (sendToPropertyList.contains(currentProperty.id)) {
           // wo enthält requestedbypropertylist die request für eine proeprty die gerendert werden soll? im selben index sind in den beiden timestamp listen die start/end dates der request
           index = sendToPropertyList
               .indexWhere((element) => element == currentProperty.id);
           startDateFinal = startDates_copy[index];
           endDateFinal = endDates_copy[index];
-          // startDatesFinal.add(startDates_copy[index]);
-          // endDatesFinal.add(endDates_copy[index]);
         }
       }
 
@@ -82,26 +69,27 @@ class SendSwapsScreen extends StatelessWidget {
               context,
               MaterialPageRoute(
                 builder: (context) => Detail(
-                  currentProperty.data()['title'],
-                  currentProperty.data()['username'],
-                  currentProperty.data()['userImage'],
-                  currentProperty.data()['location'],
-                  currentProperty.data()['userId'],
-                  currentUserId,
-                  currentProperty.id,
-                  true,
-                  currentProperty.data()['latitude'],
-                  currentProperty.data()['longitude'],
-                  currentProperty.data()['bathrooms'],
-                  currentProperty.data()['bedrooms'],
-                  currentProperty.data()['kitchen'],
-                  currentProperty.data()['workspaces'],
-                  currentProperty.data()['sqm'],
-                  currentProperty.data()['firstAdditionalImage'],
-                  currentProperty.data()['secondAdditionalImage'],
-                  false,
-                  currentProperty.data()['userProfileImage'],
-                ),
+                    currentProperty.data()['title'],
+                    currentProperty.data()['username'],
+                    currentProperty.data()['userImage'],
+                    currentProperty.data()['location'],
+                    currentProperty.data()['userId'],
+                    currentUserId,
+                    currentProperty.id,
+                    true,
+                    currentProperty.data()['latitude'],
+                    currentProperty.data()['longitude'],
+                    currentProperty.data()['bathrooms'],
+                    currentProperty.data()['bedrooms'],
+                    currentProperty.data()['kitchen'],
+                    currentProperty.data()['workspaces'],
+                    currentProperty.data()['sqm'],
+                    currentProperty.data()['firstAdditionalImage'],
+                    currentProperty.data()['secondAdditionalImage'],
+                    false,
+                    currentProperty.data()['userProfileImage'],
+                    currentProperty.data()['userMail'],
+                    false),
               ),
             );
           },

@@ -288,7 +288,6 @@ class _ListingsState extends State<Listings> {
                     // if no filter is applied, just take all of the documents from the stream. if filter is applied and filtered properties exist, render only them, else if filter applied and no filtered properties are in the db, return that nothing has been found.
                     if (!filterApplied) {
                       finalProperties = documents;
-                      print('no filter applied');
                     } else if (filterApplied &&
                         filteredPropertyList.length == 0)
                       return Center(
@@ -353,6 +352,7 @@ class _ListingsState extends State<Listings> {
                         finalProperties[index].data()['firstAdditionalImage'],
                         finalProperties[index].data()['secondAdditionalImage'],
                         finalProperties[index].data()['userProfileImage'],
+                        finalProperties[index].data()['userMail'],
                         // make sure that flutter makes sure to efficiently update the list with new items
                         key: ValueKey(documents[index].id),
                       ),

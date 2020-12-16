@@ -100,7 +100,7 @@ class _ListingsUniqueState extends State<ListingsUnique> {
             SnackBar snackBar = SnackBar(
               content: Container(
                 height: 100,
-                color: Colors.black,
+                color: Color(0xFF4845c7),
                 child: Text(
                   'Failed to Delete Property. It is currently in an active Swap.',
                   style: TextStyle(color: Colors.white),
@@ -767,6 +767,7 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                             documents[index].data()['firstAdditionalImage'],
                             documents[index].data()['secondAdditionalImage'],
                             documents[index].data()['userProfileImage'],
+                            documents[index].data()['userMail'],
                             key: ValueKey(documents[index].id),
                           ),
                           Padding(
