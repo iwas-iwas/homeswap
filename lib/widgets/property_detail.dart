@@ -61,7 +61,7 @@ class Detail extends StatefulWidget {
   final bool isMe;
   final String userProfileImage;
   final String userMail;
-  final bool fromActive;
+  final String fromActive;
 
   //final GlobalKey<ScaffoldState> scaffoldKey;
 
@@ -649,9 +649,9 @@ class _DetailState extends State<Detail> {
                                     width: double.infinity),
                               ),
                               SizedBox(height: 5),
-                              Text(widget.fromActive
-                                  ? 'exact location'
-                                  : 'The exact location will be displayed under your active swap summary once you have both decided to swap.'),
+                              Text(widget.fromActive == ''
+                                  ? 'The exact location will be displayed under your active swap summary once you have both decided to swap.'
+                                  : widget.fromActive),
                             ],
                           )),
                       Padding(

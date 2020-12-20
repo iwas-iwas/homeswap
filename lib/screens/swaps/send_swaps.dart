@@ -89,7 +89,9 @@ class SendSwapsScreen extends StatelessWidget {
                     false,
                     currentProperty.data()['userProfileImage'],
                     currentProperty.data()['userMail'],
-                    false),
+                    ''
+                    //false
+                    ),
               ),
             );
           },
