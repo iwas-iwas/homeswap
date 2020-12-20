@@ -111,6 +111,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
     final ref = FirebaseStorage.instance
         .ref()
         .child('property_images')
+        .child(user.uid)
         .child(user.uid + Timestamp.now().toString() + '.jpg');
 
     String _destination = _noDestination ? 'ffa' : _pickedDestination;
@@ -127,6 +128,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
       final ref = FirebaseStorage.instance
           .ref()
           .child('property_images')
+          .child(user.uid)
           .child(user.uid + Timestamp.now().toString() + "_1" + '.jpg');
 
       await ref.putFile(_firstAdditionalImage).onComplete;
@@ -139,6 +141,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
       final ref = FirebaseStorage.instance
           .ref()
           .child('property_images')
+          .child(user.uid)
           .child(user.uid + Timestamp.now().toString() + "_2" + '.jpg');
 
       await ref.putFile(_secondAdditionalImage).onComplete;
@@ -187,6 +190,8 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
       _sqmController.clear();
       _pickedLocation = '';
       _pickedDestination = '';
+      _pickedFullAddress = '';
+      _pickedFullDestination = '';
       _storedImage = null;
       _firstAdditionalImage = null;
       _secondAdditionalImage = null;
