@@ -28,6 +28,7 @@ class ListingsUnique extends StatefulWidget {
 class _ListingsUniqueState extends State<ListingsUnique> {
   String _pickedLocation = '';
   String _pickedDestination = '';
+  String _pickedFullDestination = '';
   final _titleController = TextEditingController();
   var _enteredMessage;
   File _storedImage;
@@ -168,12 +169,14 @@ class _ListingsUniqueState extends State<ListingsUnique> {
     String updatedTitle;
     String updatedFirstUrl = '';
     String updatedSecondUrl = '';
+    String updatedFullDestinationAddress = '';
 
     if (_storedImage != null) {
       // Get Image Url
       final ref = FirebaseStorage.instance
           .ref()
           .child('property_images')
+          .child(user.uid)
           .child(user.uid + Timestamp.now().toString() + '.jpg');
 
       // here we get the image reference (url) from the image file and set it in the user document
@@ -187,6 +190,7 @@ class _ListingsUniqueState extends State<ListingsUnique> {
       final ref = FirebaseStorage.instance
           .ref()
           .child('property_images')
+          .child(user.uid)
           .child(user.uid + Timestamp.now().toString() + '_1' + '.jpg');
 
       // here we get the image reference (url) from the image file and set it in the user document
@@ -200,7 +204,8 @@ class _ListingsUniqueState extends State<ListingsUnique> {
       final ref = FirebaseStorage.instance
           .ref()
           .child('property_images')
-          .child(user.uid + Timestamp.now().toString() + '_1' + '.jpg');
+          .child(user.uid)
+          .child(user.uid + Timestamp.now().toString() + '_2' + '.jpg');
 
       // here we get the image reference (url) from the image file and set it in the user document
       await ref.putFile(_secondAdditionalImage).onComplete;
@@ -211,7 +216,8 @@ class _ListingsUniqueState extends State<ListingsUnique> {
     if (_noDestination != null ||
         (_pickedDestination != '' && _pickedDestination != null)) {
       updatedDestination = _noDestination ? 'ffa' : _pickedDestination;
-      print('updatedDestination.length: ${updatedDestination.length}');
+      updatedFullDestinationAddress =
+          _noDestination ? 'ffa' : _pickedFullDestination;
     }
 
     if (_enteredMessage != null) {
@@ -221,10 +227,6 @@ class _ListingsUniqueState extends State<ListingsUnique> {
     DocumentReference documentReference =
         FirebaseFirestore.instance.collection('properties').doc(propertyId);
 
-    print('updatedTitle: $updatedTitle');
-    print('updatedUrl: $updatedUrl');
-    print('updatedDestination: $updatedDestination');
-
     if (updatedTitle != null &&
         updatedDestination.length > 2 &&
         updatedUrl != null) {
@@ -233,6 +235,7 @@ class _ListingsUniqueState extends State<ListingsUnique> {
         'title': updatedTitle,
         'userImage': updatedUrl,
         'destination': updatedDestination,
+        'fullDestinationAddress': updatedFullDestinationAddress
       });
     }
 
@@ -242,6 +245,7 @@ class _ListingsUniqueState extends State<ListingsUnique> {
       documentReference.update({
         'title': updatedTitle,
         'destination': updatedDestination,
+        'fullDestinationAddress': updatedFullDestinationAddress
       });
     }
 
@@ -268,6 +272,7 @@ class _ListingsUniqueState extends State<ListingsUnique> {
       documentReference.update({
         'userImage': updatedUrl,
         'destination': updatedDestination,
+        'fullDestinationAddress': updatedFullDestinationAddress
       });
     }
 
@@ -276,6 +281,7 @@ class _ListingsUniqueState extends State<ListingsUnique> {
         updatedUrl == null) {
       documentReference.update({
         'destination': updatedDestination,
+        'fullDestinationAddress': updatedFullDestinationAddress
       });
     }
 
@@ -318,15 +324,16 @@ class _ListingsUniqueState extends State<ListingsUnique> {
   }
 
   void _startEditProperty(
-      BuildContext ctx,
-      String currentDestination,
-      String propertyId,
-      String currentUserId,
-      _scaffoldKey,
-      String currentMainImage,
-      String currentFirstAdditionalImage,
-      String currentSecondAdditionalImage,
-      Size size) {
+    BuildContext ctx,
+    String currentDestination,
+    String propertyId,
+    String currentUserId,
+    _scaffoldKey,
+    String currentMainImage,
+    String currentFirstAdditionalImage,
+    String currentSecondAdditionalImage,
+    Size size,
+  ) {
     if (currentDestination == 'ffa') {
       currentDestination = 'Free for all';
     }
@@ -391,19 +398,25 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                           SizedBox(
                             height: 20,
                           ),
-                          Row(
+                          Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text((_pickedDestination != '' &&
-                                      _pickedDestination != null)
-                                  ? _pickedDestination
-                                  : currentDestination != null
-                                      ? currentDestination
-                                      : 'none'),
+                              _noDestination == true
+                                  ? Text('Free for all')
+                                  : AutoSizeText(
+                                      (_pickedDestination != '' &&
+                                              _pickedDestination != null &&
+                                              _pickedFullDestination != '')
+                                          ? _pickedFullDestination
+                                          : (currentDestination != null &&
+                                                  currentDestination != '')
+                                              ? currentDestination
+                                              : 'No Destination Selected',
+                                      maxLines: 2),
                               SizedBox(width: 10),
                               InkWell(
                                 child: Text(
-                                  'Update Destination',
+                                  'Select new Destination',
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       color: Colors.black),
@@ -414,9 +427,8 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                                   final destinationData =
                                       displayPrediction(p).then((location) {
                                     modalState(() {
-                                      _pickedDestination = location;
-                                      print('picked destination!');
-                                      print(_pickedDestination);
+                                      _pickedDestination = location[0];
+                                      _pickedFullDestination = location[1];
                                       if (currentDestination ==
                                               'Free for all' &&
                                           location != null) {
@@ -443,14 +455,20 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                                         currentDestination == 'Free for all') {
                                       currentDestination = '';
                                     }
-                                    if (value == true &&
-                                        currentDestination == '') {
+
+                                    if (value == true) {
                                       currentDestination = 'Free for all';
-                                      if (_pickedDestination != null &&
-                                          _pickedDestination != '') {
-                                        _pickedDestination = '';
-                                      }
+                                      //currentDestination == '';
+                                      _pickedDestination = '';
                                     }
+                                    // if (value == true &&
+                                    //     currentDestination == '') {
+                                    //   currentDestination = 'Free for all';
+                                    //   if (_pickedDestination != null &&
+                                    //       _pickedDestination != '') {
+                                    //     _pickedDestination = '';
+                                    //   }
+                                    // }
                                   });
                                 },
                               ),
@@ -790,21 +808,21 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                                         }
 
                                         _startEditProperty(
-                                            context,
-                                            _pickedDestination != ''
-                                                ? _pickedDestination
-                                                : documents[index]
-                                                    .data()['destination'],
-                                            documents[index].id,
-                                            user.uid,
-                                            _scaffoldKey,
-                                            documents[index]
-                                                .data()['userImage'],
-                                            documents[index]
-                                                .data()['firstAdditionalImage'],
-                                            documents[index].data()[
-                                                'secondAdditionalImage'],
-                                            size);
+                                          context,
+                                          _pickedDestination != ''
+                                              ? _pickedDestination
+                                              : documents[index].data()[
+                                                  'fullDestinationAddress'],
+                                          documents[index].id,
+                                          user.uid,
+                                          _scaffoldKey,
+                                          documents[index].data()['userImage'],
+                                          documents[index]
+                                              .data()['firstAdditionalImage'],
+                                          documents[index]
+                                              .data()['secondAdditionalImage'],
+                                          size,
+                                        );
                                       },
                                       child: Icon(
                                         Icons.edit,
@@ -829,7 +847,7 @@ class _ListingsUniqueState extends State<ListingsUnique> {
   }
 }
 
-Future<String> displayPrediction(Prediction p) async {
+Future<List<dynamic>> displayPrediction(Prediction p) async {
   if (p != null) {
     PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
 
@@ -839,9 +857,10 @@ Future<String> displayPrediction(Prediction p) async {
     String street = detail.result.geometry.location.toString();
     String loc = detail.result.formattedAddress.toString();
 
-    var address = await Geocoder.local.findAddressesFromQuery(p.description);
+    var address = await Geocoder.google(kGoogleApiKey)
+        .findAddressesFromQuery(p.description);
 
-    return address.first.locality;
+    return [address.first.locality, address.first.addressLine];
     //return address.first.addressLne;
   }
 }
