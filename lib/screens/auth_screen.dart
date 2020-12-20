@@ -1,5 +1,6 @@
 import 'package:conspacesapp/screens/Welcome/welcome_screen.dart';
 import 'package:conspacesapp/widgets/auth/auth_form_anon.dart';
+import 'package:conspacesapp/widgets/database_service.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -28,6 +29,24 @@ class _AuthScreenState extends State<AuthScreen> {
   Future sendPasswordResetEmail(String email) async {
     return _auth.sendPasswordResetEmail(email: email);
   }
+
+  // Future deleteUser(String email, String password) async {
+  //   try {
+  //     final user = FirebaseAuth.instance.currentUser;
+  //     AuthCredential credentials =
+  //         EmailAuthProvider.credential(email: email, password: password);
+  //     print(user);
+  //     UserCredential result =
+  //         await user.reauthenticateWithCredential(credentials);
+  //     await DatabaseService(user: user)
+  //         .deleteuser(); // called from database class
+  //     await result.user.delete();
+  //     return true;
+  //   } catch (e) {
+  //     print(e.toString());
+  //     return null;
+  //   }
+  // }
 
   // Create Anonymous User
   Future signInAnonymously() {
@@ -146,7 +165,10 @@ class _AuthScreenState extends State<AuthScreen> {
         });
       }
     } on PlatformException catch (err) {
-      var message = 'An error occurred, pelase check your credentials!';
+      var message = 'You have entered an invalid email or password.';
+      // print('im here');
+      // print(err);
+      // print(message);
 
       if (err.message != null) {
         message = err.message;
@@ -162,7 +184,12 @@ class _AuthScreenState extends State<AuthScreen> {
         _isLoading = false;
       });
     } catch (err) {
-      print(err);
+      Scaffold.of(ctx).showSnackBar(
+        SnackBar(
+          content: Text('You have entered an invalid email or password.'),
+          backgroundColor: Color(0xFF4845c7),
+        ),
+      );
       setState(() {
         _isLoading = false;
       });
