@@ -2,7 +2,7 @@ import 'package:conspacesapp/screens/explore_screen_old.dart';
 import './swaps/swaps_screen.dart';
 import 'package:flutter/material.dart';
 import './user_listings_screen.dart';
-import './settings_screen.dart';
+import 'settings/settings_screen.dart';
 
 class TabsScreen extends StatefulWidget {
   // bool chatScreenIndex;
