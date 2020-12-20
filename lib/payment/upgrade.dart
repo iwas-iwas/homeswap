@@ -157,17 +157,10 @@ class _UpsellScreenState extends State<UpsellScreen> {
                           ),
                           onTap: () async {
                             try {
-                              print('now trying to restore');
                               PurchaserInfo restoredInfo =
                                   await Purchases.restoreTransactions();
-                              print('restore completed');
-                              print(restoredInfo.toString());
-
                               appData.isPro = restoredInfo
                                   .entitlements.all["all_features"].isActive;
-
-                              print('is user pro? ${appData.isPro}');
-
                               if (appData.isPro) {
                                 Alert(
                                   context: context,
@@ -176,7 +169,7 @@ class _UpsellScreenState extends State<UpsellScreen> {
                                     "assets/icons/black-logo.svg",
                                     height: 150,
                                   ),
-                                  title: "Congratulation",
+                                  title: "Congratulations",
                                   content: Column(
                                     children: <Widget>[
                                       Padding(
@@ -321,7 +314,7 @@ class _UpsellScreenState extends State<UpsellScreen> {
                         GestureDetector(
                           onTap: () {
                             _launchURLWebsite(
-                                'https://google.com'); //TODO: REPLACE WITH PRIVACY POLICY
+                                'https://www.iubenda.com/privacy-policy/18657475'); //TODO: REPLACE WITH PRIVACY POLICY
                           },
                           child: Text(
                             'Privacy Policy (click to read)',
@@ -402,16 +395,10 @@ class _PurchaseButtonState extends State<PurchaseButton> {
             child: RaisedButton(
               onPressed: () async {
                 try {
-                  print('now trying to purchase');
                   _purchaserInfo =
                       await Purchases.purchasePackage(widget.package);
-                  print('purchase completed');
-
                   appData.isPro =
                       _purchaserInfo.entitlements.all["all_features"].isActive;
-
-                  print('is user pro? ${appData.isPro}');
-
                   if (appData.isPro) {
                     Alert(
                       context: context,
