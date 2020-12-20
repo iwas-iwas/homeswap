@@ -117,10 +117,8 @@ class _AuthFormState extends State<AuthForm> {
                 ),
                 SizedBox(height: size.height * 0.01),
                 //if (!_isLogin) UserImagePicker(_pickedImage),
-                SizedBox(
-                  //height: size.height * 0.08,
-                  //height: size.height * 0.1,
-                  child: TextFieldContainer(
+                if (!_isLogin)
+                  TextFieldContainer(
                     child: TextFormField(
                       key: ValueKey('email'),
                       validator: (value) {
@@ -147,7 +145,34 @@ class _AuthFormState extends State<AuthForm> {
                       },
                     ),
                   ),
-                ),
+                if (_isLogin)
+                  TextFieldContainer(
+                    child: TextFormField(
+                      key: ValueKey('email_login'),
+                      validator: (value) {
+                        if (value.isEmpty || !value.contains('@')) {
+                          return 'Please enter your email';
+                        }
+                        // all good
+                        return null;
+                      },
+                      keyboardType: TextInputType.emailAddress,
+                      //onChanged: onChanged,
+                      cursorColor: kPrimaryColor,
+                      decoration: InputDecoration(
+                        icon: Icon(
+                          Icons.person,
+                          color: kPrimaryColor,
+                        ),
+                        hintText: "Email",
+                        hintStyle: TextStyle(fontSize: size.height * 0.014),
+                        border: InputBorder.none,
+                      ),
+                      onSaved: (value) {
+                        _userEmail = value;
+                      },
+                    ),
+                  ),
                 if (!_isLogin) // only show username is signup mode, not in login
                   SizedBox(
                     //height: size.height * 0.08,
@@ -188,8 +213,10 @@ class _AuthFormState extends State<AuthForm> {
                       obscureText: true,
                       key: ValueKey('password'),
                       validator: (value) {
-                        if (value.isEmpty || value.length < 7) {
-                          return 'Please enter atleast 7 characters';
+                        if (value.isEmpty || value.length < 6) {
+                          return _isLogin
+                              ? 'Please enter your password'
+                              : 'Please enter atleast 6 characters';
                         }
                         // all good
                         return null;

@@ -38,7 +38,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     return _auth.sendPasswordResetEmail(email: email);
   }
 
-  void _tryReset(globalKey) async {
+  Future _tryReset(globalKey) async {
     setState(() {
       _isLoading = true;
     });
@@ -47,17 +47,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     // makes sure the keyboard closes
     FocusScope.of(context).unfocus();
 
-    // dont start to submit the form if no image has been picked
-    // if (_userImageFile == null && !_isLogin) {
-    //   Scaffold.of(context).showSnackBar(
-    //     SnackBar(
-    //       content: Text('Please pick an image.'),
-    //       backgroundColor: Theme.of(context).errorColor,
-    //     ),
-    //   );
-    //   return;
-    // }
-
     // if all validators return null
     if (isValid) {
       // trigger onsaved of all form fields
@@ -65,15 +54,48 @@ class _ForgotPasswordState extends State<ForgotPassword> {
       // Use those values to send auth request...
       String email = _userEmail.trim();
 
-      await sendPasswordResetEmail(email);
+      try {
+        await sendPasswordResetEmail(email);
+      } catch (e) {
+        print("lol " + e.message.toString());
+        SnackBar snackBar = SnackBar(
+            content: Text(
+              'Your submissions has been received. If we have an account matching your email address, you will receive an email with a link to reset your password.',
+              style: TextStyle(color: Colors.white),
+            ),
+            backgroundColor: Color(0xFF4845c7),
+            duration: const Duration(seconds: 10));
+        globalKey.currentState.showSnackBar(snackBar);
+        Navigator.of(context).pop();
+        // globalKey.currentState.showSnackBar(SnackBar(
+        //   content: Text(
+        //     'The email is invalid.',
+        //     style: TextStyle(color: Colors.white),
+        //   ),
+        //   backgroundColor: Color(0xFF4845c7),
+        // ));
+        // Scaffold.of(context).showSnackBar(SnackBar(
+        //   content: Text(
+        //     'The email is invalid.',
+        //     style: TextStyle(color: Colors.white),
+        //   ),
+        //   backgroundColor: Color(0xFF4845c7),
+        // ));
+        //Navigator.of(context).pop();
+        setState(() {
+          _isLoading = false;
+        });
+
+        return null;
+      }
 
       SnackBar snackBar = SnackBar(
-        content: Text(
-          'A password reset link has been sent to $email.',
-          style: TextStyle(color: Colors.white),
-        ),
-        backgroundColor: Color(0xFF4845c7),
-      );
+          content: Text(
+            'Your submissions has been received. If we have an account matching your email address, you will receive an email with a link to reset your password.',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Color(0xFF4845c7),
+          duration: const Duration(seconds: 10));
       globalKey.currentState.showSnackBar(snackBar);
       Navigator.of(context).pop();
     }
@@ -82,11 +104,13 @@ class _ForgotPasswordState extends State<ForgotPassword> {
     });
   }
 
+  //final _scaffoldKey = GlobalKey<ScaffoldState>();
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      //key: widget.scaffoldKey,
+      //key: _scaffoldKey,
       body: Background(
         child: SingleChildScrollView(
           child: Padding(
@@ -146,7 +170,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                           padding: EdgeInsets.symmetric(
                               vertical: 20, horizontal: 40),
                           color: kPrimaryColor,
-                          onPressed: () => _tryReset(widget.scaffoldKey),
+                          onPressed: () =>
+                              //_tryReset(widget.scaffoldKey, _scaffoldKey),
+                              _tryReset(widget.scaffoldKey),
                           child: Text(
                             'Reset Password',
                           ),
