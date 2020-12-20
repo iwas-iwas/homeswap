@@ -1,3 +1,4 @@
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -385,10 +386,11 @@ class HeadingFromExplore extends StatelessWidget {
         ),
         Padding(
           padding: const EdgeInsets.only(left: 15, right: 15, top: 5),
-          child: Text(
+          child: AutoSizeText(
             pickedDestination,
             style: TextStyle(
                 fontSize: 36, color: Colors.black, fontWeight: FontWeight.w500),
+            maxLines: 1,
           ),
         ),
         SizedBox(height: 20),
