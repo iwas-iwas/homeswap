@@ -5,7 +5,7 @@ import './screens/tabs_screen.dart';
 import './screens/auth_screen.dart';
 import './screens/slpash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:device_preview/device_preview.dart';
+//import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:flutter/services.dart';
@@ -13,9 +13,12 @@ import './credentials.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 
-void main() => runApp(
-      MyApp(),
-    );
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+  runApp(MyApp());
+}
 
 // void main() {
 //   runApp(DevicePreview(
@@ -54,8 +57,6 @@ class _MyAppState extends State<MyApp> {
     } on PlatformException catch (e) {
       print(e);
     }
-
-    print('#### is user pro? ${appData.isPro}');
   }
 
   @override
