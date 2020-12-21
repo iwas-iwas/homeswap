@@ -42,8 +42,30 @@ class _DeleteUserState extends State<DeleteUser> {
 
       //await sendPasswordResetEmail(email);
 
+      final user = FirebaseAuth.instance.currentUser;
+
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('requests')
+          .where("status", isEqualTo: "accepted")
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        SnackBar snackBar = SnackBar(
+          content: Text(
+            'Deletion failed because your account is part of an active swap.',
+            style: TextStyle(color: Colors.white),
+          ),
+          backgroundColor: Color(0xFF4845c7),
+        );
+        globalKey.currentState.showSnackBar(snackBar);
+
+        return null;
+      }
+
       try {
-        final user = FirebaseAuth.instance.currentUser;
+        //final user = FirebaseAuth.instance.currentUser;
         AuthCredential credentials =
             EmailAuthProvider.credential(email: email, password: password);
         print(user);
@@ -96,7 +118,8 @@ class _DeleteUserState extends State<DeleteUser> {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(left: 10, right: 10, bottom: 50),
+          padding:
+              const EdgeInsets.only(left: 10, right: 10, bottom: 50, top: 10),
           child: SingleChildScrollView(
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
