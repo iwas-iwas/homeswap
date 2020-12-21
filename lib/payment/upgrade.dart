@@ -1,5 +1,7 @@
 // This is the final screen to handle in-app purchase transactions.
 
+import 'package:conspacesapp/screens/tabs_screen.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 
@@ -104,10 +106,10 @@ class _UpsellScreenState extends State<UpsellScreen> {
   @override
   Widget build(BuildContext context) {
     if (widget.offerings != null) {
-      print('offeringS is not null');
-      print(widget.offerings.current.toString());
-      print('--');
-      print(widget.offerings.toString());
+      //print('offerings is not null');
+      //print(widget.offerings.current.toString());
+      //print('--');
+      //print(widget.offerings.toString());
       final offering = widget.offerings.current;
       if (offering != null) {
         final monthly = offering.monthly;
@@ -124,17 +126,31 @@ class _UpsellScreenState extends State<UpsellScreen> {
                         child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: <Widget>[
-                        SvgPicture.asset(
-                          "assets/icons/black-logo.svg",
-                          height: 150,
+                        // SvgPicture.asset(
+                        //   "assets/icons/black-logo.svg",
+                        //   height: 150,
+                        // ),
+                        //SizedBox(height: 10),
+                        // Text(
+                        //   'Choose the monthly plan plan to get access to all features of the app.',
+                        //   textAlign: TextAlign.center,
+                        //   style: TextStyle(color: Colors.black),
+                        // ),
+                        //SizedBox(height: 10),
+                        Padding(
+                          padding: const EdgeInsets.only(left: 8.0, right: 8.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                  'Get a subscription to Conspaces, enabiling these premium features:\n'),
+                              Text('- Send and receive swap requests'),
+                              Text('- Accept swap requests'),
+                              Text('- Send email to other users'),
+                            ],
+                          ),
                         ),
-                        SizedBox(height: 10),
-                        Text(
-                          'Choose the monthly plan plan to get access to all features of the app.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.black),
-                        ),
-                        SizedBox(height: 10),
+
                         PurchaseButton(package: monthly),
                         GestureDetector(
                           child: Container(
@@ -255,15 +271,15 @@ class _UpsellScreenState extends State<UpsellScreen> {
                                 ).show();
                               }
                             } on PlatformException catch (e) {
-                              print('----xx-----');
+                              //print('----xx-----');
                               var errorCode =
                                   PurchasesErrorHelper.getErrorCode(e);
                               if (errorCode ==
                                   PurchasesErrorCode.purchaseCancelledError) {
-                                print("User cancelled");
+                                //print("User cancelled");
                               } else if (errorCode ==
                                   PurchasesErrorCode.purchaseNotAllowedError) {
-                                print("User not allowed to purchase");
+                                //print("User not allowed to purchase");
                               }
                               Alert(
                                 context: context,
@@ -311,26 +327,56 @@ class _UpsellScreenState extends State<UpsellScreen> {
                           },
                         ),
                         SizedBox(height: 20.0),
-                        GestureDetector(
-                          onTap: () {
-                            _launchURLWebsite(
-                                'https://www.iubenda.com/privacy-policy/18657475'); //TODO: REPLACE WITH PRIVACY POLICY
-                          },
-                          child: Text(
-                            'Privacy Policy (click to read)',
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        ),
-                        SizedBox(height: 15.0),
-                        GestureDetector(
-                          onTap: () {
-                            _launchURLWebsite(
-                                'https://yahoo.com'); //TODO: REPLACE WITH TERMS OF USE OR TERMS AND CONDITIONS
-                          },
-                          child: Text(
-                            'Term of Use (click to read)',
-                            style: TextStyle(color: Colors.black),
-                          ),
+                        Container(
+                          alignment: Alignment.center,
+                          padding: EdgeInsets.all(10),
+                          child: Center(
+                              child: Text.rich(
+                            TextSpan(
+                                text:
+                                    "If you purchase the monthly subscription a ${monthly.product.priceString} purchase will be applied to your iTunes account. Subscriptions will automatically renew unless canceled within 24-hours before the end of the current period. You can cancel anytime with your iTunes account settings. Any unused portion of a free trial will be forfeited if you purchase a subscription. For more information, see our ",
+                                // style: TextStyle(
+                                //   fontSize: 16,
+                                //   color: kPrimaryColor,
+                                // ),
+                                children: <TextSpan>[
+                                  TextSpan(
+                                      text: 'Terms and Conditions',
+                                      style: TextStyle(
+                                        //fontSize: 16,
+                                        color: kPrimaryColor,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () {
+                                          launch(
+                                              'https://www.iubenda.com/terms-and-conditions/18657475');
+                                          // code to open / launch privacy policy link here
+                                        }),
+                                  TextSpan(
+                                      text: ' & ',
+                                      style: TextStyle(
+                                        //fontSize: 16,
+                                        color: kPrimaryColor,
+                                      ),
+                                      children: <TextSpan>[
+                                        TextSpan(
+                                            text: 'Privacy Policy',
+                                            style: TextStyle(
+                                                // fontSize: 10,
+                                                // color: kPrimaryColor,
+                                                decoration:
+                                                    TextDecoration.underline),
+                                            recognizer: TapGestureRecognizer()
+                                              ..onTap = () {
+                                                launch(
+                                                    'https://www.iubenda.com/privacy-policy/18657475');
+                                                // code to open / launch privacy policy link here
+                                              })
+                                      ])
+                                ]),
+                            textAlign: TextAlign.center,
+                          )),
                         ),
                       ],
                     )),
@@ -361,9 +407,9 @@ class _UpsellScreenState extends State<UpsellScreen> {
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: Text(
-                    "There was an error. Please check that your device is allowed to make purchases and try again. Please contact us at conspaces.help@gmail.com if the problem persists.",
+                    "There was an error. Please check that your device is allowed to make purchases and try again. Please contact us at conspaces@outlook.com if the problem persists.",
                     textAlign: TextAlign.center,
-                    style: kSendButtonTextStyle,
+                    style: TextStyle(color: Colors.black),
                   ),
                 ),
               ],
@@ -429,9 +475,15 @@ class _PurchaseButtonState extends State<PurchaseButton> {
                             style: kSendButtonTextStyle,
                           ),
                           onPressed: () {
-                            Navigator.of(context, rootNavigator: true).pop();
-                            Navigator.of(context, rootNavigator: true).pop();
-                            Navigator.of(context, rootNavigator: true).pop();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => TabsScreen(),
+                              ),
+                            );
+                            // Navigator.of(context, rootNavigator: true).pop();
+                            // Navigator.of(context, rootNavigator: true).pop();
+                            // Navigator.of(context, rootNavigator: true).pop();
                           },
                           width: 127,
                           color: kColorAccent,
@@ -479,13 +531,13 @@ class _PurchaseButtonState extends State<PurchaseButton> {
                     ).show();
                   }
                 } on PlatformException catch (e) {
-                  print('----xx-----');
+                  //print('----xx-----');
                   var errorCode = PurchasesErrorHelper.getErrorCode(e);
                   if (errorCode == PurchasesErrorCode.purchaseCancelledError) {
-                    print("User cancelled");
+                    //print("User cancelled");
                   } else if (errorCode ==
                       PurchasesErrorCode.purchaseNotAllowedError) {
-                    print("User not allowed to purchase");
+                    //print("User not allowed to purchase");
                   }
                   Alert(
                     context: context,
@@ -548,14 +600,15 @@ class _PurchaseButtonState extends State<PurchaseButton> {
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.only(top: 8.0, bottom: 18.0),
-          child: Text(
-            '${widget.package.product.description}',
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Colors.black),
-          ),
-        )
+        SizedBox(height: 15),
+        // Padding(
+        //   padding: const EdgeInsets.only(top: 8.0, bottom: 18.0),
+        //   child: Text(
+        //     '${widget.package.product.description}',
+        //     textAlign: TextAlign.center,
+        //     style: TextStyle(color: Colors.black),
+        //   ),
+        // )
       ],
     );
   }
@@ -585,7 +638,7 @@ class ProScreen extends StatelessWidget {
                 Padding(
                     padding: const EdgeInsets.all(18.0),
                     child: Text(
-                      "You are a Pro user.\n\nYou can use the app in all its functionality.\nPlease contact us at conspaces.help@gmail.com if you have any problem.",
+                      "You are a Pro user.\n\nYou can use the app in all its functionality.\nPlease contact us at conspaces@outlook.com if you have any problem.",
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.black),
                     )),
