@@ -101,7 +101,7 @@ class _ExploreScreenTestState extends State<ExploreScreenTest> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(
-                            height: size.height * 0.04,
+                            height: size.height * 0.045,
                             child: Text(
                               'My space is in',
                               style: TextStyle(
@@ -164,7 +164,7 @@ class _ExploreScreenTestState extends State<ExploreScreenTest> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(
-                            height: size.height * 0.04,
+                            height: size.height * 0.045,
                             child: Text(
                               'I want to work in',
                               style: TextStyle(
