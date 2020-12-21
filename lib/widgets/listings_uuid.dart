@@ -2,10 +2,12 @@ import 'package:conspacesapp/widgets/listings.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:io';
+import '../constants.dart';
 import '../credentials.dart';
 import 'dart:async';
 import 'package:geocoder/geocoder.dart';
@@ -41,12 +43,12 @@ class _ListingsUniqueState extends State<ListingsUnique> {
 
   @override
   void initState() {
-    _isButtonDisabled = false;
     super.initState();
+    _isButtonDisabled = false;
   }
 
   Future<int> checkIfActive(String currentUserId, String propertyId) async {
-    //String swapPartnerId = '';
+    // unnoetig in beiden zu schauen, wie bei delete implementieren
 
     QuerySnapshot receivedActiveSnapshot = await FirebaseFirestore.instance
         .collection('users')
@@ -56,8 +58,6 @@ class _ListingsUniqueState extends State<ListingsUnique> {
         .where("type", isEqualTo: "received")
         .where('myProperty', isEqualTo: propertyId)
         .get();
-
-    print('alreadyActiveReceived: ${receivedActiveSnapshot.docs.length}');
 
     int alreadyActiveReceived = receivedActiveSnapshot.docs.length;
 
@@ -69,8 +69,6 @@ class _ListingsUniqueState extends State<ListingsUnique> {
         .where("type", isEqualTo: "send")
         .where('RequestSendByProperty', isEqualTo: propertyId)
         .get();
-
-    print('alreadyActiveSend: ${sendActiveSnapshot.docs.length}');
 
     int alreadyActiveSend = sendActiveSnapshot.docs.length;
 
@@ -103,11 +101,11 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                 height: 100,
                 color: Color(0xFF4845c7),
                 child: Text(
-                  'Failed to Delete Property. It is currently in an active Swap.',
+                  'Deletion failed because your space is part of an active swap.',
                   style: TextStyle(color: Colors.white),
                 ),
               ),
-              backgroundColor: Colors.black,
+              backgroundColor: Color(0xFF4845c7),
             );
             _scaffoldKey.currentState.showSnackBar(snackBar);
           } else {
@@ -158,6 +156,7 @@ class _ListingsUniqueState extends State<ListingsUnique> {
     // _isButtonDisabled = true;
     // grab the curren user
     final user = FirebaseAuth.instance.currentUser;
+
     // use current user to grab the uid and fetch user data (e.g. username)
     // final userData = await FirebaseFirestore.instance
     //     .collection('users')
@@ -732,7 +731,11 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                   if (streamSnapshot.connectionState ==
                       ConnectionState.waiting) {
                     return Center(
-                      child: CircularProgressIndicator(),
+                      //child: CircularProgressIndicator(),
+                      child: SpinKitRotatingCircle(
+                        color: kPrimaryColor,
+                        size: 50.0,
+                      ),
                     );
                   }
                   if (!streamSnapshot.hasData) {
@@ -745,7 +748,7 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                       padding:
                           const EdgeInsets.only(left: 15, right: 15, top: 25),
                       child: Text(
-                          'You are almost ready to go! To be able to swap, you just have to list a space of yours. Press the Plus button to start adding a space.'),
+                          'You are almost ready to go! To be able to swap, you just have to list a space of yours. Press the plus button to start adding a space.'),
                     );
                   } else {
                     return ListView.builder(
@@ -764,12 +767,10 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                           PropertyStyle(
                             documents[index].data()['title'],
                             //documents[index]['userId'],
-                            // each property contains the username, specified in new_property upon pressing send
                             documents[index].data()['username'],
                             documents[index].data()['userImage'],
                             documents[index].data()['location'],
                             documents[index].data()['destination'],
-                            // TODO: evaluate if "is me" is needed. maybe to give specific rights or highlight smth?
                             documents[index].data()['userId'] == user.uid,
                             documents[index].data()['userId'],
                             user.uid,

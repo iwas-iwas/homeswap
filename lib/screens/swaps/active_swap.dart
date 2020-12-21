@@ -1,12 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import '../../constants.dart';
 import '../../widgets/property_style.dart';
 import '../../widgets/property_detail.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
 class ActiveSwapsScreen extends StatelessWidget {
+  ActiveSwapsScreen(String currentUserId);
+
+  String currentUserId;
+
+  // ActiveSwapsScreen(this.isPremium);
+
+  // final bool isPremium;
+
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -89,7 +99,8 @@ class ActiveSwapsScreen extends StatelessWidget {
                   currentProperty.data()['userImage'],
                   currentProperty.data()['location'],
                   currentProperty.data()['userId'],
-                  currentUserId,
+                  user.uid,
+                  //currentUserId,
                   currentProperty.id,
                   true,
                   currentProperty.data()['latitude'],
@@ -105,7 +116,7 @@ class ActiveSwapsScreen extends StatelessWidget {
                   currentProperty.data()['userProfileImage'],
                   currentProperty.data()['userMail'],
                   currentProperty.data()['fullAddress'],
-                  //true
+                  false,
                 ),
               ),
             );
@@ -118,13 +129,18 @@ class ActiveSwapsScreen extends StatelessWidget {
         stream: FirebaseFirestore.instance
             .collection('users')
             .doc(user.uid)
+            //.doc(currentUserId)
             .collection('requests')
             .where('status', isEqualTo: "accepted")
             .snapshots(),
         builder: (ctx, streamSnapshot) {
           if (streamSnapshot.connectionState == ConnectionState.waiting) {
             return Center(
-              child: CircularProgressIndicator(),
+              //child: CircularProgressIndicator(),
+              child: SpinKitRotatingCircle(
+                color: kPrimaryColor,
+                size: 50.0,
+              ),
             );
           }
           if (!streamSnapshot.hasData) {
@@ -139,6 +155,7 @@ class ActiveSwapsScreen extends StatelessWidget {
 
           for (var i = 0; i <= requests.length - 1; i++) {
             requestPropertyList.add(requests[i].data()['propertyId']);
+
             startDates.add(requests[i].data()['selectedStartDate']);
             endDates.add(requests[i].data()['selectedEndDate']);
           }
@@ -147,14 +164,16 @@ class ActiveSwapsScreen extends StatelessWidget {
               stream: FirebaseFirestore.instance
                   .collection('properties')
                   .where('id', whereIn: requestPropertyList)
-                  //TODO: ORDER BY HAT DEN BUILDER GEBROCHEN, DA VERMUTLICH DER USERID INDEX DER EINGERICHTET IST DADURCH AKTIV WURDE! GGF. WEITEREN INDEX ERSTELLEn FÜR LOCATION/DESTINATION
                   //.orderBy('createdAt', descending: true)
                   .snapshots(),
-              // whenever the properties collection receives a new value, the function inside of the builder argument is executed
               builder: (ctx, streamSnapshot) {
                 if (streamSnapshot.connectionState == ConnectionState.waiting) {
                   return Center(
-                    child: CircularProgressIndicator(),
+                    //child: CircularProgressIndicator(),
+                    child: SpinKitRotatingCircle(
+                      color: kPrimaryColor,
+                      size: 50.0,
+                    ),
                   );
                 }
                 if (!streamSnapshot.hasData) {
@@ -177,7 +196,8 @@ class ActiveSwapsScreen extends StatelessWidget {
                     itemCount: documents.length,
                     itemBuilder: (ctx, index) => buildAcceptedRequest(
                         documents[index],
-                        user.uid,
+                        //user.uid,
+                        currentUserId,
                         context,
                         documents.length,
                         requestPropertyList,

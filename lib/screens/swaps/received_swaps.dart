@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import '../../constants.dart';
 import '../../widgets/property_style.dart';
 import '../../widgets/property_detail.dart';
 import 'package:intl/intl.dart';
 
 class ReceivedSwapsScreen extends StatelessWidget {
+  ReceivedSwapsScreen(this.isPremium);
+
+  final bool isPremium;
+
   Widget buildRequest(
       dynamic currentProperty,
       String currentUserId,
@@ -61,6 +67,77 @@ class ReceivedSwapsScreen extends StatelessWidget {
           children: [
             InkWell(
                 onTap: () async {
+                  if (isPremium) {
+                    SnackBar snackBar = SnackBar(
+                      content: Text(
+                        'Accepting swap requests requires a premium account.',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      backgroundColor: Color(0xFF4845c7),
+                    );
+                    Scaffold.of(context).showSnackBar(snackBar);
+                  } else {
+                    QuerySnapshot activeRequests = await FirebaseFirestore
+                        .instance
+                        .collection('users')
+                        .doc(currentUserId)
+                        .collection('requests')
+                        .where('status', isEqualTo: "accepted")
+                        .get();
+
+                    if (activeRequests.docs.length >= 5) {
+                      SnackBar snackBar = SnackBar(
+                        content: Text(
+                          'You reached the limit of five active Swaps.',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                        backgroundColor: Color(0xFF4845c7),
+                      );
+                      Scaffold.of(context).showSnackBar(snackBar);
+                    } else {
+                      FirebaseFirestore.instance
+                          .collection('users')
+                          .doc(currentUserId)
+                          .collection('requests')
+                          .where('type', isEqualTo: 'received')
+                          // update the received request status of the property that has been accepted or declined
+                          .where('selectedPropertyId',
+                              isEqualTo: currentProperty.id)
+                          .get()
+                          .then((filteredAcceptedProperty) =>
+                              filteredAcceptedProperty.docs
+                                  .forEach((accProperty) {
+                                accProperty.reference
+                                    .update({'status': 'accepted'});
+                              }));
+                      FirebaseFirestore.instance
+                          .collection('users')
+                          // filter den user der mir die request geschickt hat und update seine send request die er mir geschickt hat auf accepted
+                          .doc(currentProperty.data()['userId'])
+                          .collection('requests')
+                          .where('type', isEqualTo: 'send')
+                          // update the received request status of the propertie that has been accepted or declined
+                          .where('RequestSendToUser', isEqualTo: currentUserId)
+                          .get()
+                          .then((filteredAcceptedProperty) =>
+                              filteredAcceptedProperty.docs
+                                  .forEach((accProperty) {
+                                accProperty.reference
+                                    .update({'status': 'accepted'});
+                              }));
+                    }
+                  }
+                },
+                child: Icon(
+                  Icons.check,
+                  color: Colors.greenAccent,
+                )),
+            //IconButton(icon: Icon(Icons.check), onPressed: () {}),
+            SizedBox(
+              width: 20,
+            ),
+            InkWell(
+                onTap: () async {
                   QuerySnapshot activeRequests = await FirebaseFirestore
                       .instance
                       .collection('users')
@@ -75,7 +152,7 @@ class ReceivedSwapsScreen extends StatelessWidget {
                         'You reached the limit of five active Swaps.',
                         style: TextStyle(color: Colors.white),
                       ),
-                      backgroundColor: Colors.black,
+                      backgroundColor: Color(0xFF4845c7),
                     );
                     Scaffold.of(context).showSnackBar(snackBar);
                   } else {
@@ -84,15 +161,14 @@ class ReceivedSwapsScreen extends StatelessWidget {
                         .doc(currentUserId)
                         .collection('requests')
                         .where('type', isEqualTo: 'received')
-                        // update the received request status of the propertie that has been accepted or declined
+                        // update the received request status of the property that has been accepted or declined
                         .where('selectedPropertyId',
                             isEqualTo: currentProperty.id)
                         .get()
                         .then((filteredAcceptedProperty) =>
                             filteredAcceptedProperty.docs
                                 .forEach((accProperty) {
-                              accProperty.reference
-                                  .update({'status': 'accepted'});
+                              accProperty.reference.delete();
                             }));
                     FirebaseFirestore.instance
                         .collection('users')
@@ -106,21 +182,10 @@ class ReceivedSwapsScreen extends StatelessWidget {
                         .then((filteredAcceptedProperty) =>
                             filteredAcceptedProperty.docs
                                 .forEach((accProperty) {
-                              accProperty.reference
-                                  .update({'status': 'accepted'});
+                              accProperty.reference.delete();
                             }));
                   }
                 },
-                child: Icon(
-                  Icons.check,
-                  color: Colors.greenAccent,
-                )),
-            //IconButton(icon: Icon(Icons.check), onPressed: () {}),
-            SizedBox(
-              width: 20,
-            ),
-            InkWell(
-                onTap: () => print('delete'),
                 child: Icon(
                   Icons.delete_outline,
                   color: Colors.redAccent,
@@ -166,9 +231,8 @@ class ReceivedSwapsScreen extends StatelessWidget {
                   false,
                   currentProperty.data()['userProfileImage'],
                   currentProperty.data()['userMail'],
-                  ''
-                  //false,
-                  ),
+                  '',
+                  false),
             ),
           );
         },
@@ -193,7 +257,11 @@ class ReceivedSwapsScreen extends StatelessWidget {
         builder: (ctx, streamSnapshot) {
           if (streamSnapshot.connectionState == ConnectionState.waiting) {
             return Center(
-              child: CircularProgressIndicator(),
+              //child: CircularProgressIndicator(),
+              child: SpinKitRotatingCircle(
+                color: kPrimaryColor,
+                size: 50.0,
+              ),
             );
           }
           if (!streamSnapshot.hasData) {

@@ -83,7 +83,8 @@ class PropertyStyle extends StatelessWidget {
                   isMe,
                   userProfileImage,
                   userMail,
-                  ''
+                  '',
+                  fromListingsUnique
                   //false
                   ),
             ),

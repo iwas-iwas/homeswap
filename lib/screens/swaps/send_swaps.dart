@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import '../../constants.dart';
 import '../../widgets/property_style.dart';
 import '../../widgets/property_detail.dart';
 import 'package:intl/intl.dart';
 
 class SendSwapsScreen extends StatelessWidget {
+  // SendSwapsScreen(this.isPremium);
+
+  // final bool isPremium;
   @override
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
@@ -89,9 +94,8 @@ class SendSwapsScreen extends StatelessWidget {
                     false,
                     currentProperty.data()['userProfileImage'],
                     currentProperty.data()['userMail'],
-                    ''
-                    //false
-                    ),
+                    '',
+                    false),
               ),
             );
           },
@@ -111,7 +115,11 @@ class SendSwapsScreen extends StatelessWidget {
         builder: (ctx, streamSnapshot) {
           if (streamSnapshot.connectionState == ConnectionState.waiting) {
             return Center(
-              child: CircularProgressIndicator(),
+              //child: CircularProgressIndicator(),
+              child: SpinKitRotatingCircle(
+                color: kPrimaryColor,
+                size: 50.0,
+              ),
             );
           }
           if (!streamSnapshot.hasData) {

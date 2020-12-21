@@ -5,10 +5,11 @@ class Utils {
   static Future openLink({@required String url}) => _launchUrl(url);
 
   static Future _launchUrl(String url) async {
-    print('hello');
     if (await canLaunch(url)) {
-      print('world');
       await launch(url);
+    } else {
+      // possibility to do something on else (if it cannot launch)
+      print('no email client found');
     }
   }
 
@@ -17,7 +18,6 @@ class Utils {
     @required String subject,
     @required String body,
   }) async {
-    print('kek');
     final url =
         'mailto:$toEmail?subject=${Uri.encodeFull(subject)}&body=${Uri.encodeFull(body)}';
 

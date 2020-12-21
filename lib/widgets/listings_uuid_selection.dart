@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+
+import '../constants.dart';
 
 class ListingsUniqueSelection extends StatefulWidget {
   @override
@@ -26,7 +29,11 @@ class _ListingsUniqueSelectionState extends State<ListingsUniqueSelection> {
         builder: (ctx, streamSnapshot) {
           if (streamSnapshot.connectionState == ConnectionState.waiting) {
             return Center(
-              child: CircularProgressIndicator(),
+              //child: CircularProgressIndicator(),
+              child: SpinKitRotatingCircle(
+                color: kPrimaryColor,
+                size: 50.0,
+              ),
             );
           }
           if (!streamSnapshot.hasData) {
@@ -53,7 +60,6 @@ class _ListingsUniqueSelectionState extends State<ListingsUniqueSelection> {
                     groupValue: _selectedProperty,
                     onChanged: (selectedProperty) {
                       setState(() {
-                        print("selected ${selectedProperty}");
                         _selectedProperty = selectedProperty;
                       });
                     },

@@ -2,7 +2,9 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:numberpicker/numberpicker.dart';
+import '../constants.dart';
 import './property_style.dart';
 import '../screens/tabs_screen.dart';
 
@@ -259,7 +261,11 @@ class _ListingsState extends State<Listings> {
                     if (streamSnapshot.connectionState ==
                         ConnectionState.waiting) {
                       return Center(
-                        child: CircularProgressIndicator(),
+                        //child: CircularProgressIndicator(),
+                        child: SpinKitRotatingCircle(
+                          color: kPrimaryColor,
+                          size: 50.0,
+                        ),
                       );
                     }
                     if (!streamSnapshot.hasData) {

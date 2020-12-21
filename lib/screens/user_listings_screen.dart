@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
@@ -69,24 +70,33 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
   bool _isLoading = false;
 
   bool _isAnon = false;
+  String currentUserId;
 
   void initState() {
     super.initState();
-    final user = FirebaseAuth.instance.currentUser;
+    _checkAnonStatus();
+    if (!_isAnon) {
+      _isButtonDisabled = false;
+    }
+  }
+
+  Future<void> _checkAnonStatus() async {
+    var user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      await Future.delayed(Duration(seconds: 1));
+    }
+
+    user = FirebaseAuth.instance.currentUser;
+
     if (user.isAnonymous) {
       setState(() {
         _isAnon = true;
       });
     } else {
-      _isButtonDisabled = false;
+      currentUserId = user.uid;
     }
   }
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _isButtonDisabled = false;
-  // }
 
   void _sendMessage(modalState) async {
     modalState(() {
@@ -859,24 +869,33 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
           ),
         ),
       );
-    return Scaffold(
-      body: Container(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: ListingsUnique(),
-            ),
-          ],
+    if (!_isAnon && currentUserId != null)
+      return Scaffold(
+        body: Container(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: ListingsUnique(),
+              ),
+            ],
+          ),
         ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _startAddNewProperty(context, size),
-        child: Icon(Icons.add),
-        backgroundColor: const Color(0xFF4845c7),
-      ),
-    );
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _startAddNewProperty(context, size),
+          child: Icon(Icons.add),
+          backgroundColor: const Color(0xFF4845c7),
+        ),
+      );
+    return Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: SpinKitRotatingCircle(
+            color: kPrimaryColor,
+            size: 50.0,
+          ),
+        ));
   }
 }
 

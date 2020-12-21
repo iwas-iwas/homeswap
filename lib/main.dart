@@ -6,7 +6,6 @@ import './screens/auth_screen.dart';
 import './screens/slpash_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 //import 'package:device_preview/device_preview.dart';
-import 'package:flutter/foundation.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:flutter/services.dart';
 import './credentials.dart';
@@ -48,7 +47,6 @@ class _MyAppState extends State<MyApp> {
     PurchaserInfo purchaserInfo;
     try {
       purchaserInfo = await Purchases.getPurchaserInfo();
-      print(purchaserInfo.toString());
       if (purchaserInfo.entitlements.all['all_features'] != null) {
         appData.isPro = purchaserInfo.entitlements.all['all_features'].isActive;
       } else {

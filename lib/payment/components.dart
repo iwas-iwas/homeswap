@@ -20,14 +20,6 @@ class AppData {
 
 final appData = AppData();
 
-//
-
-// const kColorPrimary = Color(0xff283149);
-// const kColorPrimaryLight = Color(0xff424B67);
-// const kColorPrimaryDark = Color(0xff21293E);
-// const kColorAccent = Colors.blue;
-// const kColorText = Color(0xffDBEDF3);
-
 var kWelcomeAlertStyle = AlertStyle(
   animationType: AnimationType.grow,
   isCloseButton: false,

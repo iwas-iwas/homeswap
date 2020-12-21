@@ -349,7 +349,7 @@ Widget privacyPolicyLinkAndTermsOfService() {
           ),
           children: <TextSpan>[
             TextSpan(
-                text: 'Terms of Service',
+                text: 'Terms and Conditions',
                 style: TextStyle(
                   fontSize: 16,
                   color: kPrimaryColor,
@@ -358,7 +358,7 @@ Widget privacyPolicyLinkAndTermsOfService() {
                 recognizer: TapGestureRecognizer()
                   ..onTap = () {
                     launch(
-                        'https://docs.flutter.io/flutter/services/UrlLauncher-class.html');
+                        'https://www.iubenda.com/terms-and-conditions/18657475');
                     // code to open / launch privacy policy link here
                   }),
             TextSpan(

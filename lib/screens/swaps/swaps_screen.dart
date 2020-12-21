@@ -1,5 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import '../auth_screen.dart';
 import './active_swap.dart';
 import './received_swaps.dart';
@@ -22,25 +25,65 @@ class _SwapsScreenState extends State<SwapsScreen>
   int _tabIndex = 0;
 
   TabController _tabController;
-
+  bool _isPremium;
   bool _isAnon = false;
+  String currentUserId;
 
   void initState() {
     super.initState();
-    final user = FirebaseAuth.instance.currentUser;
+
+    _checkPremiumStatus();
+    // if is anon checken vor tabcontroller
+    if (!_isAnon) {
+      _tabController = TabController(vsync: this, length: 3);
+    }
+    //_tabController = TabController(vsync: this, length: 3);
+    // final user = FirebaseAuth.instance.currentUser;
+
+    // if (user.isAnonymous) {
+    //   setState(() {
+    //     _isAnon = true;
+    //   });
+    // } else {
+    //   _tabController = TabController(vsync: this, length: 3);
+    //   _checkPremiumStatus();
+    // }
+  }
+
+  Future<void> _checkPremiumStatus() async {
+    var user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      await Future.delayed(Duration(seconds: 1));
+    }
+
+    user = FirebaseAuth.instance.currentUser;
+
     if (user.isAnonymous) {
       setState(() {
         _isAnon = true;
       });
     } else {
-      _tabController = TabController(vsync: this, length: 3);
+      bool isPremium = false;
+
+      PurchaserInfo purchaserInfo;
+
+      try {
+        purchaserInfo = await Purchases.getPurchaserInfo();
+        if (purchaserInfo.entitlements.all['all_features'] != null) {
+          isPremium = purchaserInfo.entitlements.all['all_features'].isActive;
+        } else {
+          isPremium = false;
+        }
+      } on PlatformException catch (e) {
+        print(e);
+      }
+      setState(() {
+        _isPremium = isPremium;
+        currentUserId = user.uid;
+      });
     }
   }
-
-  // void _toggleTab() {
-  //   _tabIndex = _tabController.index + 1;
-  //   _tabController.animateTo(_tabIndex);
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -97,73 +140,82 @@ class _SwapsScreenState extends State<SwapsScreen>
           ),
         ),
       );
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(100.0), // here the desired height
-        child: AppBar(
-          backgroundColor: Colors.white,
-          centerTitle: false,
-          // AppBar title stays left with "automaticallyImplyLeading" set to false.
-          automaticallyImplyLeading: false,
-          title: Padding(
-            padding: const EdgeInsets.only(top: 40, bottom: 40),
-            child: Text('Requests',
-                style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 26)),
-          ),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(20.0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Container(
-                //width: MediaQuery.of(context).size.width / 2,
-                width: double.infinity,
-                child: TabBar(
-                  indicator: UnderlineTabIndicator(
-                    borderSide: BorderSide(
-                      width: 2,
-                      color: const Color(0xFF4845c7),
+    if (!_isAnon && _isPremium != null && currentUserId != null)
+      return Scaffold(
+        backgroundColor: Colors.grey[50],
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(100.0), // here the desired height
+          child: AppBar(
+            backgroundColor: Colors.white,
+            centerTitle: false,
+            // AppBar title stays left with "automaticallyImplyLeading" set to false.
+            automaticallyImplyLeading: false,
+            title: Padding(
+              padding: const EdgeInsets.only(top: 40, bottom: 40),
+              child: Text('Requests',
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 26)),
+            ),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(20.0),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  //width: MediaQuery.of(context).size.width / 2,
+                  width: double.infinity,
+                  child: TabBar(
+                    indicator: UnderlineTabIndicator(
+                      borderSide: BorderSide(
+                        width: 2,
+                        color: const Color(0xFF4845c7),
+                      ),
+                      insets: EdgeInsets.only(left: 0, right: 8, bottom: 0),
                     ),
-                    insets: EdgeInsets.only(left: 0, right: 8, bottom: 0),
-                  ),
-                  isScrollable: true,
-                  controller: _tabController,
-                  tabs: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child:
-                          Text("Active", style: TextStyle(color: Colors.black)),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: Text("Received",
-                          style: TextStyle(color: Colors.black)),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child:
-                          Text("Send", style: TextStyle(color: Colors.black)),
-                    ),
+                    isScrollable: true,
+                    controller: _tabController,
+                    tabs: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Text("Active",
+                            style: TextStyle(color: Colors.black)),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Text("Received",
+                            style: TextStyle(color: Colors.black)),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child:
+                            Text("Send", style: TextStyle(color: Colors.black)),
+                      ),
 //                     // new Tab(icon: new Icon(Icons.swap_horizontal_circle)),
 //                     // new Tab(icon: new Icon(Icons.history)),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
         ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          ActiveSwapsScreen(),
-          ReceivedSwapsScreen(),
-          SendSwapsScreen(),
-        ],
-      ),
-    );
+        body: TabBarView(
+          controller: _tabController,
+          children: [
+            ActiveSwapsScreen(currentUserId),
+            ReceivedSwapsScreen(_isPremium),
+            SendSwapsScreen(),
+          ],
+        ),
+      );
+    return Scaffold(
+        backgroundColor: Colors.white,
+        body: Center(
+          child: SpinKitRotatingCircle(
+            color: kPrimaryColor,
+            size: 50.0,
+          ),
+        ));
   }
 }

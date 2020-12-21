@@ -5,6 +5,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/services.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import './listings_uuid.dart';
 import './listings_uuid_selection.dart';
 import 'package:intl/intl.dart';
@@ -37,6 +39,7 @@ class Detail extends StatefulWidget {
       this.userProfileImage,
       this.userMail,
       this.fromActive,
+      this.fromListingsUnique,
       {this.key});
 
   final Key key;
@@ -62,6 +65,7 @@ class Detail extends StatefulWidget {
   final String userProfileImage;
   final String userMail;
   final String fromActive;
+  final bool fromListingsUnique;
 
   //final GlobalKey<ScaffoldState> scaffoldKey;
 
@@ -74,7 +78,33 @@ class _DetailState extends State<Detail> {
 
   String _selectedProperty = '';
   DateTimeRange _selectedDate;
-  //bool isUnavailable = false;
+  bool _isLoading = false;
+  bool _isPremium;
+
+  void initState() {
+    super.initState();
+    _checkPremiumStatus();
+  }
+
+  Future<void> _checkPremiumStatus() async {
+    bool isPremium = false;
+
+    PurchaserInfo purchaserInfo;
+
+    try {
+      purchaserInfo = await Purchases.getPurchaserInfo();
+      if (purchaserInfo.entitlements.all['all_features'] != null) {
+        isPremium = purchaserInfo.entitlements.all['all_features'].isActive;
+      } else {
+        isPremium = false;
+      }
+    } on PlatformException catch (e) {
+      print(e);
+    }
+    setState(() {
+      _isPremium = isPremium;
+    });
+  }
 
   void _presentDatePicker(modalState) {
     showDateRangePicker(
@@ -144,32 +174,49 @@ class _DetailState extends State<Detail> {
 
     // if date overlap returned false, check if too many send request. if not, all clear and return 3, which makes the request go to firebsae and show success snackbar.
     if (sendRequests.docs.length > 8) {
-      print(
-          'You cant have more then 10 send requests at a time! Show snackbarinho');
       return 1;
     }
 
+    print(requestSendToThisUser);
+
+    // already pending or active
     QuerySnapshot alreadySendRequestToUser = await FirebaseFirestore.instance
         .collection('users')
         .doc(currentUserId)
         .collection('requests')
-        .where('type', isEqualTo: 'send')
-        .where('status', isEqualTo: "pending")
+        //.where('type', isEqualTo: 'send')
+        ///.where('status', isEqualTo: "pending")
         .where('RequestSendToUser', isEqualTo: requestSendToThisUser)
         .get();
 
     // if date overlap and not too many send requests check if the user already send a request to the user (need to check received aswell prbly)
     if (alreadySendRequestToUser.docs.isNotEmpty) {
-      print('already send to that user');
       return 0;
     }
 
-    print('all good.');
+    // wenn die aktuelle person einer person eine swap req schicken will, mit dieser person aber aber schon eine aktive req hat, dann ablehnen.
+
+    // QuerySnapshot alreadyActiveWithThatUser = await FirebaseFirestore.instance
+    //     .collection('users')
+    //     .doc(currentUserId)
+    //     .collection('requests')
+    //     .where('status', isEqualTo: "accepted")
+    //     .where('RequestSendToUser', isEqualTo: currentUserId)
+    //     .get();
+
+    // // if date overlap and not too many send requests check if the user already send a request to the user (need to check received aswell prbly)
+    // if (alreadyActiveWithThatUser.docs.isNotEmpty) {
+    //   return 0;
+    // }
+
     return 3;
   }
 
   sendRequestFirebase(dynamic propertyUserId, dynamic currentUserId,
       dynamic propertyId, selectedDate, globalKey) {
+    setState(() {
+      _isLoading = true;
+    });
     dateRangeAvailabilityCheck(currentUserId, selectedDate, propertyUserId)
         .then((unavailable) {
       // SnackBar snackBar = SnackBar(
@@ -180,15 +227,18 @@ class _DetailState extends State<Detail> {
       //   backgroundColor: Colors.black,
       // );
       //print('unavailable: ${unavailable}');
-      print(unavailable);
+
       if (unavailable == 1) {
         SnackBar snackBar = SnackBar(
           content: Text(
             'Failed to send Request. You have too many open send requests.',
             style: TextStyle(color: Colors.white),
           ),
-          backgroundColor: Colors.black,
+          backgroundColor: Color(0xFF4845c7),
         );
+        setState(() {
+          _isLoading = false;
+        });
         Navigator.of(context).pop();
 
         globalKey.currentState.showSnackBar(snackBar);
@@ -198,24 +248,29 @@ class _DetailState extends State<Detail> {
             'Failed to send Request. It is overlapping with another active request.',
             style: TextStyle(color: Colors.white),
           ),
-          backgroundColor: Colors.black,
+          backgroundColor: Color(0xFF4845c7),
         );
+        setState(() {
+          _isLoading = false;
+        });
         Navigator.of(context).pop();
 
         globalKey.currentState.showSnackBar(snackBar);
       } else if (unavailable == 0) {
         SnackBar snackBar = SnackBar(
           content: Text(
-            "Request could not be sent. You cannot have multiple pending requests with the same user.",
+            "Request could not be sent. You cannot have multiple pending or active requests with the same user.",
             style: TextStyle(color: Colors.white),
           ),
           backgroundColor: Color(0xFF4845c7),
         );
+        setState(() {
+          _isLoading = false;
+        });
         Navigator.of(context).pop();
 
         globalKey.currentState.showSnackBar(snackBar);
       } else {
-        print('submiting request!');
         FirebaseFirestore.instance
             .collection('users')
             .doc(propertyUserId)
@@ -225,7 +280,8 @@ class _DetailState extends State<Detail> {
           // and replace currentuserid with property id
           // to load only that property in the users requests stream?
           'type': 'received',
-          'requestedBy': currentUserId,
+          //'requestedBy': currentUserId,
+          'RequestSendToUser': currentUserId,
           'selectedPropertyId': _selectedProperty,
           'myProperty': propertyId,
           'propertyId': _selectedProperty,
@@ -240,6 +296,7 @@ class _DetailState extends State<Detail> {
             .collection('requests')
             .add({
           'type': 'send',
+          'requestedBy': currentUserId,
           'RequestSendToProperty': propertyId,
           'RequestSendByProperty': _selectedProperty,
           'propertyId': propertyId,
@@ -256,6 +313,9 @@ class _DetailState extends State<Detail> {
           ),
           backgroundColor: Color(0xFF4845c7),
         );
+        setState(() {
+          _isLoading = false;
+        });
         Navigator.of(context).pop();
 
         globalKey.currentState.showSnackBar(snackBar);
@@ -375,34 +435,42 @@ class _DetailState extends State<Detail> {
                           ],
                         ),
                         SizedBox(height: 10),
-                        Container(
-                          color: Color(0xFF4845c7),
-                          child: SafeArea(
-                            child: RaisedButton.icon(
-                              icon: Icon(Icons.add),
-                              color: (_selectedProperty != '' &&
-                                      _selectedDate != null)
-                                  ? Color(0xFF4845c7)
-                                  : Colors.grey,
-                              label: Text('Submit Request'),
-                              elevation: 0,
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
-                              onPressed: () {
-                                (_selectedProperty != '' &&
+                        if (_isLoading) CircularProgressIndicator(),
+                        if (!_isLoading)
+                          Container(
+                            color: Color(0xFF4845c7),
+                            child: SafeArea(
+                              child: RaisedButton.icon(
+                                icon: Icon(Icons.add),
+                                color: (_selectedProperty != '' &&
                                         _selectedDate != null)
-                                    ? sendRequestFirebase(
-                                        propertyUserId,
-                                        currentUserId,
-                                        propertyId,
-                                        //_selectedDate.toString())
-                                        _selectedDate,
-                                        scaffoldKey)
-                                    : null;
-                              },
+                                    ? Color(0xFF4845c7)
+                                    : Colors.grey,
+                                label: Text('Submit Request'),
+                                elevation: 0,
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                                onPressed: () {
+                                  if (_selectedProperty != '' &&
+                                      _selectedDate != null &&
+                                      !_isLoading) {
+                                    // && isloading false?
+
+                                    sendRequestFirebase(
+                                      propertyUserId,
+                                      currentUserId,
+                                      propertyId,
+                                      //_selectedDate.toString())
+                                      _selectedDate,
+                                      scaffoldKey,
+                                    );
+                                  }
+
+                                  //: null;
+                                },
+                              ),
                             ),
                           ),
-                        ),
                       ],
                     );
                   });
@@ -496,12 +564,15 @@ class _DetailState extends State<Detail> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      widget.userName,
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
+                                    SizedBox(
+                                      width: size.width * 0.3,
+                                      child: Text(
+                                        widget.userName,
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
                                       ),
                                     ),
                                     SizedBox(
@@ -530,10 +601,18 @@ class _DetailState extends State<Detail> {
                                   child: Center(
                                     child: InkWell(
                                       onTap: () {
-                                        if (widget.fromSwapsorListingsUnique) {
+                                        if (widget.fromSwapsorListingsUnique ||
+                                            widget.isMe ||
+                                            !_isPremium) {
                                           SnackBar failSnackBar = SnackBar(
                                             content: Text(
-                                              'Failed to send request. You can only send swap requests from the explore page.',
+                                              !_isPremium
+                                                  ? 'Sending swap requests requires a premium account.'
+                                                  : widget.fromSwapsorListingsUnique
+                                                      ? 'Failed to send request. You can only send swap requests from the explore page.'
+                                                      : widget.isMe
+                                                          ? 'You cant swap your own spaces.'
+                                                          : 'Failed to send request.',
                                               style: TextStyle(
                                                   color: Colors.white),
                                             ),
@@ -542,18 +621,30 @@ class _DetailState extends State<Detail> {
 
                                           _scaffoldKey.currentState
                                               .showSnackBar(failSnackBar);
-                                        } else if (widget.isMe) {
-                                          SnackBar failSnackBar = SnackBar(
-                                            content: Text(
-                                              'You cant swap your own spaces.',
-                                              style: TextStyle(
-                                                  color: Colors.white),
-                                            ),
-                                            backgroundColor: Colors.black,
-                                          );
+                                          // } else if (widget.isMe) {
+                                          //   SnackBar failSnackBar = SnackBar(
+                                          //     content: Text(
+                                          //       'You cant swap your own spaces.',
+                                          //       style: TextStyle(
+                                          //           color: Colors.white),
+                                          //     ),
+                                          //     backgroundColor: Colors.black,
+                                          //   );
 
-                                          _scaffoldKey.currentState
-                                              .showSnackBar(failSnackBar);
+                                          //   _scaffoldKey.currentState
+                                          //       .showSnackBar(failSnackBar);
+                                          // } else if (!_isPremium) {
+                                          //   SnackBar failSnackBar = SnackBar(
+                                          //     content: Text(
+                                          //       'You cant swap your own spaces.',
+                                          //       style: TextStyle(
+                                          //           color: Colors.white),
+                                          //     ),
+                                          //     backgroundColor: Colors.black,
+                                          //   );
+
+                                          //   _scaffoldKey.currentState
+                                          //       .showSnackBar(failSnackBar);
                                         } else {
                                           triggerSwapRequest(
                                               context,
@@ -566,9 +657,7 @@ class _DetailState extends State<Detail> {
                                       },
                                       child: Icon(
                                         Icons.swap_horiz,
-                                        color: widget.fromSwapsorListingsUnique
-                                            ? Colors.grey
-                                            : Color(0xFF4845c7),
+                                        color: Color(0xFF4845c7),
                                         size: 20,
                                       ),
                                     ),
@@ -586,11 +675,31 @@ class _DetailState extends State<Detail> {
                                   ),
                                   child: Center(
                                     child: GestureDetector(
-                                      onTap: () => Utils.openEmail(
-                                        toEmail: widget.userMail,
-                                        subject: 'Email Subject',
-                                        body: 'Email Body',
-                                      ),
+                                      onTap: () {
+                                        if (widget.isMe || !_isPremium) {
+                                          SnackBar failSnackBar = SnackBar(
+                                            content: Text(
+                                              !_isPremium
+                                                  ? 'Sending emails to other users requires a premium account.'
+                                                  : widget.isMe
+                                                      ? 'You can not send yourself an email.'
+                                                      : 'Failed to open email.',
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                            backgroundColor: Color(0xFF4845c7),
+                                          );
+
+                                          _scaffoldKey.currentState
+                                              .showSnackBar(failSnackBar);
+                                        } else {
+                                          Utils.openEmail(
+                                            toEmail: widget.userMail,
+                                            subject: 'Email Subject',
+                                            body: 'Email Body',
+                                          );
+                                        }
+                                      },
                                       child: Icon(
                                         Icons.mail,
                                         color: Color(0xFF4845c7),
