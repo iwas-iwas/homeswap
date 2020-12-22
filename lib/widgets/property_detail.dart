@@ -64,8 +64,8 @@ class Detail extends StatefulWidget {
   final bool isMe;
   final String userProfileImage;
   final String userMail;
-  final String fromActive;
-  final bool fromListingsUnique;
+  final String fromActive; // full location address from active swaps
+  final String fromListingsUnique; // full location address from listings_uuid
 
   //final GlobalKey<ScaffoldState> scaffoldKey;
 
@@ -758,9 +758,13 @@ class _DetailState extends State<Detail> {
                                     width: double.infinity),
                               ),
                               SizedBox(height: 5),
-                              Text(widget.fromActive == ''
-                                  ? 'The exact location will be displayed under your active swap summary once you have both decided to swap.'
-                                  : widget.fromActive),
+                              Text(widget.fromActive != ''
+                                  ? "Location: ${widget.fromActive}"
+                                  : widget.fromListingsUnique != ''
+                                      ? "Location: ${widget.fromListingsUnique}.\nOther users can only see the exact location when they have an active swap with your space."
+                                      : 'The exact location will be displayed under your active swap summary once you have both decided to swap.'),
+                              // Text(widget.fromActive == ''
+                              //     ? 'The exact location will be displayed under your active swap summary once you have both decided to swap.' : widget.fromActive != '' ? widget.fromActive : 'lol'),
                             ],
                           )),
                       Padding(

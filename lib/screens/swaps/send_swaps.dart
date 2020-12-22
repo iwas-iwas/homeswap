@@ -95,7 +95,7 @@ class SendSwapsScreen extends StatelessWidget {
                     currentProperty.data()['userProfileImage'],
                     currentProperty.data()['userMail'],
                     '',
-                    false),
+                    ''),
               ),
             );
           },
@@ -174,7 +174,8 @@ class SendSwapsScreen extends StatelessWidget {
                   return Padding(
                     padding:
                         const EdgeInsets.only(left: 15, right: 15, top: 25),
-                    child: Text('No Send Request.'),
+                    child: Text(
+                        'no pending send requests. search the explore page for spaces you like!'),
                   );
                 } else {
                   return ListView.builder(

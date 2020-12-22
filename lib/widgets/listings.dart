@@ -360,6 +360,7 @@ class _ListingsState extends State<Listings> {
                         finalProperties[index].data()['secondAdditionalImage'],
                         finalProperties[index].data()['userProfileImage'],
                         finalProperties[index].data()['userMail'],
+                        '',
                         // make sure that flutter makes sure to efficiently update the list with new items
                         key: ValueKey(documents[index].id),
                       ),

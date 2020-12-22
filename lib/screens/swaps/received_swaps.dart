@@ -232,7 +232,7 @@ class ReceivedSwapsScreen extends StatelessWidget {
                   currentProperty.data()['userProfileImage'],
                   currentProperty.data()['userMail'],
                   '',
-                  false),
+                  ''),
             ),
           );
         },
@@ -332,7 +332,7 @@ class ReceivedSwapsScreen extends StatelessWidget {
                   return Padding(
                     padding:
                         const EdgeInsets.only(left: 15, right: 15, top: 25),
-                    child: Text('No Received Request.'),
+                    child: Text('no pending received requests.'),
                   );
                 } else {
                   return ListView.builder(

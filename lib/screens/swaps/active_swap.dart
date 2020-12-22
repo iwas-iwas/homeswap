@@ -116,7 +116,7 @@ class ActiveSwapsScreen extends StatelessWidget {
                   currentProperty.data()['userProfileImage'],
                   currentProperty.data()['userMail'],
                   currentProperty.data()['fullAddress'],
-                  false,
+                  '',
                 ),
               ),
             );
@@ -187,7 +187,7 @@ class ActiveSwapsScreen extends StatelessWidget {
                   return Padding(
                     padding:
                         const EdgeInsets.only(left: 15, right: 15, top: 25),
-                    child: Text('No Active Request.'),
+                    child: Text('no active swaps.'),
                   );
                 } else {
                   return ListView.builder(

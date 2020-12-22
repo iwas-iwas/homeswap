@@ -787,6 +787,7 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                             documents[index].data()['secondAdditionalImage'],
                             documents[index].data()['userProfileImage'],
                             documents[index].data()['userMail'],
+                            documents[index].data()['fullAddress'],
                             key: ValueKey(documents[index].id),
                           ),
                           Padding(

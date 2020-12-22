@@ -25,6 +25,7 @@ class PropertyStyle extends StatelessWidget {
       this.secondAdditionalImage,
       this.userProfileImage,
       this.userMail,
+      this.fullLocationAddress,
       {this.key});
 
   final Key key;
@@ -50,6 +51,7 @@ class PropertyStyle extends StatelessWidget {
   final String secondAdditionalImage;
   final String userProfileImage;
   final String userMail;
+  final String fullLocationAddress;
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +86,7 @@ class PropertyStyle extends StatelessWidget {
                   userProfileImage,
                   userMail,
                   '',
-                  fromListingsUnique
+                  fullLocationAddress
                   //false
                   ),
             ),
