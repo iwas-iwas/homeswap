@@ -99,9 +99,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
     if (user == null) {
       await Future.delayed(Duration(seconds: 1));
+      user = FirebaseAuth.instance.currentUser;
     }
 
-    user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      await Future.delayed(Duration(seconds: 1));
+      user = FirebaseAuth.instance.currentUser;
+    }
 
     // await Future.delayed(Duration(seconds: 1));
     // print('1');

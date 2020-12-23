@@ -1,4 +1,4 @@
-import 'package:conspacesapp/screens/explore_screen_old.dart';
+import 'package:conspacesapp/screens/explore_screen.dart';
 import './swaps/swaps_screen.dart';
 import 'package:flutter/material.dart';
 import './user_listings_screen.dart';

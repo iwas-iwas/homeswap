@@ -28,8 +28,9 @@ class ListingsUnique extends StatefulWidget {
 }
 
 class _ListingsUniqueState extends State<ListingsUnique> {
-  String _pickedLocation = '';
+  //String _pickedLocation = '';
   String _pickedDestination = '';
+  String _pickedFullDestinationId = '';
   String _pickedFullDestination = '';
   final _titleController = TextEditingController();
   var _enteredMessage;
@@ -37,6 +38,7 @@ class _ListingsUniqueState extends State<ListingsUnique> {
   DateTimeRange _selectedDate;
   bool _isButtonDisabled = false;
   bool _noDestination = false;
+  //String fullDest;
 
   File _firstAdditionalImage;
   File _secondAdditionalImage;
@@ -216,7 +218,7 @@ class _ListingsUniqueState extends State<ListingsUnique> {
         (_pickedDestination != '' && _pickedDestination != null)) {
       updatedDestination = _noDestination ? 'ffa' : _pickedDestination;
       updatedFullDestinationAddress =
-          _noDestination ? 'ffa' : _pickedFullDestination;
+          _noDestination ? 'ffa' : _pickedFullDestinationId;
     }
 
     if (_enteredMessage != null) {
@@ -233,8 +235,8 @@ class _ListingsUniqueState extends State<ListingsUnique> {
         //'id': documentReference.id,
         'title': updatedTitle,
         'userImage': updatedUrl,
-        'destination': updatedDestination,
-        'fullDestinationAddress': updatedFullDestinationAddress
+        'destinationPlaceId': updatedDestination,
+        'destinationFullPlaceId': updatedFullDestinationAddress
       });
     }
 
@@ -243,8 +245,8 @@ class _ListingsUniqueState extends State<ListingsUnique> {
         updatedUrl == null) {
       documentReference.update({
         'title': updatedTitle,
-        'destination': updatedDestination,
-        'fullDestinationAddress': updatedFullDestinationAddress
+        'destinationPlaceId': updatedDestination,
+        'destinationFullPlaceId': updatedFullDestinationAddress
       });
     }
 
@@ -270,8 +272,8 @@ class _ListingsUniqueState extends State<ListingsUnique> {
         updatedTitle == null) {
       documentReference.update({
         'userImage': updatedUrl,
-        'destination': updatedDestination,
-        'fullDestinationAddress': updatedFullDestinationAddress
+        'destinationPlaceId': updatedDestination,
+        'destinationFullPlaceId': updatedFullDestinationAddress
       });
     }
 
@@ -279,8 +281,8 @@ class _ListingsUniqueState extends State<ListingsUnique> {
         updatedTitle == null &&
         updatedUrl == null) {
       documentReference.update({
-        'destination': updatedDestination,
-        'fullDestinationAddress': updatedFullDestinationAddress
+        'destinationPlaceId': updatedDestination,
+        'destinationFullPlaceId': updatedFullDestinationAddress
       });
     }
 
@@ -312,8 +314,10 @@ class _ListingsUniqueState extends State<ListingsUnique> {
     setState(() {
       // clear message in textfield after onpressed is done
       _titleController.clear();
-      _pickedLocation = '';
+      //_pickedLocation = '';
       _pickedDestination = '';
+      _pickedFullDestination = '';
+      _pickedFullDestinationId = '';
       _storedImage = null;
       _firstAdditionalImage = null;
       _secondAdditionalImage = null;
@@ -426,8 +430,9 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                                   final destinationData =
                                       displayPrediction(p).then((location) {
                                     modalState(() {
-                                      _pickedDestination = location[0];
-                                      _pickedFullDestination = location[1];
+                                      _pickedFullDestination = location[0];
+                                      _pickedFullDestinationId = location[1];
+                                      _pickedDestination = location[2];
                                       if (currentDestination ==
                                               'Free for all' &&
                                           location != null) {
@@ -769,15 +774,15 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                             //documents[index]['userId'],
                             documents[index].data()['username'],
                             documents[index].data()['userImage'],
-                            documents[index].data()['location'],
-                            documents[index].data()['destination'],
+                            documents[index].data()['locationPlaceId'],
+                            documents[index].data()['destinationPlaceId'],
                             documents[index].data()['userId'] == user.uid,
                             documents[index].data()['userId'],
                             user.uid,
                             documents[index].id,
                             true,
-                            documents[index].data()['latitude'],
-                            documents[index].data()['longitude'],
+                            // documents[index].data()['latitude'],
+                            // documents[index].data()['longitude'],
                             documents[index].data()['bathrooms'],
                             documents[index].data()['bedrooms'],
                             documents[index].data()['kitchen'],
@@ -787,7 +792,8 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                             documents[index].data()['secondAdditionalImage'],
                             documents[index].data()['userProfileImage'],
                             documents[index].data()['userMail'],
-                            documents[index].data()['fullAddress'],
+                            documents[index].data()['locationFullPlaceId'],
+
                             key: ValueKey(documents[index].id),
                           ),
                           Padding(
@@ -804,17 +810,24 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                                 child: Column(
                                   children: [
                                     InkWell(
-                                      onTap: () {
+                                      onTap: () async {
                                         if (_isButtonDisabled == true) {
                                           _isButtonDisabled = false;
                                         }
+
+                                        var fullDestonationFromId =
+                                            await getFullDestination(
+                                                documents[index].data()[
+                                                    'destinationFullPlaceId']);
 
                                         _startEditProperty(
                                           context,
                                           _pickedDestination != ''
                                               ? _pickedDestination
-                                              : documents[index].data()[
-                                                  'fullDestinationAddress'],
+                                              // : documents[index].data()[
+                                              //     'fullDestinationAddress'],
+                                              : fullDestonationFromId,
+                                          //     'fullDestinationAddress'])
                                           documents[index].id,
                                           user.uid,
                                           _scaffoldKey,
@@ -849,20 +862,59 @@ class _ListingsUniqueState extends State<ListingsUnique> {
   }
 }
 
+Future<String> getFullDestination(placeId) async {
+  GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: PLACES_API_KEY);
+
+  PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(placeId);
+
+  // if (detail.result.formattedAddress != null) {
+  //   print(' formatted address: ${detail.result.formattedAddress}');
+  // }
+
+  return detail.result.formattedAddress;
+}
+
+// Future<List<dynamic>> displayPrediction(Prediction p) async {
+//   if (p != null) {
+//     PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
+
+//     var placeId = p.placeId;
+//     double lat = detail.result.geometry.location.lat;
+//     double lng = detail.result.geometry.location.lng;
+//     String street = detail.result.geometry.location.toString();
+//     String loc = detail.result.formattedAddress.toString();
+
+//     var address = await Geocoder.google(kGoogleApiKey)
+//         .findAddressesFromQuery(p.description);
+
+//     return [address.first.locality, address.first.addressLine];
+//     //return address.first.addressLne;
+//   }
+// }
+
 Future<List<dynamic>> displayPrediction(Prediction p) async {
   if (p != null) {
-    PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
+    //PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
 
-    var placeId = p.placeId;
-    double lat = detail.result.geometry.location.lat;
-    double lng = detail.result.geometry.location.lng;
-    String street = detail.result.geometry.location.toString();
-    String loc = detail.result.formattedAddress.toString();
+    // var placeId = p.placeId;
+    // double lat = detail.result.geometry.location.lat;
+    // double lng = detail.result.geometry.location.lng;
+    // String street = detail.result.geometry.location.toString();
+    // String loc = detail.result.formattedAddress.toString();
+
+    //var address = await Geocoder.local.findAddressesFromQuery(p.description);
+    //var coordinates = new Coordinates(lat, lng);
 
     var address = await Geocoder.google(kGoogleApiKey)
         .findAddressesFromQuery(p.description);
 
-    return [address.first.locality, address.first.addressLine];
+    PlacesSearchResponse response =
+        await _places.searchByText(address.first.locality);
+
+    //print(address.first.addressLine);
+    //return [address.first.locality, lat, lng, address.first.addressLine];
     //return address.first.addressLne;
+
+    return [p.description, p.placeId, response.results.first.placeId];
   }
 }

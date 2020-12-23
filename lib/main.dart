@@ -1,4 +1,7 @@
 import 'package:conspacesapp/payment/components.dart';
+import 'package:conspacesapp/screens/explore_screen.dart';
+import 'package:conspacesapp/screens/settings/settings_screen.dart';
+import 'package:conspacesapp/screens/user_listings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import './screens/tabs_screen.dart';

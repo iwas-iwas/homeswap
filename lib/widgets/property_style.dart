@@ -1,6 +1,10 @@
+import 'package:conspacesapp/credentials.dart';
 import 'package:flutter/material.dart';
 import './property_detail.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+// import 'package:geocoder/geocoder.dart';
+// import 'package:google_maps_webservice/places.dart';
+// import 'package:flutter_google_places/flutter_google_places.dart';
 
 class PropertyStyle extends StatelessWidget {
   PropertyStyle(
@@ -14,8 +18,8 @@ class PropertyStyle extends StatelessWidget {
       this.currentUserId,
       this.propertyId,
       this.fromListingsUnique,
-      this.latitude,
-      this.longitude,
+      // this.latitude,
+      // this.longitude,
       this.bathrooms,
       this.bedrooms,
       this.kitchen,
@@ -40,8 +44,8 @@ class PropertyStyle extends StatelessWidget {
   final String currentUserId;
   final String propertyId;
   final bool fromListingsUnique;
-  final double latitude;
-  final double longitude;
+  // final double latitude;
+  // final double longitude;
   final double bathrooms;
   final double bedrooms;
   final double kitchen;
@@ -53,6 +57,34 @@ class PropertyStyle extends StatelessWidget {
   final String userMail;
   final String fullLocationAddress;
 
+  //final GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: PLACES_API_KEY);
+
+  // Future<String> getCity(placeId) async {
+  //   PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(placeId);
+
+  //   if (detail.result.adrAddress != null) {
+  //     //print('address: ${detail.result.adrAddress}');
+  //   }
+
+  //   return detail.result.adrAddress;
+  // }
+
+  // Future<List<String>> getLocations(placeId) async {
+  //   PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(placeId);
+
+  //   var addressInitial = detail.result.formattedAddress;
+
+  //   if (addressInitial != null) {
+  //     var address = await Geocoder.google(PLACES_API_KEY)
+  //         .findAddressesFromQuery(addressInitial);
+  //     // get full location address aswell, but only display it when comming from listings unique or active swaps
+
+  //     return [address.first.locality, address.first.addressLine];
+  //   }
+
+  //   return ['', ''];
+  // }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -61,6 +93,11 @@ class PropertyStyle extends StatelessWidget {
       child: GestureDetector(
         // onTap push to property detail page
         onTap: () {
+          //List<dynamic> locations = await getLocations(fullLocationAddress);
+
+          // var locationFromId = await getCity(propertyLocation);
+          // var fullLocationFromId = await getFullLocation(fullLocationAddress);
+
           Navigator.push(
             context,
             MaterialPageRoute(
@@ -69,12 +106,14 @@ class PropertyStyle extends StatelessWidget {
                   userName,
                   userImage,
                   propertyLocation,
+                  //locationFromId,
+                  // locations[0],
                   propertyUserId,
                   currentUserId,
                   propertyId,
-                  fromListingsUnique,
-                  latitude,
-                  longitude,
+                  fromListingsUnique, // fuer from swaps OR listings unique
+                  // latitude,
+                  // longitude,
                   bathrooms,
                   bedrooms,
                   kitchen,
@@ -86,7 +125,10 @@ class PropertyStyle extends StatelessWidget {
                   userProfileImage,
                   userMail,
                   '',
-                  fullLocationAddress
+                  fullLocationAddress,
+                  fromListingsUnique // only for listings unique
+                  //fullLocationFromId
+                  //locations[1],
                   //false
                   ),
             ),
@@ -177,24 +219,24 @@ class PropertyStyle extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              Icon(
-                                Icons.location_on,
-                                color: Colors.white,
-                                size: 14,
-                              ),
-                              SizedBox(
-                                width: 4,
-                              ),
-                              Text(
-                                propertyLocation,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              SizedBox(
-                                width: 8,
-                              ),
+                              // Icon(
+                              //   Icons.location_on,
+                              //   color: Colors.white,
+                              //   size: 14,
+                              // ),
+                              // SizedBox(
+                              //   width: 4,
+                              // ),
+                              // Text(
+                              //   propertyLocation,
+                              //   style: TextStyle(
+                              //     color: Colors.white,
+                              //     fontSize: 14,
+                              //   ),
+                              // ),
+                              // SizedBox(
+                              //   width: 8,
+                              // ),
                               Icon(
                                 Icons.zoom_out_map,
                                 color: Colors.white,

@@ -30,11 +30,16 @@ class UserListingsScreen extends StatefulWidget {
 
 class _UserListingsScreenState extends State<UserListingsScreen> {
   String _pickedLocation = '';
-  double _pickedLongitude;
-  double _pickedLatitude;
-  String _pickedFullAddress = '';
-  String _pickedFullDestination = '';
   String _pickedDestination = '';
+  String locationPlaceId;
+  String destinationPlaceId;
+  String locationFullPlaceId;
+  String destinationFullPlaceId;
+  // double _pickedLongitude;
+  // double _pickedLatitude;
+  // String _pickedFullAddress = '';
+  // String _pickedFullDestination = '';
+  // String _pickedDestination = '';
   final _titleController = TextEditingController();
   var _enteredMessage;
   File _storedImage;
@@ -85,9 +90,13 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
 
     if (user == null) {
       await Future.delayed(Duration(seconds: 1));
+      user = FirebaseAuth.instance.currentUser;
     }
 
-    user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      await Future.delayed(Duration(seconds: 1));
+      user = FirebaseAuth.instance.currentUser;
+    }
 
     if (user.isAnonymous) {
       setState(() {
@@ -124,14 +133,14 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
         .child(user.uid)
         .child(user.uid + Timestamp.now().toString() + '.jpg');
 
-    String _destination = _noDestination ? 'ffa' : _pickedDestination;
+    //String _destination = _noDestination ? 'ffa' : _pickedDestination;
+
+    String _destination = _noDestination ? 'ffa' : destinationPlaceId;
 
     // here we get the image reference (url) from the image file and set it in the user document
     await ref.putFile(_storedImage).onComplete;
 
     final url = await ref.getDownloadURL();
-    print('entered message: $_enteredMessage');
-    print('url: $url');
 
     if (_firstAdditionalImage != null) {
       // Get Image Url
@@ -166,17 +175,14 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
       'title': _enteredMessage,
       'createdAt': Timestamp.now(),
       'userId': user.uid,
-      // for every new property, the username of the creator is stored
       'username': userData.data()['username'],
       'userProfileImage': userData.data()['image_url'],
       'userMail': userData.data()['email'],
       'userImage': url,
-      'location': _pickedLocation,
-      'longitude': _pickedLongitude,
-      'latitude': _pickedLatitude,
-      //'destination': _pickedDestination,
-      //'noDestination': _noDestination
-      'destination': _destination,
+      'locationPlaceId': locationPlaceId,
+      'locationFullPlaceId': locationFullPlaceId,
+      'destinationPlaceId': _destination,
+      'destinationFullPlaceId': destinationFullPlaceId,
       'bedrooms': _bedroomCount,
       'workspaces': _workspaceCount,
       'kitchen': _kitchenCount,
@@ -186,8 +192,6 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
           firstAdditionalImageUrl != '' ? firstAdditionalImageUrl : null,
       'secondAdditionalImage':
           secondAdditionalImageUrl != '' ? secondAdditionalImageUrl : null,
-      'fullAddress': _pickedFullAddress,
-      //'userImage': userData.data()['image_url']
     });
 
     setState(() {
@@ -200,8 +204,12 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
       _sqmController.clear();
       _pickedLocation = '';
       _pickedDestination = '';
-      _pickedFullAddress = '';
-      _pickedFullDestination = '';
+      locationFullPlaceId = '';
+      locationPlaceId = '';
+      destinationPlaceId = '';
+      destinationFullPlaceId = '';
+      // _pickedFullAddress = '';
+      // _pickedFullDestination = '';
       _storedImage = null;
       _firstAdditionalImage = null;
       _secondAdditionalImage = null;
@@ -249,7 +257,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                 onChanged: (value) {
                                   modalState(() {
                                     if (_titleController.text.isEmpty) {
-                                      print('text not valid.');
+                                      //print('text not valid.');
                                     } else {
                                       _enteredMessage = value;
                                     }
@@ -275,9 +283,9 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                 //     : 'No Location Selected'),
 
                                 AutoSizeText(
-                                    (_pickedFullAddress != '' &&
-                                            _pickedFullAddress != null)
-                                        ? _pickedFullAddress
+                                    (_pickedLocation != '' &&
+                                            _pickedLocation != null)
+                                        ? _pickedLocation
                                         : 'No Location Selected',
                                     maxLines: 2),
                                 SizedBox(width: 10),
@@ -297,9 +305,12 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                         displayPrediction(p).then((location) {
                                       modalState(() {
                                         _pickedLocation = location[0];
-                                        _pickedLatitude = location[1];
-                                        _pickedLongitude = location[2];
-                                        _pickedFullAddress = location[3];
+                                        locationFullPlaceId = location[1];
+                                        locationPlaceId = location[2];
+                                        // _pickedLocation = location[0];
+                                        // _pickedLatitude = location[1];
+                                        // _pickedLongitude = location[2];
+                                        // _pickedFullAddress = location[3];
                                       });
                                     });
                                   },
@@ -323,9 +334,9 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                 _noDestination == true
                                     ? Text('Free for all')
                                     : AutoSizeText(
-                                        (_pickedFullDestination != '' &&
-                                                _pickedFullDestination != null)
-                                            ? _pickedFullDestination
+                                        (_pickedDestination != '' &&
+                                                _pickedDestination != null)
+                                            ? _pickedDestination
                                             : 'No Destination Selected',
                                         maxLines: 2),
                                 SizedBox(width: 10),
@@ -345,7 +356,10 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                         displayPrediction(p).then((location) {
                                       modalState(() {
                                         _pickedDestination = location[0];
-                                        _pickedFullDestination = location[3];
+                                        destinationFullPlaceId = location[1];
+                                        destinationPlaceId = location[2];
+                                        // _pickedDestination = location[0];
+                                        // _pickedFullDestination = location[3];
                                         // _pickedLatitude = location[1];
                                         // _pickedLongitude = location[2];
                                         if (_noDestination == true &&
@@ -368,8 +382,8 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                       _noDestination = value;
                                       _pickedDestination =
                                           _noDestination ? 'Free for all' : '';
-                                      _pickedFullDestination =
-                                          _noDestination ? 'Free for all' : '';
+                                      // _pickedFullDestination =
+                                      //     _noDestination ? 'Free for all' : '';
                                       // if (_noDestination == true &&
                                       //     _pickedDestination != null &&
                                       //     _pickedDestination != '') {
@@ -457,7 +471,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                         onChanged: (value) {
                                           modalState(() {
                                             if (_sqmController.text.isEmpty) {
-                                              print('text not valid.');
+                                              //print('text not valid.');
                                             } else {
                                               _sqm = double.parse(value);
                                             }
@@ -901,13 +915,13 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
 
 Future<List<dynamic>> displayPrediction(Prediction p) async {
   if (p != null) {
-    PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
+    //PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
 
-    var placeId = p.placeId;
-    double lat = detail.result.geometry.location.lat;
-    double lng = detail.result.geometry.location.lng;
-    String street = detail.result.geometry.location.toString();
-    String loc = detail.result.formattedAddress.toString();
+    // var placeId = p.placeId;
+    // double lat = detail.result.geometry.location.lat;
+    // double lng = detail.result.geometry.location.lng;
+    // String street = detail.result.geometry.location.toString();
+    // String loc = detail.result.formattedAddress.toString();
 
     //var address = await Geocoder.local.findAddressesFromQuery(p.description);
     //var coordinates = new Coordinates(lat, lng);
@@ -915,8 +929,13 @@ Future<List<dynamic>> displayPrediction(Prediction p) async {
     var address = await Geocoder.google(kGoogleApiKey)
         .findAddressesFromQuery(p.description);
 
+    PlacesSearchResponse response =
+        await _places.searchByText(address.first.locality);
+
     //print(address.first.addressLine);
-    return [address.first.locality, lat, lng, address.first.addressLine];
+    //return [address.first.locality, lat, lng, address.first.addressLine];
     //return address.first.addressLne;
+
+    return [p.description, p.placeId, response.results.first.placeId];
   }
 }

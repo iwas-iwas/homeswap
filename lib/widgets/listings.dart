@@ -5,8 +5,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:numberpicker/numberpicker.dart';
 import '../constants.dart';
+import '../credentials.dart';
 import './property_style.dart';
 import '../screens/tabs_screen.dart';
+import 'package:geocoder/geocoder.dart';
+import 'package:google_maps_webservice/places.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
 
 class Listings extends StatefulWidget {
   // TODO: Filter Listings by pickedLocation & pickedDestination
@@ -23,11 +27,40 @@ class Listings extends StatefulWidget {
 
   Listings(this.pickedLocation, this.pickedDestination);
 
+  GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: PLACES_API_KEY);
+
   @override
   _ListingsState createState() => _ListingsState();
 }
 
 class _ListingsState extends State<Listings> {
+  String _city = '';
+
+  void initState() {
+    super.initState();
+    _getCity(widget.pickedDestination);
+  }
+
+  Future<void> _getCity(placeId) async {
+    //TODO: catch if google retruns wrong status, wait for x seconds and repeat or return empty string
+
+    PlacesDetailsResponse detail =
+        await widget._places.getDetailsByPlaceId(widget.pickedDestination);
+
+    var addressInitial = detail.result.formattedAddress;
+
+    // var address = await Geocoder.google(PLACES_API_KEY)
+    //     .findAddressesFromQuery(addressInitial);
+
+    // double lat = detail.result.geometry.location.lat;
+    // double lng = detail.result.geometry.location.lng;
+
+    setState(() {
+      //_city = address.first.locality;
+      _city = addressInitial;
+    });
+  }
+
   void _showBottomSheet() {
     showModalBottomSheet(
         context: context,
@@ -206,178 +239,188 @@ class _ListingsState extends State<Listings> {
     final user = FirebaseAuth.instance.currentUser;
     // once we got the currently logged in user, return streambuilder and build the list view new for every new property
     //return StreamBuilder(
-    return Column(
-      children: [
-        Padding(
-          padding:
-              const EdgeInsets.only(left: 15, right: 15, top: 0, bottom: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TabsScreen(),
-                    ),
-                  );
-                },
-                child: Icon(
-                  Icons.arrow_back_ios,
-                  color: Colors.black,
-                  size: 24,
-                ),
-              ),
-              GestureDetector(
-                onTap: () {
-                  _showBottomSheet();
-                },
-                child: Icon(
-                  Icons.filter_list,
-                  color: Colors.black,
-                  size: 24,
-                ),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: ListView(
-            //crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              HeadingFromExplore(widget.pickedDestination),
-              StreamBuilder(
-                  stream: FirebaseFirestore.instance
-                      .collection('properties')
-                      .where('location', isEqualTo: widget.pickedDestination)
-                      .where('destination',
-                          whereIn: [widget.pickedLocation, 'ffa'])
-                      //TODO: ORDER BY HAT DEN BUILDER GEBROCHEN, DA VERMUTLICH DER USERID INDEX DER EINGERICHTET IST DADURCH AKTIV WURDE! GGF. WEITEREN INDEX ERSTELLEn FÜR LOCATION/DESTINATION
-                      //.orderBy('createdAt', descending: true)
-                      .snapshots(),
-                  // whenever the properties collection receives a new value, the function inside of the builder argument is executed
-                  builder: (ctx, streamSnapshot) {
-                    if (streamSnapshot.connectionState ==
-                        ConnectionState.waiting) {
-                      return Center(
-                        //child: CircularProgressIndicator(),
-                        child: SpinKitRotatingCircle(
-                          color: kPrimaryColor,
-                          size: 50.0,
-                        ),
-                      );
-                    }
-                    if (!streamSnapshot.hasData) {
-                      return Text('Loading');
-                    }
-
-                    final documents = streamSnapshot.data.docs;
-                    List<dynamic> finalProperties = [];
-                    List<dynamic> filteredPropertyList = [];
-                    bool filterApplied = false;
-
-                    // if filter is applied, filter the full property list depending on the values chosen in the filter. dont build the document list before filter has been applied. the if makes sure of that.
-                    if (widget.wcCount != -1 &&
-                        widget.bedroomCount != -1 &&
-                        widget._currentWorkspaceValue != -1) {
-                      filterApplied = true;
-                      for (var i = 0; i <= documents.length - 1; i++) {
-                        dynamic property = documents[i].data();
-                        if (property['workspaces'] == widget.workspaceCount &&
-                            property['bathrooms'] == widget.wcCount &&
-                            property['bedrooms'] == widget.bedroomCount) {
-                          filteredPropertyList.add(documents[i]);
-                        }
-                      }
-                    }
-
-                    // if no filter is applied, just take all of the documents from the stream. if filter is applied and filtered properties exist, render only them, else if filter applied and no filtered properties are in the db, return that nothing has been found.
-                    if (!filterApplied) {
-                      finalProperties = documents;
-                    } else if (filterApplied &&
-                        filteredPropertyList.length == 0)
-                      return Center(
-                        child: Column(
-                          children: [
-                            Text('No spaces found for the specified filter.'),
-                            SizedBox(height: 10),
-                            RaisedButton.icon(
-                              materialTapTargetSize:
-                                  MaterialTapTargetSize.shrinkWrap,
-                              onPressed: () {
-                                setState(() {
-                                  widget.wcCount = -1;
-                                  widget.workspaceCount = -1;
-                                  widget.bedroomCount = -1;
-                                });
-                              },
-                              icon: Icon(Icons.restore_outlined,
-                                  color: Colors.black),
-                              label: Text(
-                                'Clear Filter',
-                                style: TextStyle(color: Colors.black),
-                              ),
-                              color: Colors.white,
-                            ),
-                          ],
-                        ),
-                      );
-                    else if (filterApplied && filteredPropertyList.length > 0) {
-                      finalProperties = filteredPropertyList;
-                    }
-
-                    return ListView.builder(
-                      //scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
-                      physics: ScrollPhysics(),
-                      // order messages from bottom to top
-                      //reverse: true,
-                      //itemCount: documents.length,
-                      itemCount: finalProperties.length,
-                      itemBuilder: (ctx, index) => PropertyStyle(
-                        finalProperties[index].data()['title'],
-                        //documents[index]['userId'],
-                        // each property contains the username, specified in new_property upon pressing send
-                        finalProperties[index].data()['username'],
-                        finalProperties[index].data()['userImage'],
-                        finalProperties[index].data()['location'],
-                        finalProperties[index].data()['destination'],
-                        // TODO: evaluate if "is me" is needed. maybe to give specific rights or highlight smth?
-                        finalProperties[index].data()['userId'] == user.uid,
-                        finalProperties[index].data()['userId'],
-                        user.uid,
-                        finalProperties[index].id,
-                        false,
-                        finalProperties[index].data()['latitude'],
-                        finalProperties[index].data()['longitude'],
-                        finalProperties[index].data()['bathrooms'],
-                        finalProperties[index].data()['bedrooms'],
-                        finalProperties[index].data()['kitchen'],
-                        finalProperties[index].data()['workspaces'],
-                        finalProperties[index].data()['sqm'],
-                        finalProperties[index].data()['firstAdditionalImage'],
-                        finalProperties[index].data()['secondAdditionalImage'],
-                        finalProperties[index].data()['userProfileImage'],
-                        finalProperties[index].data()['userMail'],
-                        '',
-                        // make sure that flutter makes sure to efficiently update the list with new items
-                        key: ValueKey(documents[index].id),
+    if (_city != '')
+      return Column(
+        children: [
+          Padding(
+            padding:
+                const EdgeInsets.only(left: 15, right: 15, top: 0, bottom: 10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => TabsScreen(),
                       ),
                     );
-                  }),
-            ],
+                  },
+                  child: Icon(
+                    Icons.arrow_back_ios,
+                    color: Colors.black,
+                    size: 24,
+                  ),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    _showBottomSheet();
+                  },
+                  child: Icon(
+                    Icons.filter_list,
+                    color: Colors.black,
+                    size: 24,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+          Expanded(
+            child: ListView(
+              //crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                HeadingFromExplore(_city),
+                StreamBuilder(
+                    stream: FirebaseFirestore.instance
+                        .collection('properties')
+                        .where('locationPlaceId',
+                            isEqualTo: widget.pickedDestination)
+                        .where('destinationPlaceId',
+                            whereIn: [widget.pickedLocation, 'ffa'])
+                        //TODO: ORDER BY HAT DEN BUILDER GEBROCHEN, DA VERMUTLICH DER USERID INDEX DER EINGERICHTET IST DADURCH AKTIV WURDE! GGF. WEITEREN INDEX ERSTELLEn FÜR LOCATION/DESTINATION
+                        //.orderBy('createdAt', descending: true)
+                        .snapshots(),
+                    // whenever the properties collection receives a new value, the function inside of the builder argument is executed
+                    builder: (ctx, streamSnapshot) {
+                      if (streamSnapshot.connectionState ==
+                          ConnectionState.waiting) {
+                        return Center(
+                          //child: CircularProgressIndicator(),
+                          child: SpinKitRotatingCircle(
+                            color: kPrimaryColor,
+                            size: 50.0,
+                          ),
+                        );
+                      }
+                      if (!streamSnapshot.hasData) {
+                        return Text('Loading');
+                      }
+
+                      final documents = streamSnapshot.data.docs;
+                      List<dynamic> finalProperties = [];
+                      List<dynamic> filteredPropertyList = [];
+                      bool filterApplied = false;
+
+                      // if filter is applied, filter the full property list depending on the values chosen in the filter. dont build the document list before filter has been applied. the if makes sure of that.
+                      if (widget.wcCount != -1 &&
+                          widget.bedroomCount != -1 &&
+                          widget._currentWorkspaceValue != -1) {
+                        filterApplied = true;
+                        for (var i = 0; i <= documents.length - 1; i++) {
+                          dynamic property = documents[i].data();
+                          if (property['workspaces'] == widget.workspaceCount &&
+                              property['bathrooms'] == widget.wcCount &&
+                              property['bedrooms'] == widget.bedroomCount) {
+                            filteredPropertyList.add(documents[i]);
+                          }
+                        }
+                      }
+
+                      // if no filter is applied, just take all of the documents from the stream. if filter is applied and filtered properties exist, render only them, else if filter applied and no filtered properties are in the db, return that nothing has been found.
+                      if (!filterApplied) {
+                        finalProperties = documents;
+                      } else if (filterApplied &&
+                          filteredPropertyList.length == 0)
+                        return Center(
+                          child: Column(
+                            children: [
+                              Text('No spaces found for the specified filter.'),
+                              SizedBox(height: 10),
+                              RaisedButton.icon(
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                                onPressed: () {
+                                  setState(() {
+                                    widget.wcCount = -1;
+                                    widget.workspaceCount = -1;
+                                    widget.bedroomCount = -1;
+                                  });
+                                },
+                                icon: Icon(Icons.restore_outlined,
+                                    color: Colors.black),
+                                label: Text(
+                                  'Clear Filter',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                color: Colors.white,
+                              ),
+                            ],
+                          ),
+                        );
+                      else if (filterApplied &&
+                          filteredPropertyList.length > 0) {
+                        finalProperties = filteredPropertyList;
+                      }
+
+                      return ListView.builder(
+                        //scrollDirection: Axis.vertical,
+                        shrinkWrap: true,
+                        physics: ScrollPhysics(),
+                        // order messages from bottom to top
+                        //reverse: true,
+                        //itemCount: documents.length,
+                        itemCount: finalProperties.length,
+                        itemBuilder: (ctx, index) => PropertyStyle(
+                          finalProperties[index].data()['title'],
+                          //documents[index]['userId'],
+                          // each property contains the username, specified in new_property upon pressing send
+                          finalProperties[index].data()['username'],
+                          finalProperties[index].data()['userImage'],
+                          finalProperties[index].data()['location'],
+                          finalProperties[index].data()['destination'],
+                          // TODO: evaluate if "is me" is needed. maybe to give specific rights or highlight smth?
+                          finalProperties[index].data()['userId'] == user.uid,
+                          finalProperties[index].data()['userId'],
+                          user.uid,
+                          finalProperties[index].id,
+                          false,
+                          // finalProperties[index].data()['latitude'],
+                          // finalProperties[index].data()['longitude'],
+                          finalProperties[index].data()['bathrooms'],
+                          finalProperties[index].data()['bedrooms'],
+                          finalProperties[index].data()['kitchen'],
+                          finalProperties[index].data()['workspaces'],
+                          finalProperties[index].data()['sqm'],
+                          finalProperties[index].data()['firstAdditionalImage'],
+                          finalProperties[index]
+                              .data()['secondAdditionalImage'],
+                          finalProperties[index].data()['userProfileImage'],
+                          finalProperties[index].data()['userMail'],
+                          finalProperties[index].data()['locationFullPlaceId'],
+                          // make sure that flutter makes sure to efficiently update the list with new items
+                          key: ValueKey(documents[index].id),
+                        ),
+                      );
+                    }),
+              ],
+            ),
+          ),
+        ],
+      );
+    return Center(
+      child: SpinKitRotatingCircle(
+        color: kPrimaryColor,
+        size: 50.0,
+      ),
     );
   }
 }
 
 class HeadingFromExplore extends StatelessWidget {
-  HeadingFromExplore(this.pickedDestination);
+  HeadingFromExplore(this.cityName);
 
-  final String pickedDestination;
+  final String cityName;
 
   @override
   Widget build(BuildContext context) {
@@ -394,7 +437,7 @@ class HeadingFromExplore extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(left: 15, right: 15, top: 5),
           child: AutoSizeText(
-            pickedDestination,
+            cityName,
             style: TextStyle(
                 fontSize: 36, color: Colors.black, fontWeight: FontWeight.w500),
             maxLines: 1,

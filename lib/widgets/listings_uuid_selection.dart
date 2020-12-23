@@ -54,7 +54,7 @@ class _ListingsUniqueSelectionState extends State<ListingsUniqueSelection> {
                 // ),
                 itemBuilder: (ctx, index) => ListTile(
                   title: Text(
-                      "${documents[index].data()['title']}, ${documents[index].data()['location']}"),
+                      "${documents[index].data()['title']}, ${documents[index].data()['locationPlaceId']}"),
                   leading: Radio(
                     value: documents[index].id,
                     groupValue: _selectedProperty,
@@ -65,30 +65,7 @@ class _ListingsUniqueSelectionState extends State<ListingsUniqueSelection> {
                     },
                   ),
                 ),
-                // Row(
-                //       children: [
-                //         Text("${documents[index].data()['title']}, ${documents[index].data()['locatiom']}"),
-
-                //       ],
-              )
-
-              //PropertyStyle(
-              //   documents[index].data()['title'],
-              //   //documents[index]['userId'],
-              //   // each property contains the username, specified in new_property upon pressing send
-              //   documents[index].data()['username'],
-              //   documents[index].data()['userImage'],
-              //   documents[index].data()['location'],
-              //   documents[index].data()['destination'],
-              //   // TODO: evaluate if "is me" is needed. maybe to give specific rights or highlight smth?
-              //   documents[index].data()['userId'] == user.uid,
-              //   documents[index].data()['userId'],
-              //   user.uid,
-              //   documents[index].id,
-              //   // make sure that flutter makes sure to efficiently update the list with new items
-              //   key: ValueKey(documents[index].id),
-              // ),
-              );
+              ));
         });
   }
 }
