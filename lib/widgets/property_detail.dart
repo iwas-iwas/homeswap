@@ -71,7 +71,7 @@ class Detail extends StatefulWidget {
   final bool fromListingsUnique;
 
   //final GlobalKey<ScaffoldState> scaffoldKey;
-  GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: PLACES_API_KEY);
+  GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: QUERY4);
 
   @override
   _DetailState createState() => _DetailState();
@@ -84,6 +84,7 @@ class _DetailState extends State<Detail> {
   DateTimeRange _selectedDate;
   bool _isLoading = false;
   bool _isPremium;
+  bool _atleastOneSpace = false;
   String _location = '';
   String _fullLocation = '';
   double _lat;
@@ -96,6 +97,7 @@ class _DetailState extends State<Detail> {
 
   Future<void> _checkPremiumStatus() async {
     bool isPremium = false;
+    bool atleastOneSpace = false;
 
     PurchaserInfo purchaserInfo;
 
@@ -123,11 +125,23 @@ class _DetailState extends State<Detail> {
     //   // get full location address aswell, but only display it when comming from listings unique or active swaps
     // }
 
-    var address = await Geocoder.google(PLACES_API_KEY)
-        .findAddressesFromQuery(addressInitial);
+    var address =
+        await Geocoder.google(QUERY4).findAddressesFromQuery(addressInitial);
 
     double lat = detail.result.geometry.location.lat;
     double lng = detail.result.geometry.location.lng;
+
+    // only need to check if greater one listing if premium user. otherwise premium required will be shown anyway.
+    if (isPremium) {
+      QuerySnapshot atleastOneQuery = await FirebaseFirestore.instance
+          .collection('properties')
+          .where('userId', isEqualTo: widget.currentUserId)
+          .get();
+
+      if (atleastOneQuery.docs.isNotEmpty) {
+        atleastOneSpace = true;
+      }
+    }
 
     setState(() {
       _isPremium = isPremium;
@@ -135,6 +149,7 @@ class _DetailState extends State<Detail> {
       _fullLocation = address.first.addressLine;
       _lat = lat;
       _long = lng;
+      _atleastOneSpace = atleastOneSpace;
     });
   }
 
@@ -210,6 +225,8 @@ class _DetailState extends State<Detail> {
 
     // ########### check if receiving has active overlap  ########### //
 
+    print('requestSendToThisUser: $requestSendToThisUser');
+
     QuerySnapshot querySnapshotTwo = await FirebaseFirestore.instance
         .collection('users')
         .doc(requestSendToThisUser)
@@ -230,6 +247,8 @@ class _DetailState extends State<Detail> {
     }
 
     bool unavailable2 = checkOverlap(selectedEndDatesTwo, selectedDate.start);
+
+    print(unavailable2);
 
     // if date overlap, stop right there and dont allow the request. show snackbar. else,  check if too many send request.
     if (unavailable == true || unavailable2 == true) {
@@ -284,8 +303,8 @@ class _DetailState extends State<Detail> {
   }
 
   sendRequestFirebase(dynamic propertyUserId, dynamic currentUserId,
-      dynamic propertyId, selectedDate, globalKey) {
-    setState(() {
+      dynamic propertyId, selectedDate, globalKey, modalState) {
+    modalState(() {
       _isLoading = true;
     });
     dateRangeAvailabilityCheck(currentUserId, selectedDate, propertyUserId)
@@ -300,27 +319,31 @@ class _DetailState extends State<Detail> {
       //print('unavailable: ${unavailable}');
 
       if (unavailable == 1) {
-        SnackBar snackBar = SnackBar(
-          content: Text(
-            'Failed to send Request. You have too many open send requests.',
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Color(0xFF4845c7),
-        );
-        setState(() {
+        SnackBar snackBar = swapRequestSnackbar(
+            'Failed to send Request. You have too many open send requests.');
+        // SnackBar snackBar = SnackBar(
+        //   content: Text(
+        //     'Failed to send Request. You have too many open send requests.',
+        //     style: TextStyle(color: Colors.white),
+        //   ),
+        //   backgroundColor: Color(0xFF4845c7),
+        // );
+        modalState(() {
           _isLoading = false;
         });
         Navigator.of(context).pop();
 
         globalKey.currentState.showSnackBar(snackBar);
       } else if (unavailable == 2) {
-        SnackBar snackBar = SnackBar(
-          content: Text(
-            'Failed to send Request. It is overlapping with another active request.',
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Color(0xFF4845c7),
-        );
+        SnackBar snackBar = swapRequestSnackbar(
+            'Failed to send Request. There is an overlap with your desired period and an active swap by you or the swap partner.');
+        // SnackBar snackBar = SnackBar(
+        //   content: Text(
+        //     'Failed to send Request. There is an overlap with your desired period and an active swap by you or the swap partner.',
+        //     style: TextStyle(color: Colors.white),
+        //   ),
+        //   backgroundColor: Color(0xFF4845c7),
+        // );
         setState(() {
           _isLoading = false;
         });
@@ -328,13 +351,15 @@ class _DetailState extends State<Detail> {
 
         globalKey.currentState.showSnackBar(snackBar);
       } else if (unavailable == 0) {
-        SnackBar snackBar = SnackBar(
-          content: Text(
-            "Request could not be sent. You cannot have multiple pending or active requests with the same user.",
-            style: TextStyle(color: Colors.white),
-          ),
-          backgroundColor: Color(0xFF4845c7),
-        );
+        SnackBar snackBar = swapRequestSnackbar(
+            "Request could not be sent. You cannot have multiple pending or active requests with the same user.");
+        // SnackBar snackBar = SnackBar(
+        //   content: Text(
+        //     "Request could not be sent. You cannot have multiple pending or active requests with the same user.",
+        //     style: TextStyle(color: Colors.white),
+        //   ),
+        //   backgroundColor: Color(0xFF4845c7),
+        // );
         setState(() {
           _isLoading = false;
         });
@@ -381,7 +406,7 @@ class _DetailState extends State<Detail> {
           ),
           backgroundColor: Color(0xFF4845c7),
         );
-        setState(() {
+        modalState(() {
           _isLoading = false;
         });
         Navigator.of(context).pop();
@@ -507,17 +532,15 @@ class _DetailState extends State<Detail> {
                           ],
                         ),
                         SizedBox(height: 10),
-                        if (_isLoading) CircularProgressIndicator(),
+                        if (_isLoading)
+                          Center(child: CircularProgressIndicator()),
                         if (!_isLoading)
                           Container(
                             color: Color(0xFF4845c7),
                             child: SafeArea(
                               child: RaisedButton.icon(
                                 icon: Icon(Icons.add),
-                                color: (_selectedProperty != '' &&
-                                        _selectedDate != null)
-                                    ? Color(0xFF4845c7)
-                                    : Colors.grey,
+                                color: Color(0xFF4845c7),
                                 label: Text('Submit Request'),
                                 elevation: 0,
                                 materialTapTargetSize:
@@ -529,13 +552,13 @@ class _DetailState extends State<Detail> {
                                     // && isloading false?
 
                                     sendRequestFirebase(
-                                      propertyUserId,
-                                      currentUserId,
-                                      propertyId,
-                                      //_selectedDate.toString())
-                                      _selectedDate,
-                                      scaffoldKey,
-                                    );
+                                        propertyUserId,
+                                        currentUserId,
+                                        propertyId,
+                                        //_selectedDate.toString())
+                                        _selectedDate,
+                                        scaffoldKey,
+                                        modalState);
                                   }
 
                                   //: null;
@@ -601,72 +624,77 @@ class _DetailState extends State<Detail> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                children: [
-                                  widget.userProfileImage == null
-                                      ? Container(
-                                          height: 65,
-                                          width: 65,
-                                          decoration: BoxDecoration(
-                                            image: DecorationImage(
-                                              image: AssetImage(
-                                                  "assets/images/profile_default.jpg"),
-                                              fit: BoxFit.cover,
-                                            ),
-                                            shape: BoxShape.circle,
-                                          ),
-                                        )
-                                      : CachedNetworkImage(
-                                          imageUrl: widget.userProfileImage,
-                                          imageBuilder:
-                                              (context, imageProvider) =>
-                                                  Container(
-                                            width: 65.0,
-                                            height: 65.0,
+                              Flexible(
+                                child: Row(
+                                  children: [
+                                    widget.userProfileImage == null
+                                        ? Container(
+                                            height: 65,
+                                            width: 65,
                                             decoration: BoxDecoration(
-                                              shape: BoxShape.circle,
                                               image: DecorationImage(
-                                                  image: imageProvider,
-                                                  fit: BoxFit.cover),
+                                                image: AssetImage(
+                                                    "assets/images/profile_default.jpg"),
+                                                fit: BoxFit.cover,
+                                              ),
+                                              shape: BoxShape.circle,
+                                            ),
+                                          )
+                                        : CachedNetworkImage(
+                                            imageUrl: widget.userProfileImage,
+                                            imageBuilder:
+                                                (context, imageProvider) =>
+                                                    Container(
+                                              width: 65.0,
+                                              height: 65.0,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                image: DecorationImage(
+                                                    image: imageProvider,
+                                                    fit: BoxFit.cover),
+                                              ),
+                                            ),
+                                            placeholder: (context, url) => Center(
+                                                child:
+                                                    CircularProgressIndicator()),
+                                            errorWidget:
+                                                (context, url, error) =>
+                                                    Icon(Icons.error),
+                                          ),
+                                    SizedBox(
+                                      width: 16,
+                                    ),
+                                    Flexible(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(
+                                            width: size.width * 0.3,
+                                            child: Text(
+                                              widget.userName,
+                                              style: TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.black,
+                                              ),
                                             ),
                                           ),
-                                          placeholder: (context, url) => Center(
-                                              child:
-                                                  CircularProgressIndicator()),
-                                          errorWidget: (context, url, error) =>
-                                              Icon(Icons.error),
-                                        ),
-                                  SizedBox(
-                                    width: 16,
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(
-                                        width: size.width * 0.3,
-                                        child: Text(
-                                          widget.userName,
-                                          style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.black,
+                                          SizedBox(
+                                            height: 4,
                                           ),
-                                        ),
+                                          Text(
+                                            "Conspaces User",
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.grey[500],
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                      SizedBox(
-                                        height: 4,
-                                      ),
-                                      Text(
-                                        "Conspaces User",
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          color: Colors.grey[500],
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                    ),
+                                  ],
+                                ),
                               ),
                               Row(
                                 children: [
@@ -683,16 +711,19 @@ class _DetailState extends State<Detail> {
                                           if (widget
                                                   .fromSwapsorListingsUnique ||
                                               widget.isMe ||
-                                              _isPremium) {
+                                              !_isPremium ||
+                                              !_atleastOneSpace) {
                                             SnackBar failSnackBar = SnackBar(
                                               content: Text(
                                                 !_isPremium
                                                     ? 'Sending swap requests requires a premium account.'
-                                                    : widget.fromSwapsorListingsUnique
-                                                        ? 'Failed to send request. You can only send swap requests from the explore page.'
-                                                        : widget.isMe
-                                                            ? 'You cant swap your own spaces.'
-                                                            : 'Failed to send request.',
+                                                    : !_atleastOneSpace
+                                                        ? 'You need at least one listed space to send a swap request.'
+                                                        : widget.fromSwapsorListingsUnique
+                                                            ? 'Failed to send request. You can only send swap requests from the explore page.'
+                                                            : widget.isMe
+                                                                ? 'You cant swap your own spaces.'
+                                                                : 'Failed to send request.',
                                                 style: TextStyle(
                                                     color: Colors.white),
                                               ),
@@ -808,10 +839,10 @@ class _DetailState extends State<Detail> {
                                   "${widget.workspaces.round()} Spaces"),
                               buildFeature(Icons.hotel,
                                   "${widget.bedrooms.round()} Bedroom"),
+                              buildFeature(Icons.people,
+                                  "${widget.kitchen.round()} Roommates"),
                               buildFeature(Icons.wc,
                                   "${widget.bathrooms.round()} Bathroom"),
-                              buildFeature(Icons.kitchen,
-                                  "${widget.kitchen.round()} Kitchen"),
                             ],
                           ),
                         ),
@@ -918,13 +949,40 @@ class _DetailState extends State<Detail> {
           text,
           style: TextStyle(
             color: Colors.grey[500],
-            fontSize: 14,
+            fontSize: 12,
           ),
         )
       ],
     );
   }
 }
+
+SnackBar swapRequestSnackbar(String message) {
+  return SnackBar(
+    content: Text(
+      message != null ? message : 'Failed to send request.',
+      style: TextStyle(color: Colors.white),
+    ),
+    backgroundColor: Color(0xFF4845c7),
+  );
+}
+
+// class SwapRequestSnackbar extends StatelessWidget {
+//   const SwapRequestSnackbar({
+//     Key key,
+//   }) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return SnackBar(
+//       content: Text(
+//         "You need at least one listed space to send a swap request.",
+//         style: TextStyle(color: Colors.white),
+//       ),
+//       backgroundColor: Color(0xFF4845c7),
+//     );
+//   }
+// }
 
 List<Widget> buildPhotos(List<String> images, context) {
   List<Widget> list = [];
