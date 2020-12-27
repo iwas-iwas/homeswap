@@ -81,11 +81,6 @@ class _TabsScreenState extends State<TabsScreen> {
             //title: Text('Profile'),
             label: 'Profile',
           ),
-          // BottomNavigationBarItem(
-          //   icon: Icon(Icons.login),
-          //   //title: Text('Profile'),
-          //   label: 'Auth',
-          // ),
         ],
       ),
     );

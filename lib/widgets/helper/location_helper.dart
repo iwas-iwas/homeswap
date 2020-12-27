@@ -1,6 +1,6 @@
 import '../../credentials.dart';
 
-const kGoogleApiKey = PLACES_API_KEY;
+const kGoogleApiKey = QUERY4;
 
 class LocationHelper {
   static String generateLocationPreviewImage(

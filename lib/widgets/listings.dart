@@ -27,7 +27,7 @@ class Listings extends StatefulWidget {
 
   Listings(this.pickedLocation, this.pickedDestination);
 
-  GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: PLACES_API_KEY);
+  GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: QUERY4);
 
   @override
   _ListingsState createState() => _ListingsState();

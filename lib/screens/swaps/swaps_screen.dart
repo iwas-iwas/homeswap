@@ -1,3 +1,4 @@
+import 'package:conspacesapp/screens/swaps/active_swap_new.dart';
 import 'package:conspacesapp/screens/swaps/received_swaps_new.dart';
 import 'package:conspacesapp/screens/swaps/send_swaps_new.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -6,8 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import '../auth_screen.dart';
-import './active_swap.dart';
-import './received_swaps.dart';
+
 //import './send_swaps.dart';
 import '../../constants.dart';
 
@@ -37,7 +37,7 @@ class _SwapsScreenState extends State<SwapsScreen>
     _checkPremiumStatus();
     // if is anon checken vor tabcontroller
     if (!_isAnon) {
-      _tabController = TabController(vsync: this, length: 2);
+      _tabController = TabController(vsync: this, length: 3);
     }
     //_tabController = TabController(vsync: this, length: 3);
     // final user = FirebaseAuth.instance.currentUser;
@@ -53,19 +53,22 @@ class _SwapsScreenState extends State<SwapsScreen>
   }
 
   Future<void> _checkPremiumStatus() async {
+    //await Future.delayed(Duration(seconds: 1));
     var user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
+      print('lul');
       await Future.delayed(Duration(seconds: 1));
       user = FirebaseAuth.instance.currentUser;
     }
 
     if (user == null) {
+      print('lul');
       await Future.delayed(Duration(seconds: 1));
       user = FirebaseAuth.instance.currentUser;
     }
 
-    user = FirebaseAuth.instance.currentUser;
+    //user = FirebaseAuth.instance.currentUser;
 
     if (user.isAnonymous) {
       setState(() {
@@ -184,14 +187,14 @@ class _SwapsScreenState extends State<SwapsScreen>
                     isScrollable: true,
                     controller: _tabController,
                     tabs: [
-                      // Padding(
-                      //   padding: const EdgeInsets.only(right: 8),
-                      //   child: Text("Active",
-                      //       style: TextStyle(color: Colors.black)),
-                      // ),
                       Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: Text("Received",
+                            style: TextStyle(color: Colors.black)),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Text("Active",
                             style: TextStyle(color: Colors.black)),
                       ),
                       Padding(
@@ -211,11 +214,9 @@ class _SwapsScreenState extends State<SwapsScreen>
         body: TabBarView(
           controller: _tabController,
           children: [
-            //ActiveSwapsScreen(currentUserId),
-
             ReceivedSwapsScreen(_isPremium),
+            ActiveSwapsScreen(currentUserId),
             SendSwapsScreen(),
-            //SendSwapsScreen(),
           ],
         ),
       );

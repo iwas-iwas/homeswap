@@ -1,7 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:conspacesapp/payment/components.dart';
 import 'package:conspacesapp/screens/explore_screen.dart';
-import 'package:conspacesapp/screens/settings/settings_screen.dart';
-import 'package:conspacesapp/screens/user_listings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import './screens/tabs_screen.dart';
@@ -15,8 +14,9 @@ import './credentials.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_analytics/observer.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   SystemChrome.setPreferredOrientations(
       [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   runApp(MyApp());
@@ -42,10 +42,18 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> initPlatformState() async {
+    // DocumentSnapshot query =
+    //     await FirebaseFirestore.instance.collection(QUERY).doc(QUERY3).get();
+
+    //print(query.data()['back']);
+
     appData.isPro = false;
 
     await Purchases.setDebugLogsEnabled(true);
     await Purchases.setup(RABBIT_API_KEY);
+    //await Purchases.setup(query.data()[QUERY2]);
+
+    //print(query.data()['back']);
 
     PurchaserInfo purchaserInfo;
     try {

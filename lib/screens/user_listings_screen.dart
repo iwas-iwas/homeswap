@@ -19,7 +19,7 @@ import 'package:flutter/services.dart';
 
 import 'auth_screen.dart';
 
-const kGoogleApiKey = PLACES_API_KEY;
+const kGoogleApiKey = QUERY4;
 
 GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
 
@@ -425,6 +425,12 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                       _workspaceController,
                                       _workspaceValidator,
                                       modalState),
+                                  buildFeature(
+                                      Icons.people,
+                                      "Roommates",
+                                      _kitchenController,
+                                      _kitchenValidator,
+                                      modalState),
                                   //SizedBox(width: 25),
                                   buildFeature(
                                       Icons.wc,
@@ -433,12 +439,12 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                       _bathroomValidator,
                                       modalState),
                                   //SizedBox(width: 25),
-                                  buildFeature(
-                                      Icons.kitchen,
-                                      "Kitchen",
-                                      _kitchenController,
-                                      _kitchenValidator,
-                                      modalState),
+                                  // buildFeature(
+                                  //     Icons.people,
+                                  //     "Roommates",
+                                  //     _kitchenController,
+                                  //     _kitchenValidator,
+                                  //     modalState),
                                 ],
                               ),
                             ),
@@ -657,7 +663,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                     ),
                   ),
                   _isLoading
-                      ? CircularProgressIndicator()
+                      ? Center(child: CircularProgressIndicator())
                       : Container(
                           color: Color(0xFF4845c7),
                           child: SafeArea(
@@ -717,7 +723,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
     final picker = ImagePicker();
     final imageFile = await picker.getImage(
       //source: ImageSource.camera,
-      source: ImageSource.camera,
+      source: ImageSource.gallery,
       maxWidth: 600,
     );
     modalState(() {
@@ -730,7 +736,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
     final picker = ImagePicker();
     final imageFile = await picker.getImage(
       //source: ImageSource.camera,
-      source: ImageSource.camera,
+      source: ImageSource.gallery,
       maxWidth: 600,
     );
     modalState(() {
@@ -743,7 +749,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
     final picker = ImagePicker();
     final imageFile = await picker.getImage(
       //source: ImageSource.camera,
-      source: ImageSource.camera,
+      source: ImageSource.gallery,
       maxWidth: 600,
     );
     modalState(() {
@@ -926,16 +932,25 @@ Future<List<dynamic>> displayPrediction(Prediction p) async {
     //var address = await Geocoder.local.findAddressesFromQuery(p.description);
     //var coordinates = new Coordinates(lat, lng);
 
+    var placeId;
+
     var address = await Geocoder.google(kGoogleApiKey)
         .findAddressesFromQuery(p.description);
 
-    PlacesSearchResponse response =
-        await _places.searchByText(address.first.locality);
+    if (address.first.locality != null) {
+      // get place id of the city
+      PlacesSearchResponse response =
+          await _places.searchByText(address.first.locality);
+
+      placeId = response.results.first.placeId;
+    } else {
+      placeId = p.placeId;
+    }
 
     //print(address.first.addressLine);
     //return [address.first.locality, lat, lng, address.first.addressLine];
     //return address.first.addressLne;
 
-    return [p.description, p.placeId, response.results.first.placeId];
+    return [p.description, p.placeId, placeId];
   }
 }

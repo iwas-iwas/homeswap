@@ -8,7 +8,7 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'listings_screen.dart';
 
-GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: PLACES_API_KEY);
+GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: QUERY4);
 
 class ExploreScreenTest extends StatefulWidget {
   @override
@@ -16,22 +16,31 @@ class ExploreScreenTest extends StatefulWidget {
 }
 
 class _ExploreScreenTestState extends State<ExploreScreenTest> {
+  bool _validateLocation = false;
+  bool _validateDestination = false;
   String _pickedLocation = '';
   String _pickedDestination = '';
   String _pickedLocationAddress = '';
   String _pickedDestinationAddress = '';
 
   final _locationController = TextEditingController();
-  var _enteredLocation;
+  // var _enteredLocation;
 
   final _destinationController = TextEditingController();
-  var _enteredDestination;
+  // var _enteredDestination;
 
   @override
   void initState() {
     _pickedDestination = '';
     _pickedLocation = '';
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _locationController.dispose();
+    _destinationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -60,14 +69,17 @@ class _ExploreScreenTestState extends State<ExploreScreenTest> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          SizedBox(
-                            height: size.height * 0.06,
-                            child: Text(
-                              'Explore',
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: size.width * 0.09,
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 2.0),
+                            child: SizedBox(
+                              height: size.height * 0.06,
+                              child: Text(
+                                'Explore',
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: size.width * 0.09,
+                                ),
                               ),
                             ),
                           ),
@@ -112,17 +124,21 @@ class _ExploreScreenTestState extends State<ExploreScreenTest> {
                           ),
                           TextField(
                             decoration: InputDecoration(
-                                labelText: 'Enter Location',
-                                labelStyle: TextStyle(height: 0)),
+                                labelText: 'Select Location',
+                                labelStyle: TextStyle(height: 0),
+                                errorText: _validateLocation
+                                    ? 'Tap on the field to search and select a location.'
+                                    : null),
                             controller: _locationController,
                             onTap: () async {
                               // show input autocomplete with selected mode
                               // then get the Prediction selected
                               Prediction p = await PlacesAutocomplete.show(
-                                  context: context, apiKey: PLACES_API_KEY);
+                                  context: context, apiKey: QUERY4);
                               final locationData =
                                   displayPrediction(p).then((location) {
                                 setState(() {
+                                  FocusScope.of(context).unfocus();
                                   _pickedLocation = location[0];
                                   _pickedLocationAddress = location[1];
                                   _locationController.text = location[1];
@@ -152,18 +168,21 @@ class _ExploreScreenTestState extends State<ExploreScreenTest> {
                           //height: 100,
                           TextField(
                             decoration: InputDecoration(
-                                labelText: 'Enter Destination',
-                                labelStyle: TextStyle(height: 0)),
+                                labelText: 'Select Destination',
+                                labelStyle: TextStyle(height: 0),
+                                errorText: _validateDestination
+                                    ? 'Tap on the field to search and select a location.'
+                                    : null),
                             controller: _destinationController,
                             onTap: () async {
                               // show input autocomplete with selected mode
                               // then get the Prediction selected
                               Prediction p = await PlacesAutocomplete.show(
-                                  context: context, apiKey: PLACES_API_KEY);
+                                  context: context, apiKey: QUERY4);
                               final locationData =
                                   displayPrediction(p).then((location) {
                                 setState(() {
-                                  //FocusScope.of(context).unfocus();
+                                  FocusScope.of(context).unfocus();
                                   _pickedDestination = location[0];
                                   _pickedDestinationAddress = location[1];
                                   _destinationController.text = location[1];
@@ -200,6 +219,25 @@ class _ExploreScreenTestState extends State<ExploreScreenTest> {
                                           _pickedLocation, _pickedDestination),
                                     ),
                                   );
+                                } else {
+                                  if (_pickedLocation == '' &&
+                                      _pickedDestination != '') {
+                                    setState(() {
+                                      _validateLocation = true;
+                                      _validateDestination = false;
+                                    });
+                                  } else if (_pickedLocation != '' &&
+                                      _pickedDestination == '') {
+                                    setState(() {
+                                      _validateDestination = true;
+                                      _validateLocation = false;
+                                    });
+                                  } else {
+                                    setState(() {
+                                      _validateLocation = true;
+                                      _validateDestination = true;
+                                    });
+                                  }
                                 }
                               },
                               backgroundColor: const Color(0xFF4845c7),
@@ -245,13 +283,25 @@ Future<List<String>> displayPrediction(Prediction p) async {
     // String loc = detail.result.formattedAddress.toString();
     //var coordinates = new Coordinates(lat, lng);
     //var address = await Geocoder.local.findAddressesFromQuery(p.description);
+
+    print(p.description);
+
+    var placeId;
+
     var address = await Geocoder.google(kGoogleApiKey)
         .findAddressesFromQuery(p.description);
 
-    // get place id of the city
-    PlacesSearchResponse response =
-        await _places.searchByText(address.first.locality);
+    // if no locality/city is entered, it is already a locality, so the palce id of the original chosen prediction instead.
+    if (address.first.locality != null) {
+      // get place id of the city
+      PlacesSearchResponse response =
+          await _places.searchByText(address.first.locality);
 
-    return [response.results.first.placeId, address.first.addressLine];
+      placeId = response.results.first.placeId;
+    } else {
+      placeId = p.placeId;
+    }
+
+    return [placeId, address.first.addressLine];
   }
 }

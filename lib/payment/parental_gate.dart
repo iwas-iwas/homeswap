@@ -173,7 +173,7 @@ class _ParentalGateState extends State<ParentalGate> {
                                   DialogButton(
                                     radius: BorderRadius.circular(10),
                                     child: Text(
-                                      "COOL",
+                                      "Continue",
                                       style: kSendButtonTextStyle,
                                     ),
                                     onPressed: () {

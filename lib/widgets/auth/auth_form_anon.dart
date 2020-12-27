@@ -2,7 +2,9 @@ import 'package:conspacesapp/screens/Signup/components/or_divider.dart';
 import 'package:conspacesapp/screens/tabs_screen.dart';
 import 'package:conspacesapp/widgets/auth/forgot_password.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../constants.dart';
 import 'package:flutter/material.dart';
 import '../../screens/Signup/components/background.dart';
@@ -66,12 +68,12 @@ class _AuthFormAnonState extends State<AuthFormAnon> {
         false, //islogin is false
         context,
       );
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => TabsScreen(),
-        ),
-      );
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(
+      //     builder: (context) => TabsScreen(),
+      //   ),
+      // );
     }
   }
 
@@ -178,8 +180,8 @@ class _AuthFormAnonState extends State<AuthFormAnon> {
                     obscureText: true,
                     key: ValueKey('password'),
                     validator: (value) {
-                      if (value.isEmpty || value.length < 7) {
-                        return 'Password must be atleast 7 characters long';
+                      if (value.isEmpty || value.length < 6) {
+                        return 'Password must be atleast 6 characters long';
                       }
                       // all good
                       return null;
@@ -265,10 +267,7 @@ class _AuthFormAnonState extends State<AuthFormAnon> {
                 //   ),
 
                 //if (!_isLogin)
-                Text(
-                  'By signing up on Conspaces, you agree to our Terms & Conditions and Privacy Policy',
-                  style: TextStyle(color: kPrimaryColor),
-                ),
+                privacyPolicyLinkAndTermsOfService()
               ],
             ),
           ),
@@ -276,4 +275,58 @@ class _AuthFormAnonState extends State<AuthFormAnon> {
       ),
     );
   }
+}
+
+Widget privacyPolicyLinkAndTermsOfService() {
+  return Container(
+    alignment: Alignment.center,
+    padding: EdgeInsets.all(10),
+    child: Center(
+        child: Text.rich(
+      TextSpan(
+          text: 'By creating an account, you agree with our \n',
+          style: TextStyle(
+            fontSize: 16,
+            color: kPrimaryColor,
+          ),
+          children: <TextSpan>[
+            TextSpan(
+                text: 'Terms and Conditions',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: kPrimaryColor,
+                  decoration: TextDecoration.underline,
+                ),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
+                    launch(
+                        'https://www.iubenda.com/terms-and-conditions/18657475');
+                    // code to open / launch privacy policy link here
+                  }),
+            TextSpan(
+                text: ' & ',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: kPrimaryColor,
+                ),
+                children: <TextSpan>[
+                  TextSpan(
+                      text: 'Privacy Policy',
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: kPrimaryColor,
+                          decoration: TextDecoration.underline),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          launch(
+                              'https://www.iubenda.com/privacy-policy/18657475');
+                          // code to open / launch privacy policy link here
+                        })
+                ])
+          ]),
+      textAlign: TextAlign.center,
+      //maxLines: 2,
+      //overflow: TextOverflow.ellipsis
+    )),
+  );
 }

@@ -18,7 +18,7 @@ import 'package:intl/intl.dart';
 import './property_style.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
-const kGoogleApiKey = PLACES_API_KEY;
+const kGoogleApiKey = QUERY4;
 
 GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
 
@@ -50,31 +50,30 @@ class _ListingsUniqueState extends State<ListingsUnique> {
   }
 
   Future<int> checkIfActive(String currentUserId, String propertyId) async {
-    // unnoetig in beiden zu schauen, wie bei delete implementieren
-
-    QuerySnapshot receivedActiveSnapshot = await FirebaseFirestore.instance
+    // checks for send and received because in both cases the space of the current user is in the myproperty field
+    QuerySnapshot currentlyActive = await FirebaseFirestore.instance
         .collection('users')
         .doc(currentUserId)
         .collection('requests')
         .where("status", isEqualTo: "accepted")
-        .where("type", isEqualTo: "received")
+        //.where("type", isEqualTo: "received")
         .where('myProperty', isEqualTo: propertyId)
         .get();
 
-    int alreadyActiveReceived = receivedActiveSnapshot.docs.length;
+    // int alreadyActiveReceived = receivedActiveSnapshot.docs.length;
 
-    QuerySnapshot sendActiveSnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUserId)
-        .collection('requests')
-        .where("status", isEqualTo: "accepted")
-        .where("type", isEqualTo: "send")
-        .where('RequestSendByProperty', isEqualTo: propertyId)
-        .get();
+    // QuerySnapshot sendActiveSnapshot = await FirebaseFirestore.instance
+    //     .collection('users')
+    //     .doc(currentUserId)
+    //     .collection('requests')
+    //     .where("status", isEqualTo: "accepted")
+    //     //.where("type", isEqualTo: "send")
+    //     .where('myProperty', isEqualTo: propertyId)
+    //     .get();
 
-    int alreadyActiveSend = sendActiveSnapshot.docs.length;
+    //int alreadyActive = sendActiveSnapshot.docs.length;
 
-    if (alreadyActiveReceived > 0 || alreadyActiveSend > 0) {
+    if (currentlyActive.docs.isNotEmpty) {
       return 1;
     } else {
       return 0;
@@ -650,7 +649,7 @@ class _ListingsUniqueState extends State<ListingsUnique> {
     final picker = ImagePicker();
     final imageFile = await picker.getImage(
       //source: ImageSource.camera,
-      source: ImageSource.camera,
+      source: ImageSource.gallery,
       maxWidth: 600,
     );
     modalState(() {
@@ -663,7 +662,7 @@ class _ListingsUniqueState extends State<ListingsUnique> {
     final picker = ImagePicker();
     final imageFile = await picker.getImage(
       //source: ImageSource.camera,
-      source: ImageSource.camera,
+      source: ImageSource.gallery,
       maxWidth: 600,
     );
     modalState(() {
@@ -676,7 +675,7 @@ class _ListingsUniqueState extends State<ListingsUnique> {
     final picker = ImagePicker();
     final imageFile = await picker.getImage(
       //source: ImageSource.camera,
-      source: ImageSource.camera,
+      source: ImageSource.gallery,
       maxWidth: 600,
     );
     modalState(() {
@@ -863,7 +862,7 @@ class _ListingsUniqueState extends State<ListingsUnique> {
 }
 
 Future<String> getFullDestination(placeId) async {
-  GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: PLACES_API_KEY);
+  GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: QUERY4);
 
   PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(placeId);
 
@@ -873,24 +872,6 @@ Future<String> getFullDestination(placeId) async {
 
   return detail.result.formattedAddress;
 }
-
-// Future<List<dynamic>> displayPrediction(Prediction p) async {
-//   if (p != null) {
-//     PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
-
-//     var placeId = p.placeId;
-//     double lat = detail.result.geometry.location.lat;
-//     double lng = detail.result.geometry.location.lng;
-//     String street = detail.result.geometry.location.toString();
-//     String loc = detail.result.formattedAddress.toString();
-
-//     var address = await Geocoder.google(kGoogleApiKey)
-//         .findAddressesFromQuery(p.description);
-
-//     return [address.first.locality, address.first.addressLine];
-//     //return address.first.addressLne;
-//   }
-// }
 
 Future<List<dynamic>> displayPrediction(Prediction p) async {
   if (p != null) {
@@ -905,16 +886,25 @@ Future<List<dynamic>> displayPrediction(Prediction p) async {
     //var address = await Geocoder.local.findAddressesFromQuery(p.description);
     //var coordinates = new Coordinates(lat, lng);
 
+    var placeId;
+
     var address = await Geocoder.google(kGoogleApiKey)
         .findAddressesFromQuery(p.description);
 
-    PlacesSearchResponse response =
-        await _places.searchByText(address.first.locality);
+    if (address.first.locality != null) {
+      // get place id of the city
+      PlacesSearchResponse response =
+          await _places.searchByText(address.first.locality);
+
+      placeId = response.results.first.placeId;
+    } else {
+      placeId = p.placeId;
+    }
 
     //print(address.first.addressLine);
     //return [address.first.locality, lat, lng, address.first.addressLine];
     //return address.first.addressLne;
 
-    return [p.description, p.placeId, response.results.first.placeId];
+    return [p.description, p.placeId, placeId];
   }
 }

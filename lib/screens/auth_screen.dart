@@ -1,4 +1,5 @@
 //import 'package:conspacesapp/screens/Welcome/welcome_screen.dart';
+import 'package:conspacesapp/screens/tabs_screen.dart';
 import 'package:conspacesapp/widgets/auth/auth_form_anon.dart';
 // import 'package:conspacesapp/widgets/database_service.dart';
 // import 'package:firebase_core/firebase_core.dart';
@@ -75,27 +76,48 @@ class _AuthScreenState extends State<AuthScreen> {
       });
 
       await Purchases.identify(currentUser.uid);
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => TabsScreen(),
+        ),
+      );
     } on PlatformException catch (err) {
-      var message = 'An error occurred, pelase check your credentials!';
+      var message = 'You have entered an invalid email or password.';
+      // print('im here');
+      // print(err);
+      // print(message);
 
       if (err.message != null) {
         message = err.message;
+        print("platformexception: " + message);
       }
 
       Scaffold.of(ctx).showSnackBar(
         SnackBar(
           content: Text(message),
-          backgroundColor: Theme.of(ctx).errorColor,
+          backgroundColor: Color(0xFF4845c7),
         ),
       );
       setState(() {
         _isLoading = false;
       });
     } catch (err) {
-      print(err);
-      setState(() {
-        _isLoading = false;
-      });
+      print('lol');
+      print(err.code);
+      if (err.code == 'email-already-in-use') {
+        Scaffold.of(ctx).showSnackBar(
+          SnackBar(
+            content:
+                Text("The email address is already in use by another account."),
+            backgroundColor: Color(0xFF4845c7),
+          ),
+        );
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

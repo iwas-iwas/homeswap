@@ -50,7 +50,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final picker = ImagePicker();
     final imageFile = await picker.getImage(
       //source: ImageSource.camera,
-      source: ImageSource.camera,
+      source: ImageSource.gallery,
       maxWidth: 600,
     );
 
@@ -98,11 +98,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     var user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
+      print('kek');
       await Future.delayed(Duration(seconds: 1));
       user = FirebaseAuth.instance.currentUser;
     }
 
     if (user == null) {
+      print('kek');
       await Future.delayed(Duration(seconds: 1));
       user = FirebaseAuth.instance.currentUser;
     }
@@ -127,7 +129,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       try {
         purchaserInfo = await Purchases.getPurchaserInfo();
-        print(purchaserInfo);
 
         if (purchaserInfo.entitlements.all['all_features'] != null) {
           isPremium = purchaserInfo.entitlements.all['all_features'].isActive;
@@ -240,19 +241,67 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     backgroundColor: Colors.white,
                     sections: [
                       SettingsSection(
-                        //title: 'Misc',
+                        title: 'Account',
+                        tiles: [
+                          //SettingsTile(title: 'Email', leading: Icon(Icons.email)),
+                          // SettingsTile(
+                          //     title: 'Change password', leading: Icon(Icons.lock)),
+                          SettingsTile(
+                            title: 'Sign out',
+                            leading: Icon(Icons.exit_to_app),
+                            onTap: () async {
+                              {
+                                //Navigator.of(context).pop();
+                                //Navigator.of(context).pushReplacementNamed('/');
+                                await FirebaseAuth.instance.signOut();
+                                Navigator.popUntil(
+                                    context,
+                                    ModalRoute.withName(
+                                        "/")); // this will only be executed if anonymously users try to sign in, when they still are in the same session they executed the conversion to full user.
+                                ;
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                      SettingsSection(
+                        title: 'Help and Support',
                         tiles: [
                           SettingsTile(
-                              //   onTap: () {},
-                              onTap: () async {
-                                {
-                                  await FirebaseAuth.instance.signOut();
-                                  Navigator.popUntil(
-                                      context, ModalRoute.withName("/"));
-                                }
-                              },
-                              title: 'Terms of Service - sign out',
-                              leading: Icon(Icons.description)),
+                            title: 'Contact Us',
+                            leading: Icon(Icons.contact_mail),
+                            onTap: () async {
+                              {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ContactUs(),
+                                  ),
+                                );
+                              }
+                            },
+                          ),
+                        ],
+                      ),
+                      SettingsSection(
+                        title: 'About',
+                        tiles: [
+                          SettingsTile(
+                            title: 'Privacy Policy',
+                            leading: Icon(Icons.description),
+                            onTap: () {
+                              launch(
+                                  'https://www.iubenda.com/privacy-policy/18657475');
+                            },
+                          ),
+                          SettingsTile(
+                            title: 'Terms and Conditions',
+                            leading: Icon(Icons.description),
+                            onTap: () {
+                              launch(
+                                  'https://www.iubenda.com/terms-and-conditions/18657475');
+                            },
+                          ),
                         ],
                       ),
                       CustomSection(
