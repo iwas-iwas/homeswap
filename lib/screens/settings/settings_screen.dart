@@ -38,7 +38,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   var _userEmail;
   File _storedImage;
   bool _isAnon = false;
-  bool _isPremium;
+  bool _isPremium = true;
 
   void initState() {
     super.initState();
@@ -98,46 +98,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
     var user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      print('kek');
       await Future.delayed(Duration(seconds: 1));
       user = FirebaseAuth.instance.currentUser;
     }
 
     if (user == null) {
-      print('kek');
       await Future.delayed(Duration(seconds: 1));
       user = FirebaseAuth.instance.currentUser;
     }
-
-    // await Future.delayed(Duration(seconds: 1));
-    // print('1');
-    // print(user);
-    // await Future.delayed(Duration(seconds: 1));
-    // print('2');
-    // print(user);
-    // await Future.delayed(Duration(seconds: 3));
-    //print(user);
 
     if (user.isAnonymous) {
       setState(() {
         _isAnon = true;
       });
     } else {
-      bool isPremium = false;
+      //bool isPremium = false;
 
-      PurchaserInfo purchaserInfo;
+      // PurchaserInfo purchaserInfo;
 
-      try {
-        purchaserInfo = await Purchases.getPurchaserInfo();
+      // try {
+      //   purchaserInfo = await Purchases.getPurchaserInfo();
 
-        if (purchaserInfo.entitlements.all['all_features'] != null) {
-          isPremium = purchaserInfo.entitlements.all['all_features'].isActive;
-        } else {
-          isPremium = false;
-        }
-      } on PlatformException catch (e) {
-        print(e);
-      }
+      //   if (purchaserInfo.entitlements.all['all_features'] != null) {
+      //     isPremium = purchaserInfo.entitlements.all['all_features'].isActive;
+      //   } else {
+      //     isPremium = false;
+      //   }
+      // } on PlatformException catch (e) {
+      //   print(e);
+      // }
 
       // use current user to grab the uid and fetch user data (e.g. username)
       // final userData = await FirebaseFirestore.instance
@@ -150,7 +139,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   _userName = value.data()['username'];
                   _userImage = value.data()['image_url'];
                   _userEmail = value.data()['email'];
-                  _isPremium = isPremium;
+                  //_isPremium = isPremium;
                 })
               });
     }
@@ -318,7 +307,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                             ),
                             Text(
-                              'Version: 1.0.0',
+                              'Version: 1.0.2',
                               style: TextStyle(color: Color(0xFF777777)),
                             ),
                           ],

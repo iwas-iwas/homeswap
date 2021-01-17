@@ -38,35 +38,35 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    initPlatformState();
+    //initPlatformState();
   }
 
-  Future<void> initPlatformState() async {
-    // DocumentSnapshot query =
-    //     await FirebaseFirestore.instance.collection(QUERY).doc(QUERY3).get();
+  // Future<void> initPlatformState() async {
+  //   // DocumentSnapshot query =
+  //   //     await FirebaseFirestore.instance.collection(QUERY).doc(QUERY3).get();
 
-    //print(query.data()['back']);
+  //   //print(query.data()['back']);
 
-    appData.isPro = false;
+  //   appData.isPro = false;
 
-    await Purchases.setDebugLogsEnabled(true);
-    await Purchases.setup(RABBIT_API_KEY);
-    //await Purchases.setup(query.data()[QUERY2]);
+  //   await Purchases.setDebugLogsEnabled(true);
+  //   await Purchases.setup(RABBIT_API_KEY);
+  //   //await Purchases.setup(query.data()[QUERY2]);
 
-    //print(query.data()['back']);
+  //   //print(query.data()['back']);
 
-    PurchaserInfo purchaserInfo;
-    try {
-      purchaserInfo = await Purchases.getPurchaserInfo();
-      if (purchaserInfo.entitlements.all['all_features'] != null) {
-        appData.isPro = purchaserInfo.entitlements.all['all_features'].isActive;
-      } else {
-        appData.isPro = false;
-      }
-    } on PlatformException catch (e) {
-      print(e);
-    }
-  }
+  //   PurchaserInfo purchaserInfo;
+  //   try {
+  //     purchaserInfo = await Purchases.getPurchaserInfo();
+  //     if (purchaserInfo.entitlements.all['all_features'] != null) {
+  //       appData.isPro = purchaserInfo.entitlements.all['all_features'].isActive;
+  //     } else {
+  //       appData.isPro = false;
+  //     }
+  //   } on PlatformException catch (e) {
+  //     print(e);
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {

@@ -83,7 +83,7 @@ class _DetailState extends State<Detail> {
   String _selectedProperty = '';
   DateTimeRange _selectedDate;
   bool _isLoading = false;
-  bool _isPremium;
+  bool _isPremium = true;
   bool _atleastOneSpace = false;
   String _location = '';
   String _fullLocation = '';
@@ -96,21 +96,22 @@ class _DetailState extends State<Detail> {
   }
 
   Future<void> _checkPremiumStatus() async {
-    bool isPremium = false;
+    //bool isPremium = false;
+    bool isPremium = true;
     bool atleastOneSpace = false;
 
-    PurchaserInfo purchaserInfo;
+    // PurchaserInfo purchaserInfo;
 
-    try {
-      purchaserInfo = await Purchases.getPurchaserInfo();
-      if (purchaserInfo.entitlements.all['all_features'] != null) {
-        isPremium = purchaserInfo.entitlements.all['all_features'].isActive;
-      } else {
-        isPremium = false;
-      }
-    } on PlatformException catch (e) {
-      print(e);
-    }
+    // try {
+    //   purchaserInfo = await Purchases.getPurchaserInfo();
+    //   if (purchaserInfo.entitlements.all['all_features'] != null) {
+    //     isPremium = purchaserInfo.entitlements.all['all_features'].isActive;
+    //   } else {
+    //     isPremium = false;
+    //   }
+    // } on PlatformException catch (e) {
+    //   print(e);
+    // }
 
     //TODO: catch if google retruns wrong status, wait for x seconds and repeat or return empty string
 
@@ -144,7 +145,7 @@ class _DetailState extends State<Detail> {
     }
 
     setState(() {
-      _isPremium = isPremium;
+      //_isPremium = isPremium;
       _location = address.first.locality;
       _fullLocation = address.first.addressLine;
       _lat = lat;
@@ -225,8 +226,6 @@ class _DetailState extends State<Detail> {
 
     // ########### check if receiving has active overlap  ########### //
 
-    print('requestSendToThisUser: $requestSendToThisUser');
-
     QuerySnapshot querySnapshotTwo = await FirebaseFirestore.instance
         .collection('users')
         .doc(requestSendToThisUser)
@@ -255,19 +254,19 @@ class _DetailState extends State<Detail> {
       return 2;
     }
 
-    // CHECK GREATER TEN SEND REQUESTS
-    QuerySnapshot sendRequests = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUserId)
-        .collection('requests')
-        .where('type', isEqualTo: 'send')
-        .where('status', isEqualTo: "pending")
-        .get();
+    // // CHECK GREATER TEN SEND REQUESTS
+    // QuerySnapshot sendRequests = await FirebaseFirestore.instance
+    //     .collection('users')
+    //     .doc(currentUserId)
+    //     .collection('requests')
+    //     .where('type', isEqualTo: 'send')
+    //     .where('status', isEqualTo: "pending")
+    //     .get();
 
-    // if date overlap returned false, check if too many send request. if not, all clear and return 3, which makes the request go to firebsae and show success snackbar.
-    if (sendRequests.docs.length > 8) {
-      return 1;
-    }
+    // // if date overlap returned false, check if too many send request. if not, all clear and return 3, which makes the request go to firebsae and show success snackbar.
+    // if (sendRequests.docs.length > 8) {
+    //   return 1;
+    // }
 
     // already pending or active
     QuerySnapshot alreadySendRequestToUser = await FirebaseFirestore.instance
@@ -318,23 +317,23 @@ class _DetailState extends State<Detail> {
       // );
       //print('unavailable: ${unavailable}');
 
-      if (unavailable == 1) {
-        SnackBar snackBar = swapRequestSnackbar(
-            'Failed to send Request. You have too many open send requests.');
-        // SnackBar snackBar = SnackBar(
-        //   content: Text(
-        //     'Failed to send Request. You have too many open send requests.',
-        //     style: TextStyle(color: Colors.white),
-        //   ),
-        //   backgroundColor: Color(0xFF4845c7),
-        // );
-        modalState(() {
-          _isLoading = false;
-        });
-        Navigator.of(context).pop();
-
-        globalKey.currentState.showSnackBar(snackBar);
-      } else if (unavailable == 2) {
+      // if (unavailable == 1) {
+      //   SnackBar snackBar = swapRequestSnackbar(
+      //       'Failed to send Request. You have too many open send requests.');
+      //   // SnackBar snackBar = SnackBar(
+      //   //   content: Text(
+      //   //     'Failed to send Request. You have too many open send requests.',
+      //   //     style: TextStyle(color: Colors.white),
+      //   //   ),
+      //   //   backgroundColor: Color(0xFF4845c7),
+      //   // );
+      //   modalState(() {
+      //     _isLoading = false;
+      //   });
+      //   Navigator.of(context).pop();
+      //globalKey.currentState.showSnackBar(snackBar);
+      //} else
+      if (unavailable == 2) {
         SnackBar snackBar = swapRequestSnackbar(
             'Failed to send Request. There is an overlap with your desired period and an active swap by you or the swap partner.');
         // SnackBar snackBar = SnackBar(
@@ -733,30 +732,6 @@ class _DetailState extends State<Detail> {
 
                                             _scaffoldKey.currentState
                                                 .showSnackBar(failSnackBar);
-                                            // } else if (widget.isMe) {
-                                            //   SnackBar failSnackBar = SnackBar(
-                                            //     content: Text(
-                                            //       'You cant swap your own spaces.',
-                                            //       style: TextStyle(
-                                            //           color: Colors.white),
-                                            //     ),
-                                            //     backgroundColor: Colors.black,
-                                            //   );
-
-                                            //   _scaffoldKey.currentState
-                                            //       .showSnackBar(failSnackBar);
-                                            // } else if (!_isPremium) {
-                                            //   SnackBar failSnackBar = SnackBar(
-                                            //     content: Text(
-                                            //       'You cant swap your own spaces.',
-                                            //       style: TextStyle(
-                                            //           color: Colors.white),
-                                            //     ),
-                                            //     backgroundColor: Colors.black,
-                                            //   );
-
-                                            //   _scaffoldKey.currentState
-                                            //       .showSnackBar(failSnackBar);
                                           } else {
                                             triggerSwapRequest(
                                                 context,
@@ -838,11 +813,11 @@ class _DetailState extends State<Detail> {
                               buildFeature(Icons.desktop_mac,
                                   "${widget.workspaces.round()} Spaces"),
                               buildFeature(Icons.hotel,
-                                  "${widget.bedrooms.round()} Bedroom"),
+                                  "${widget.bedrooms.round()} Bedrooms"),
                               buildFeature(Icons.people,
                                   "${widget.kitchen.round()} Roommates"),
                               buildFeature(Icons.wc,
-                                  "${widget.bathrooms.round()} Bathroom"),
+                                  "${widget.bathrooms.round()} Bathrooms"),
                             ],
                           ),
                         ),
@@ -967,23 +942,6 @@ SnackBar swapRequestSnackbar(String message) {
   );
 }
 
-// class SwapRequestSnackbar extends StatelessWidget {
-//   const SwapRequestSnackbar({
-//     Key key,
-//   }) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return SnackBar(
-//       content: Text(
-//         "You need at least one listed space to send a swap request.",
-//         style: TextStyle(color: Colors.white),
-//       ),
-//       backgroundColor: Color(0xFF4845c7),
-//     );
-//   }
-// }
-
 List<Widget> buildPhotos(List<String> images, context) {
   List<Widget> list = [];
 
@@ -999,23 +957,6 @@ List<Widget> buildPhotos(List<String> images, context) {
 
 buildPhoto(String url, int index, context) {
   var _tag = ['imageHero', 'imageHero2', 'imageHero3'];
-
-//   return AspectRatio(
-//     aspectRatio: 3 / 2,
-//     child: Container(
-//       margin: EdgeInsets.only(right: 24),
-//       decoration: BoxDecoration(
-//         borderRadius: BorderRadius.all(
-//           Radius.circular(10),
-//         ),
-//         image: DecorationImage(
-//           image: NetworkImage(url),
-//           fit: BoxFit.cover,
-//         ),
-//       ),
-//     ),
-//   );
-// }
 
   return AspectRatio(
     aspectRatio: 3 / 2,
