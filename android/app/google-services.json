@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "165556960915",
+    "firebase_url": "https://conspaces-e5e49.firebaseio.com",
+    "project_id": "conspaces-e5e49",
+    "storage_bucket": "conspaces-e5e49.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:165556960915:android:7c5c8e04e62254f24f5766",
+        "android_client_info": {
+          "package_name": "com.conspaces"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "165556960915-hoh35ve9j8a8pjm5fcaelgk6747pvlob.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdPvIDgQQiM0GIMQ9uh9A8ZkwnOyVTAjQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "165556960915-hoh35ve9j8a8pjm5fcaelgk6747pvlob.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "165556960915-98qfk79a3uj86u0fsnu0edp22rk55uu7.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.conspacesapp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
