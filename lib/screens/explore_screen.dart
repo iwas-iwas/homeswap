@@ -284,7 +284,7 @@ Future<List<String>> displayPrediction(Prediction p) async {
     //var coordinates = new Coordinates(lat, lng);
     //var address = await Geocoder.local.findAddressesFromQuery(p.description);
 
-    print(p.description);
+    //print(p.description);
 
     var placeId;
 

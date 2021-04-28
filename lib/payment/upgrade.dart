@@ -428,70 +428,134 @@ class PurchaseButton extends StatefulWidget {
   _PurchaseButtonState createState() => _PurchaseButtonState();
 }
 
+bool isLoading = false;
+
 class _PurchaseButtonState extends State<PurchaseButton> {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        Padding(
-          padding: const EdgeInsets.only(top: 18.0),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(10),
-            child: RaisedButton(
-              onPressed: () async {
-                try {
-                  _purchaserInfo =
-                      await Purchases.purchasePackage(widget.package);
-                  appData.isPro =
-                      _purchaserInfo.entitlements.all["all_features"].isActive;
-                  if (appData.isPro) {
-                    Alert(
-                      context: context,
-                      style: kWelcomeAlertStyle,
-                      image: SvgPicture.asset(
-                        "assets/icons/black-logo.svg",
-                        height: 150,
-                      ),
-                      title: "Congratulations",
-                      content: Column(
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                top: 20.0, right: 8.0, left: 8.0, bottom: 20.0),
+    if (isLoading) return Center(child: CircularProgressIndicator());
+    if (!isLoading)
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.only(top: 18.0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: RaisedButton(
+                onPressed: () async {
+                  setState(() {
+                    isLoading = true;
+                  });
+                  try {
+                    _purchaserInfo =
+                        await Purchases.purchasePackage(widget.package);
+                    appData.isPro = _purchaserInfo
+                        .entitlements.all["all_features"].isActive;
+                    setState(() {
+                      isLoading = false;
+                    });
+                    if (appData.isPro) {
+                      Alert(
+                        context: context,
+                        style: kWelcomeAlertStyle,
+                        image: SvgPicture.asset(
+                          "assets/icons/black-logo.svg",
+                          height: 150,
+                        ),
+                        title: "Congratulations",
+                        content: Column(
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 20.0,
+                                  right: 8.0,
+                                  left: 8.0,
+                                  bottom: 20.0),
+                              child: Text(
+                                'You now have full access to the app',
+                                textAlign: TextAlign.center,
+                                style: kSendButtonTextStyle,
+                              ),
+                            )
+                          ],
+                        ),
+                        buttons: [
+                          DialogButton(
+                            radius: BorderRadius.circular(10),
                             child: Text(
-                              'You now have full access to the app',
-                              textAlign: TextAlign.center,
+                              "Continue",
                               style: kSendButtonTextStyle,
                             ),
-                          )
-                        ],
-                      ),
-                      buttons: [
-                        DialogButton(
-                          radius: BorderRadius.circular(10),
-                          child: Text(
-                            "Continue",
-                            style: kSendButtonTextStyle,
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => TabsScreen(),
+                                ),
+                              );
+                              // Navigator.of(context, rootNavigator: true).pop();
+                              // Navigator.of(context, rootNavigator: true).pop();
+                              // Navigator.of(context, rootNavigator: true).pop();
+                            },
+                            width: 127,
+                            color: kColorAccent,
+                            height: 52,
                           ),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => TabsScreen(),
-                              ),
-                            );
-                            // Navigator.of(context, rootNavigator: true).pop();
-                            // Navigator.of(context, rootNavigator: true).pop();
-                            // Navigator.of(context, rootNavigator: true).pop();
-                          },
-                          width: 127,
-                          color: kColorAccent,
-                          height: 52,
+                        ],
+                      ).show();
+                    } else {
+                      Alert(
+                        context: context,
+                        style: kWelcomeAlertStyle,
+                        image: SvgPicture.asset(
+                          "assets/icons/black-logo.svg",
+                          height: 150,
                         ),
-                      ],
-                    ).show();
-                  } else {
+                        title: "Error",
+                        content: Column(
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                  top: 20.0,
+                                  right: 8.0,
+                                  left: 8.0,
+                                  bottom: 20.0),
+                              child: Text(
+                                'There was an error. Please try again later',
+                                textAlign: TextAlign.center,
+                                style: kSendButtonTextStyle,
+                              ),
+                            )
+                          ],
+                        ),
+                        buttons: [
+                          DialogButton(
+                            radius: BorderRadius.circular(10),
+                            child: Text(
+                              "Continue",
+                              style: kSendButtonTextStyle,
+                            ),
+                            onPressed: () {
+                              Navigator.of(context, rootNavigator: true).pop();
+                            },
+                            width: 127,
+                            color: kColorAccent,
+                            height: 52,
+                          ),
+                        ],
+                      ).show();
+                    }
+                  } on PlatformException catch (e) {
+                    //print('----xx-----');
+                    var errorCode = PurchasesErrorHelper.getErrorCode(e);
+                    if (errorCode ==
+                        PurchasesErrorCode.purchaseCancelledError) {
+                      //print("User cancelled");
+                    } else if (errorCode ==
+                        PurchasesErrorCode.purchaseNotAllowedError) {
+                      //print("User not allowed to purchase");
+                    }
                     Alert(
                       context: context,
                       style: kWelcomeAlertStyle,
@@ -530,87 +594,40 @@ class _PurchaseButtonState extends State<PurchaseButton> {
                       ],
                     ).show();
                   }
-                } on PlatformException catch (e) {
-                  //print('----xx-----');
-                  var errorCode = PurchasesErrorHelper.getErrorCode(e);
-                  if (errorCode == PurchasesErrorCode.purchaseCancelledError) {
-                    //print("User cancelled");
-                  } else if (errorCode ==
-                      PurchasesErrorCode.purchaseNotAllowedError) {
-                    //print("User not allowed to purchase");
-                  }
-                  Alert(
-                    context: context,
-                    style: kWelcomeAlertStyle,
-                    image: SvgPicture.asset(
-                      "assets/icons/black-logo.svg",
-                      height: 150,
-                    ),
-                    title: "Error",
-                    content: Column(
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(
-                              top: 20.0, right: 8.0, left: 8.0, bottom: 20.0),
-                          child: Text(
-                            'There was an error. Please try again later',
-                            textAlign: TextAlign.center,
-                            style: kSendButtonTextStyle,
-                          ),
-                        )
-                      ],
-                    ),
-                    buttons: [
-                      DialogButton(
-                        radius: BorderRadius.circular(10),
-                        child: Text(
-                          "Continue",
-                          style: kSendButtonTextStyle,
-                        ),
-                        onPressed: () {
-                          Navigator.of(context, rootNavigator: true).pop();
-                        },
-                        width: 127,
-                        color: kColorAccent,
-                        height: 52,
-                      ),
-                    ],
-                  ).show();
-                }
-                return UpgradeScreen();
-              },
-              textColor: kColorText,
-              color: Colors.white,
-              child: Container(
-                width: MediaQuery.of(context).size.width * 0.9,
-                decoration: const BoxDecoration(
-                  color: kPrimaryColor,
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                ),
-                padding: const EdgeInsets.all(18.0),
-                child: Text(
-                  'Buy ${widget.package.product.title}\n${widget.package.product.priceString}',
-                  style: kSendButtonTextStyle.copyWith(
-                    fontSize: 16,
-                    fontWeight: FontWeight.normal,
+                  return UpgradeScreen();
+                },
+                textColor: kColorText,
+                color: Colors.white,
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  decoration: const BoxDecoration(
+                    color: kPrimaryColor,
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
                   ),
-                  textAlign: TextAlign.center,
+                  padding: const EdgeInsets.all(18.0),
+                  child: Text(
+                    'Buy ${widget.package.product.title}\n${widget.package.product.priceString}',
+                    style: kSendButtonTextStyle.copyWith(
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        SizedBox(height: 15),
-        // Padding(
-        //   padding: const EdgeInsets.only(top: 8.0, bottom: 18.0),
-        //   child: Text(
-        //     '${widget.package.product.description}',
-        //     textAlign: TextAlign.center,
-        //     style: TextStyle(color: Colors.black),
-        //   ),
-        // )
-      ],
-    );
+          SizedBox(height: 15),
+          // Padding(
+          //   padding: const EdgeInsets.only(top: 8.0, bottom: 18.0),
+          //   child: Text(
+          //     '${widget.package.product.description}',
+          //     textAlign: TextAlign.center,
+          //     style: TextStyle(color: Colors.black),
+          //   ),
+          // )
+        ],
+      );
   }
 }
 
