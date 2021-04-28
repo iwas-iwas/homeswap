@@ -143,7 +143,7 @@ class PropertyStyle extends StatelessWidget {
             ),
           ),
           child: Container(
-            height: 210,
+            height: 220,
             decoration: BoxDecoration(
               image: DecorationImage(
                 image: NetworkImage(userImage),

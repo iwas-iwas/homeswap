@@ -814,10 +814,24 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                                           _isButtonDisabled = false;
                                         }
 
-                                        var fullDestonationFromId =
-                                            await getFullDestination(
-                                                documents[index].data()[
-                                                    'destinationFullPlaceId']);
+                                        var fullDestinationFromId;
+
+                                        var fullDestinationPlaceId =
+                                            documents[index].data()[
+                                                'destinationFullPlaceId'];
+
+                                        if (fullDestinationPlaceId != null) {
+                                          fullDestinationFromId =
+                                              await getFullDestination(
+                                                  fullDestinationPlaceId);
+                                        } else {
+                                          fullDestinationFromId = 'ffa';
+                                        }
+
+                                        // var fullDestonationFromId =
+                                        //     await getFullDestination(
+                                        //         documents[index].data()[
+                                        //             'destinationFullPlaceId']);
 
                                         _startEditProperty(
                                           context,
@@ -825,7 +839,7 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                                               ? _pickedDestination
                                               // : documents[index].data()[
                                               //     'fullDestinationAddress'],
-                                              : fullDestonationFromId,
+                                              : fullDestinationFromId,
                                           //     'fullDestinationAddress'])
                                           documents[index].id,
                                           user.uid,

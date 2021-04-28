@@ -27,7 +27,7 @@ class _SwapsScreenState extends State<SwapsScreen>
   int _tabIndex = 0;
 
   TabController _tabController;
-  bool _isPremium;
+  bool _isPremium = true;
   bool _isAnon = false;
   String currentUserId;
 
@@ -57,13 +57,11 @@ class _SwapsScreenState extends State<SwapsScreen>
     var user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      print('lul');
       await Future.delayed(Duration(seconds: 1));
       user = FirebaseAuth.instance.currentUser;
     }
 
     if (user == null) {
-      print('lul');
       await Future.delayed(Duration(seconds: 1));
       user = FirebaseAuth.instance.currentUser;
     }
@@ -79,18 +77,18 @@ class _SwapsScreenState extends State<SwapsScreen>
 
       PurchaserInfo purchaserInfo;
 
-      try {
-        purchaserInfo = await Purchases.getPurchaserInfo();
-        if (purchaserInfo.entitlements.all['all_features'] != null) {
-          isPremium = purchaserInfo.entitlements.all['all_features'].isActive;
-        } else {
-          isPremium = false;
-        }
-      } on PlatformException catch (e) {
-        print(e);
-      }
+      // try {
+      //   purchaserInfo = await Purchases.getPurchaserInfo();
+      //   if (purchaserInfo.entitlements.all['all_features'] != null) {
+      //     isPremium = purchaserInfo.entitlements.all['all_features'].isActive;
+      //   } else {
+      //     isPremium = false;
+      //   }
+      // } on PlatformException catch (e) {
+      //   print(e);
+      // }
       setState(() {
-        _isPremium = isPremium;
+        //_isPremium = isPremium;
         currentUserId = user.uid;
       });
     }

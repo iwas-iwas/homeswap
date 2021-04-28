@@ -413,7 +413,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                 children: [
                                   buildFeature(
                                       Icons.hotel,
-                                      "Bedroom",
+                                      "Bedrooms",
                                       _bedroomController,
                                       _bedroomValidator,
                                       modalState),
@@ -434,7 +434,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                   //SizedBox(width: 25),
                                   buildFeature(
                                       Icons.wc,
-                                      "Bathroom",
+                                      "Bathrooms",
                                       _bathroomController,
                                       _bathroomValidator,
                                       modalState),
@@ -801,11 +801,11 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                 if (givenController.text.isEmpty) {
                   //print('text not valid.');
                 } else {
-                  if (text == 'Bedroom') {
+                  if (text == 'Bedrooms') {
                     _bedroomCount = double.parse(value);
                   } else if (text == "Workspaces") {
                     _workspaceCount = double.parse(value);
-                  } else if (text == "Bathroom") {
+                  } else if (text == "Bathrooms") {
                     _bathroomCount = double.parse(value);
                   } else {
                     _kitchenCount = double.parse(value);
