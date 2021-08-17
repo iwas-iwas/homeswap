@@ -1,11 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:conspacesapp/main.dart';
 import 'package:conspacesapp/widgets/property_detail.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:intl/intl.dart';
-
-import '../../constants.dart';
 
 class ActiveRequest extends StatefulWidget {
   ActiveRequest(this.request, this.currentUserId);
@@ -62,8 +58,6 @@ class _ActiveRequestState extends State<ActiveRequest> {
                     widget.currentUserId,
                     _swapPartnerProperty.id,
                     true,
-                    // currentProperty.data()['latitude'],
-                    // currentProperty.data()['longitude'],
                     _swapPartnerProperty.data()['bathrooms'],
                     _swapPartnerProperty.data()['bedrooms'],
                     _swapPartnerProperty.data()['kitchen'],
@@ -88,25 +82,6 @@ class _ActiveRequestState extends State<ActiveRequest> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // RichText(
-                //   text: TextSpan(
-                //     // Note: Styles for TextSpans must be explicitly defined.
-                //     // Child text spans will inherit styles from parent
-                //     style: TextStyle(
-                //       //fontSize: 14.0,
-                //       color: Colors.black,
-                //     ),
-                //     children: <TextSpan>[
-                //       TextSpan(
-                //           text: 'From: ',
-                //           style: TextStyle(fontWeight: FontWeight.bold)),
-                //       TextSpan(
-                //         text: _myProperty.data()['username'],
-                //       ),
-                //     ],
-                //   ),
-                // ),
-                //Text('From: ${_swapPartnerProperty.data()['username']}'),
                 SizedBox(height: 5.0),
                 RichText(
                   text: TextSpan(

@@ -108,8 +108,6 @@ class _AuthFormAnonState extends State<AuthFormAnon> {
           child: Form(
             key: _formKey,
             child: Column(
-              // column should only take as much space as needed (default is as much as possible)
-              //mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
@@ -227,46 +225,11 @@ class _AuthFormAnonState extends State<AuthFormAnon> {
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
-                  // onPressed: () async {
-                  //   //Navigator.of(context).pop();
-                  //   await FirebaseAuth.instance.signOut();
-                  // },
                   child: Text(
                     'Cancel',
                     style: TextStyle(color: kPrimaryColor),
                   ),
                 ),
-                //if (widget.isLoading) CircularProgressIndicator(),
-                // if (!widget.isLoading)
-                //   CupertinoButton(
-                //     //minSize: double.minPositive,
-                //     padding: EdgeInsets.zero,
-                //     onPressed: () {
-                //       setState(() {
-                //         _isLogin = !_isLogin;
-                //       });
-                //     },
-                //     child: Text(
-                //       _isLogin
-                //           ? 'Create new account'
-                //           : 'I already have an account',
-                //       style: TextStyle(color: kPrimaryColor),
-                //     ),
-                //   ),
-                // //if (_isLogin) OrDivider(),
-                // if (widget.isLoading) CircularProgressIndicator(),
-                // if (_isLogin && !widget.isLoading)
-                //   CupertinoButton(
-                //     //minSize: double.minPositive,
-                //     padding: EdgeInsets.zero,
-                //     onPressed: submitAnon,
-                //     child: Text(
-                //       'Continue without Account',
-                //       style: TextStyle(color: kPrimaryColor),
-                //     ),
-                //   ),
-
-                //if (!_isLogin)
                 privacyPolicyLinkAndTermsOfService()
               ],
             ),

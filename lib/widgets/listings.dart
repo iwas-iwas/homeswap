@@ -1,19 +1,16 @@
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:conspacesapp/screens/user_listings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:numberpicker/numberpicker.dart';
 import '../constants.dart';
-import '../credentials.dart';
 import './property_style.dart';
 import '../screens/tabs_screen.dart';
-import 'package:geocoder/geocoder.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'package:flutter_google_places/flutter_google_places.dart';
 
 class Listings extends StatefulWidget {
-  // TODO: Filter Listings by pickedLocation & pickedDestination
   String pickedLocation;
   String pickedDestination;
 
@@ -27,7 +24,7 @@ class Listings extends StatefulWidget {
 
   Listings(this.pickedLocation, this.pickedDestination);
 
-  GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: QUERY4);
+  GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: KEY);
 
   @override
   _ListingsState createState() => _ListingsState();
@@ -42,21 +39,11 @@ class _ListingsState extends State<Listings> {
   }
 
   Future<void> _getCity(placeId) async {
-    //TODO: catch if google retruns wrong status, wait for x seconds and repeat or return empty string
-
     PlacesDetailsResponse detail =
         await widget._places.getDetailsByPlaceId(widget.pickedDestination);
 
     var addressInitial = detail.result.formattedAddress;
-
-    // var address = await Geocoder.google(PLACES_API_KEY)
-    //     .findAddressesFromQuery(addressInitial);
-
-    // double lat = detail.result.geometry.location.lat;
-    // double lng = detail.result.geometry.location.lng;
-
     setState(() {
-      //_city = address.first.locality;
       _city = addressInitial;
     });
   }
@@ -288,7 +275,6 @@ class _ListingsState extends State<Listings> {
                             isEqualTo: widget.pickedDestination)
                         .where('destinationPlaceId',
                             whereIn: [widget.pickedLocation, 'ffa'])
-                        //TODO: ORDER BY HAT DEN BUILDER GEBROCHEN, DA VERMUTLICH DER USERID INDEX DER EINGERICHTET IST DADURCH AKTIV WURDE! GGF. WEITEREN INDEX ERSTELLEn FÜR LOCATION/DESTINATION
                         //.orderBy('createdAt', descending: true)
                         .snapshots(),
                     // whenever the properties collection receives a new value, the function inside of the builder argument is executed
@@ -364,29 +350,20 @@ class _ListingsState extends State<Listings> {
                       }
 
                       return ListView.builder(
-                        //scrollDirection: Axis.vertical,
                         shrinkWrap: true,
                         physics: ScrollPhysics(),
-                        // order messages from bottom to top
-                        //reverse: true,
-                        //itemCount: documents.length,
                         itemCount: finalProperties.length,
                         itemBuilder: (ctx, index) => PropertyStyle(
                           finalProperties[index].data()['title'],
-                          //documents[index]['userId'],
-                          // each property contains the username, specified in new_property upon pressing send
                           finalProperties[index].data()['username'],
                           finalProperties[index].data()['userImage'],
                           finalProperties[index].data()['location'],
                           finalProperties[index].data()['destination'],
-                          // TODO: evaluate if "is me" is needed. maybe to give specific rights or highlight smth?
                           finalProperties[index].data()['userId'] == user.uid,
                           finalProperties[index].data()['userId'],
                           user.uid,
                           finalProperties[index].id,
                           false,
-                          // finalProperties[index].data()['latitude'],
-                          // finalProperties[index].data()['longitude'],
                           finalProperties[index].data()['bathrooms'],
                           finalProperties[index].data()['bedrooms'],
                           finalProperties[index].data()['kitchen'],
@@ -398,7 +375,6 @@ class _ListingsState extends State<Listings> {
                           finalProperties[index].data()['userProfileImage'],
                           finalProperties[index].data()['userMail'],
                           finalProperties[index].data()['locationFullPlaceId'],
-                          // make sure that flutter makes sure to efficiently update the list with new items
                           key: ValueKey(documents[index].id),
                         ),
                       );

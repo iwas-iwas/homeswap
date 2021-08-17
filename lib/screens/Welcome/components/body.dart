@@ -3,7 +3,6 @@ import '../../Login/login_screen.dart';
 import '../../Signup/signup_screen.dart';
 import '../components/background.dart';
 import '../../../components/rounded_button.dart';
-
 import '../../../constants.dart';
 import 'package:flutter_svg/svg.dart';
 

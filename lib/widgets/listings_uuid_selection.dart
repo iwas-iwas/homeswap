@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-
 import '../constants.dart';
 
 class ListingsUniqueSelection extends StatefulWidget {
@@ -48,10 +47,6 @@ class _ListingsUniqueSelectionState extends State<ListingsUniqueSelection> {
                 // order messages from bottom to top
                 reverse: true,
                 itemCount: documents.length,
-                // itemBuilder: (ctx, index) => Container(
-                //   padding: EdgeInsets.all(8),
-                //   child: Text(documents[index]['title']),
-                // ),
                 itemBuilder: (ctx, index) => ListTile(
                   title: Text(
                       "${documents[index].data()['title']}, ${documents[index].data()['locationPlaceId']}"),

@@ -18,20 +18,9 @@ class ForgotPassword extends StatefulWidget {
 }
 
 class _ForgotPasswordState extends State<ForgotPassword> {
-  //bool _showForgotPassword = false;
   final _formKey = GlobalKey<FormState>();
-  // switch between login and signup mode
-  //var _isLogin = true;
   var _isLoading = false;
   var _userEmail = '';
-  // var _userName = '';
-  // var _userPassword = '';
-  //File _userImageFile;
-
-  // void _pickedImage(File image) {
-  //   _userImageFile = image;
-  // }
-
   final _auth = FirebaseAuth.instance;
 
   Future sendPasswordResetEmail(String email) async {
@@ -67,21 +56,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
             duration: const Duration(seconds: 10));
         globalKey.currentState.showSnackBar(snackBar);
         Navigator.of(context).pop();
-        // globalKey.currentState.showSnackBar(SnackBar(
-        //   content: Text(
-        //     'The email is invalid.',
-        //     style: TextStyle(color: Colors.white),
-        //   ),
-        //   backgroundColor: Color(0xFF4845c7),
-        // ));
-        // Scaffold.of(context).showSnackBar(SnackBar(
-        //   content: Text(
-        //     'The email is invalid.',
-        //     style: TextStyle(color: Colors.white),
-        //   ),
-        //   backgroundColor: Color(0xFF4845c7),
-        // ));
-        //Navigator.of(context).pop();
         setState(() {
           _isLoading = false;
         });
@@ -118,8 +92,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
             child: Form(
               key: _formKey,
               child: Column(
-                // column should only take as much space as needed (default is as much as possible)
-                //mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
@@ -131,7 +103,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     height: size.height * 0.20,
                   ),
                   SizedBox(height: size.height * 0.03),
-                  //if (!_isLogin) UserImagePicker(_pickedImage),
                   TextFieldContainer(
                     child: TextFormField(
                       key: ValueKey('email'),
@@ -139,11 +110,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                         if (value.isEmpty || !value.contains('@')) {
                           return 'Please enter a valid email adress';
                         }
-                        // all good
                         return null;
                       },
                       keyboardType: TextInputType.emailAddress,
-                      //onChanged: onChanged,
                       cursorColor: kPrimaryColor,
                       decoration: InputDecoration(
                         icon: Icon(
@@ -158,7 +127,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                       },
                     ),
                   ),
-
                   if (_isLoading) CircularProgressIndicator(),
                   if (!_isLoading)
                     Container(
@@ -181,7 +149,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                     ),
                   if (!_isLoading)
                     CupertinoButton(
-                      //minSize: double.minPositive,
                       padding: EdgeInsets.zero,
                       onPressed: () {
                         Navigator.of(context).pop();

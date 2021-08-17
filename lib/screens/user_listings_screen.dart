@@ -19,9 +19,7 @@ import 'package:flutter/services.dart';
 
 import 'auth_screen.dart';
 
-const kGoogleApiKey = QUERY4;
-
-GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
+GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: KEY);
 
 class UserListingsScreen extends StatefulWidget {
   @override
@@ -35,11 +33,6 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
   String destinationPlaceId;
   String locationFullPlaceId;
   String destinationFullPlaceId;
-  // double _pickedLongitude;
-  // double _pickedLatitude;
-  // String _pickedFullAddress = '';
-  // String _pickedFullDestination = '';
-  // String _pickedDestination = '';
   final _titleController = TextEditingController();
   var _enteredMessage;
   File _storedImage;
@@ -299,8 +292,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                   onTap: () async {
                                     Prediction p =
                                         await PlacesAutocomplete.show(
-                                            context: context,
-                                            apiKey: kGoogleApiKey);
+                                            context: context, apiKey: KEY);
                                     final locationData =
                                         displayPrediction(p).then((location) {
                                       modalState(() {
@@ -350,8 +342,7 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
                                   onTap: () async {
                                     Prediction p =
                                         await PlacesAutocomplete.show(
-                                            context: context,
-                                            apiKey: kGoogleApiKey);
+                                            context: context, apiKey: KEY);
                                     final destinationData =
                                         displayPrediction(p).then((location) {
                                       modalState(() {
@@ -921,21 +912,10 @@ class _UserListingsScreenState extends State<UserListingsScreen> {
 
 Future<List<dynamic>> displayPrediction(Prediction p) async {
   if (p != null) {
-    //PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
-
-    // var placeId = p.placeId;
-    // double lat = detail.result.geometry.location.lat;
-    // double lng = detail.result.geometry.location.lng;
-    // String street = detail.result.geometry.location.toString();
-    // String loc = detail.result.formattedAddress.toString();
-
-    //var address = await Geocoder.local.findAddressesFromQuery(p.description);
-    //var coordinates = new Coordinates(lat, lng);
-
     var placeId;
 
-    var address = await Geocoder.google(kGoogleApiKey)
-        .findAddressesFromQuery(p.description);
+    var address =
+        await Geocoder.google(KEY).findAddressesFromQuery(p.description);
 
     if (address.first.locality != null) {
       // get place id of the city
@@ -946,11 +926,6 @@ Future<List<dynamic>> displayPrediction(Prediction p) async {
     } else {
       placeId = p.placeId;
     }
-
-    //print(address.first.addressLine);
-    //return [address.first.locality, lat, lng, address.first.addressLine];
-    //return address.first.addressLne;
-
     return [p.description, p.placeId, placeId];
   }
 }

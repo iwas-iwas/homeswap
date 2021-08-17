@@ -1,13 +1,6 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:conspacesapp/components/text_field_container.dart';
-import 'package:conspacesapp/screens/auth_screen.dart';
-import 'package:conspacesapp/widgets/database_service.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-
-import '../../constants.dart';
 
 class ContactUs extends StatelessWidget {
   @override
@@ -31,7 +24,7 @@ class ContactUs extends StatelessWidget {
                 SizedBox(height: size.height * 0.05),
                 Center(
                   child: Text(
-                    "Thank you for using Conspaces! We'd love to hear from you. If you have any questions, problems or uncertainties regarding Conspaces, contact us at conspaces@outlook.com. We will get back to you as soon as possible.",
+                    "Thank you for using Conspaces! We'd love to hear from you. If you have any questions, problems or uncertainties regarding Conspaces, contact us at homes@swap.com. We will get back to you as soon as possible.",
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 16),
                   ),

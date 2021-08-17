@@ -1,21 +1,13 @@
-import 'package:conspacesapp/screens/swaps/active_swap_new.dart';
-import 'package:conspacesapp/screens/swaps/received_swaps_new.dart';
-import 'package:conspacesapp/screens/swaps/send_swaps_new.dart';
+import 'package:conspacesapp/screens/swaps/active_swap.dart';
+import 'package:conspacesapp/screens/swaps/received_swap.dart';
+import 'package:conspacesapp/screens/swaps/send_swaps.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
 import '../auth_screen.dart';
-
-//import './send_swaps.dart';
 import '../../constants.dart';
 
 class SwapsScreen extends StatefulWidget {
-  // final String title;
-
-  // const SwapsScreen({Key key, this.title}) : super(key: key);
-
   @override
   State<StatefulWidget> createState() {
     return _SwapsScreenState();
@@ -35,21 +27,9 @@ class _SwapsScreenState extends State<SwapsScreen>
     super.initState();
 
     _checkPremiumStatus();
-    // if is anon checken vor tabcontroller
     if (!_isAnon) {
       _tabController = TabController(vsync: this, length: 3);
     }
-    //_tabController = TabController(vsync: this, length: 3);
-    // final user = FirebaseAuth.instance.currentUser;
-
-    // if (user.isAnonymous) {
-    //   setState(() {
-    //     _isAnon = true;
-    //   });
-    // } else {
-    //   _tabController = TabController(vsync: this, length: 3);
-    //   _checkPremiumStatus();
-    // }
   }
 
   Future<void> _checkPremiumStatus() async {
@@ -66,29 +46,12 @@ class _SwapsScreenState extends State<SwapsScreen>
       user = FirebaseAuth.instance.currentUser;
     }
 
-    //user = FirebaseAuth.instance.currentUser;
-
     if (user.isAnonymous) {
       setState(() {
         _isAnon = true;
       });
     } else {
-      bool isPremium = false;
-
-      PurchaserInfo purchaserInfo;
-
-      // try {
-      //   purchaserInfo = await Purchases.getPurchaserInfo();
-      //   if (purchaserInfo.entitlements.all['all_features'] != null) {
-      //     isPremium = purchaserInfo.entitlements.all['all_features'].isActive;
-      //   } else {
-      //     isPremium = false;
-      //   }
-      // } on PlatformException catch (e) {
-      //   print(e);
-      // }
       setState(() {
-        //_isPremium = isPremium;
         currentUserId = user.uid;
       });
     }
@@ -99,10 +62,7 @@ class _SwapsScreenState extends State<SwapsScreen>
     Size size = MediaQuery.of(context).size;
     if (_isAnon)
       return Scaffold(
-        //key: _scaffoldKey,
-        //backgroundColor: Theme.of(context).primaryColor,
         backgroundColor: Colors.white,
-        //body: AuthForm(_submitAuthForm, _isLoading, _scaffoldKey),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),

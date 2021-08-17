@@ -1,18 +1,11 @@
-//import 'package:conspacesapp/screens/Welcome/welcome_screen.dart';
 import 'package:conspacesapp/screens/tabs_screen.dart';
 import 'package:conspacesapp/widgets/auth/auth_form_anon.dart';
-// import 'package:conspacesapp/widgets/database_service.dart';
-// import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../widgets/auth/auth_form.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-// import 'dart:io';
-// import 'package:firebase_storage/firebase_storage.dart';
-
-// import 'Welcome/components/body.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -195,30 +188,6 @@ class _AuthScreenState extends State<AuthScreen> {
       setState(() {
         _isLoading = false;
       });
-      // } on FirebaseAuthException catch (e) {
-      //   // weak password wird nur getrhowd bei <6 letters, was sowieso im backend abgedeckt ist.
-      //   // if (e.code == 'weak-password') {
-      //   //   print('The password provided is too weak bro.');
-      //   //   Scaffold.of(ctx).showSnackBar(
-      //   //     SnackBar(
-      //   //       content: Text('Your password is too weak.'),
-      //   //       backgroundColor: Color(0xFF4845c7),
-      //   //     ),
-      //   //   );
-      //   // }
-      //   if (e.code == 'email-already-in-use') {
-      //     Scaffold.of(ctx).showSnackBar(
-      //       SnackBar(
-      //         content:
-      //             Text("The email address is already in use by another account."),
-      //         backgroundColor: Color(0xFF4845c7),
-      //       ),
-      //     );
-      //     print('The account already exists for that email bro.');
-      //     setState(() {
-      //       _isLoading = false;
-      //     });
-      //   }
     } catch (err) {
       if (err.code == 'email-already-in-use') {
         Scaffold.of(ctx).showSnackBar(

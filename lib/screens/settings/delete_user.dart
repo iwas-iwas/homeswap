@@ -214,21 +214,3 @@ class _DeleteUserState extends State<DeleteUser> {
     );
   }
 }
-
-// Future deleteUser(String email, String password) async {
-//   try {
-//     final user = FirebaseAuth.instance.currentUser;
-//     AuthCredential credentials =
-//         EmailAuthProvider.credential(email: email, password: password);
-//     print(user);
-//     UserCredential result =
-//         await user.reauthenticateWithCredential(credentials);
-//     await DatabaseService(user: user)
-//         .deleteuser(); // called from database class
-//     await result.user.delete();
-//     return true;
-//   } catch (e) {
-//     print(e.toString());
-//     return null;
-//   }
-// }

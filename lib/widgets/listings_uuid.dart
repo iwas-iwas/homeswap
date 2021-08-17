@@ -1,24 +1,17 @@
-import 'package:conspacesapp/widgets/listings.dart';
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:uuid/uuid.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:io';
 import '../constants.dart';
-import '../credentials.dart';
 import 'dart:async';
 import 'package:geocoder/geocoder.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
-import '../widgets/listings_uuid.dart';
-import 'package:intl/intl.dart';
 import './property_style.dart';
 import 'package:auto_size_text/auto_size_text.dart';
-
-const kGoogleApiKey = QUERY4;
 
 GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: kGoogleApiKey);
 
@@ -28,7 +21,6 @@ class ListingsUnique extends StatefulWidget {
 }
 
 class _ListingsUniqueState extends State<ListingsUnique> {
-  //String _pickedLocation = '';
   String _pickedDestination = '';
   String _pickedFullDestinationId = '';
   String _pickedFullDestination = '';
@@ -56,22 +48,8 @@ class _ListingsUniqueState extends State<ListingsUnique> {
         .doc(currentUserId)
         .collection('requests')
         .where("status", isEqualTo: "accepted")
-        //.where("type", isEqualTo: "received")
         .where('myProperty', isEqualTo: propertyId)
         .get();
-
-    // int alreadyActiveReceived = receivedActiveSnapshot.docs.length;
-
-    // QuerySnapshot sendActiveSnapshot = await FirebaseFirestore.instance
-    //     .collection('users')
-    //     .doc(currentUserId)
-    //     .collection('requests')
-    //     .where("status", isEqualTo: "accepted")
-    //     //.where("type", isEqualTo: "send")
-    //     .where('myProperty', isEqualTo: propertyId)
-    //     .get();
-
-    //int alreadyActive = sendActiveSnapshot.docs.length;
 
     if (currentlyActive.docs.isNotEmpty) {
       return 1;
@@ -93,7 +71,6 @@ class _ListingsUniqueState extends State<ListingsUnique> {
       child: Text("Delete"),
       onPressed: () {
         Navigator.of(context).pop();
-        //_deleteProperty(propertyId);
         checkIfActive(currentUserId, propertyId)
             .then((currentlyActiveProperty) {
           if (currentlyActiveProperty == 1) {
@@ -152,17 +129,7 @@ class _ListingsUniqueState extends State<ListingsUnique> {
     _isButtonDisabled = true;
     Navigator.pop(context);
     _isButtonDisabled = false;
-    // close keyboard
-    // FocusScope.of(context).unfocus();
-    // _isButtonDisabled = true;
-    // grab the curren user
     final user = FirebaseAuth.instance.currentUser;
-
-    // use current user to grab the uid and fetch user data (e.g. username)
-    // final userData = await FirebaseFirestore.instance
-    //     .collection('users')
-    //     .doc(user.uid)
-    //     .get();
 
     dynamic updatedUrl;
     String updatedDestination = '';
@@ -305,15 +272,8 @@ class _ListingsUniqueState extends State<ListingsUnique> {
       });
     }
 
-    // clear message in textfield after onpressed is done
-    // _titleController.clear();
-    // Navigator.pop(context);
-    // _isButtonDisabled = false;
-
     setState(() {
-      // clear message in textfield after onpressed is done
       _titleController.clear();
-      //_pickedLocation = '';
       _pickedDestination = '';
       _pickedFullDestination = '';
       _pickedFullDestinationId = '';
@@ -321,7 +281,6 @@ class _ListingsUniqueState extends State<ListingsUnique> {
       _firstAdditionalImage = null;
       _secondAdditionalImage = null;
       _noDestination = false;
-      // Navigator.pop(context);
     });
   }
 
@@ -351,7 +310,6 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                   onPressed: () {
                     showAlertDialog(
                         context, propertyId, currentUserId, _scaffoldKey);
-                    //_deleteProperty(propertyId);
                   },
                   icon: Icon(Icons.delete_outline, color: Colors.black),
                   label: Text(
@@ -461,17 +419,8 @@ class _ListingsUniqueState extends State<ListingsUnique> {
 
                                     if (value == true) {
                                       currentDestination = 'Free for all';
-                                      //currentDestination == '';
                                       _pickedDestination = '';
                                     }
-                                    // if (value == true &&
-                                    //     currentDestination == '') {
-                                    //   currentDestination = 'Free for all';
-                                    //   if (_pickedDestination != null &&
-                                    //       _pickedDestination != '') {
-                                    //     _pickedDestination = '';
-                                    //   }
-                                    // }
                                   });
                                 },
                               ),
@@ -756,21 +705,13 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                     );
                   } else {
                     return ListView.builder(
-                      //scrollDirection: Axis.vertical,
                       shrinkWrap: true,
                       physics: ScrollPhysics(),
-                      // order messages from bottom to top
-                      //reverse: true,
                       itemCount: documents.length,
-                      // itemBuilder: (ctx, index) => Container(
-                      //   padding: EdgeInsets.all(8),
-                      //   child: Text(documents[index]['title']),
-                      // ),
                       itemBuilder: (ctx, index) => Stack(
                         children: [
                           PropertyStyle(
                             documents[index].data()['title'],
-                            //documents[index]['userId'],
                             documents[index].data()['username'],
                             documents[index].data()['userImage'],
                             documents[index].data()['locationPlaceId'],
@@ -780,8 +721,6 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                             user.uid,
                             documents[index].id,
                             true,
-                            // documents[index].data()['latitude'],
-                            // documents[index].data()['longitude'],
                             documents[index].data()['bathrooms'],
                             documents[index].data()['bedrooms'],
                             documents[index].data()['kitchen'],
@@ -792,7 +731,6 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                             documents[index].data()['userProfileImage'],
                             documents[index].data()['userMail'],
                             documents[index].data()['locationFullPlaceId'],
-
                             key: ValueKey(documents[index].id),
                           ),
                           Padding(
@@ -827,20 +765,12 @@ class _ListingsUniqueState extends State<ListingsUnique> {
                                         } else {
                                           fullDestinationFromId = 'ffa';
                                         }
-
-                                        // var fullDestonationFromId =
-                                        //     await getFullDestination(
-                                        //         documents[index].data()[
-                                        //             'destinationFullPlaceId']);
-
                                         _startEditProperty(
                                           context,
                                           _pickedDestination != ''
                                               ? _pickedDestination
-                                              // : documents[index].data()[
-                                              //     'fullDestinationAddress'],
                                               : fullDestinationFromId,
-                                          //     'fullDestinationAddress'])
+                                          
                                           documents[index].id,
                                           user.uid,
                                           _scaffoldKey,
@@ -880,26 +810,11 @@ Future<String> getFullDestination(placeId) async {
 
   PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(placeId);
 
-  // if (detail.result.formattedAddress != null) {
-  //   print(' formatted address: ${detail.result.formattedAddress}');
-  // }
-
   return detail.result.formattedAddress;
 }
 
 Future<List<dynamic>> displayPrediction(Prediction p) async {
   if (p != null) {
-    //PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
-
-    // var placeId = p.placeId;
-    // double lat = detail.result.geometry.location.lat;
-    // double lng = detail.result.geometry.location.lng;
-    // String street = detail.result.geometry.location.toString();
-    // String loc = detail.result.formattedAddress.toString();
-
-    //var address = await Geocoder.local.findAddressesFromQuery(p.description);
-    //var coordinates = new Coordinates(lat, lng);
-
     var placeId;
 
     var address = await Geocoder.google(kGoogleApiKey)
@@ -914,11 +829,6 @@ Future<List<dynamic>> displayPrediction(Prediction p) async {
     } else {
       placeId = p.placeId;
     }
-
-    //print(address.first.addressLine);
-    //return [address.first.locality, lat, lng, address.first.addressLine];
-    //return address.first.addressLne;
-
     return [p.description, p.placeId, placeId];
   }
 }

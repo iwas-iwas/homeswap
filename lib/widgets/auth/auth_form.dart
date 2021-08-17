@@ -6,9 +6,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../constants.dart';
-import 'package:flutter/material.dart';
 import '../../screens/Signup/components/background.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_svg/svg.dart';
 import '../../components/text_field_container.dart';
 
@@ -65,17 +63,6 @@ class _AuthFormState extends State<AuthForm> {
     final isValid = _formKey.currentState.validate();
     // makes sure the keyboard closes
     FocusScope.of(context).unfocus();
-
-    // dont start to submit the form if no image has been picked
-    // if (_userImageFile == null && !_isLogin) {
-    //   Scaffold.of(context).showSnackBar(
-    //     SnackBar(
-    //       content: Text('Please pick an image.'),
-    //       backgroundColor: Theme.of(context).errorColor,
-    //     ),
-    //   );
-    //   return;
-    // }
 
     // if all validators return null
     if (isValid) {
@@ -359,7 +346,6 @@ Widget privacyPolicyLinkAndTermsOfService() {
                   ..onTap = () {
                     launch(
                         'https://www.iubenda.com/terms-and-conditions/18657475');
-                    // code to open / launch privacy policy link here
                   }),
             TextSpan(
                 text: ' & ',
@@ -378,13 +364,10 @@ Widget privacyPolicyLinkAndTermsOfService() {
                         ..onTap = () {
                           launch(
                               'https://www.iubenda.com/privacy-policy/18657475');
-                          // code to open / launch privacy policy link here
                         })
                 ])
           ]),
       textAlign: TextAlign.center,
-      //maxLines: 2,
-      //overflow: TextOverflow.ellipsis
     )),
   );
 }

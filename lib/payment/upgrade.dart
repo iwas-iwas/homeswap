@@ -1,10 +1,7 @@
-// This is the final screen to handle in-app purchase transactions.
-
 import 'package:conspacesapp/screens/tabs_screen.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
-
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';

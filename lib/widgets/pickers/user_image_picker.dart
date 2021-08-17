@@ -15,9 +15,6 @@ class _UserImagePickerState extends State<UserImagePicker> {
   File _pickedImage;
 
   void _pickImage() async {
-    // final picker = ImagePicker();
-    // final pickedImage = await picker.getImage(source: null);
-    // final pickedImageFile = File(pickedImage.path);
     final pickedImageFile = await ImagePicker.pickImage(
       source: ImageSource.camera,
       imageQuality: 50,
@@ -36,7 +33,6 @@ class _UserImagePickerState extends State<UserImagePicker> {
       children: [
         CircleAvatar(
           radius: 40,
-          // TODO: replace null if no image with default image
           backgroundColor: Colors.grey,
           backgroundImage:
               _pickedImage != null ? FileImage(_pickedImage) : null,

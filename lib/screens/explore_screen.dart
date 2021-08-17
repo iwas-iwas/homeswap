@@ -1,5 +1,4 @@
 import 'package:conspacesapp/screens/user_listings_screen.dart';
-
 import 'package:flutter/material.dart';
 import '../credentials.dart';
 import 'dart:async';
@@ -8,26 +7,21 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'listings_screen.dart';
 
-GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: QUERY4);
+GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: KEY);
 
-class ExploreScreenTest extends StatefulWidget {
+class ExploreScreen extends StatefulWidget {
   @override
-  _ExploreScreenTestState createState() => _ExploreScreenTestState();
+  _ExploreScreenState createState() => _ExploreScreenState();
 }
 
-class _ExploreScreenTestState extends State<ExploreScreenTest> {
+class _ExploreScreenState extends State<ExploreScreen> {
   bool _validateLocation = false;
   bool _validateDestination = false;
   String _pickedLocation = '';
   String _pickedDestination = '';
-  String _pickedLocationAddress = '';
-  String _pickedDestinationAddress = '';
 
   final _locationController = TextEditingController();
-  // var _enteredLocation;
-
   final _destinationController = TextEditingController();
-  // var _enteredDestination;
 
   @override
   void initState() {
@@ -47,21 +41,16 @@ class _ExploreScreenTestState extends State<ExploreScreenTest> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      //resizeToAvoidBottomPadding: false,
-      //resizeToAvoidBottomInset: false,
       body: SafeArea(
         child: Padding(
           padding: EdgeInsets.only(
-              left: size.width * 0.05,
-              //top: size.height * 0.075,
-              right: size.width * 0.05),
+              left: size.width * 0.05, right: size.width * 0.05),
           child: CustomScrollView(
             physics: NeverScrollableScrollPhysics(),
             slivers: [
               SliverFillRemaining(
                 hasScrollBody: false,
                 child: Column(
-                  //crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -96,18 +85,6 @@ class _ExploreScreenTestState extends State<ExploreScreenTest> {
                         ],
                       ),
                     ),
-                    //SizedBox(height: size.height * 0.015),
-                    // SizedBox(
-                    //   height: size.height * 0.05,
-                    //   child: Text(
-                    //     "Work from Anywhere",
-                    //     style: TextStyle(
-                    //       color: Colors.black,
-                    //       fontSize: size.width * 0.06,
-                    //     ),
-                    //   ),
-                    // ),
-                    // SizedBox(height: size.height * 0.09),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,13 +111,12 @@ class _ExploreScreenTestState extends State<ExploreScreenTest> {
                               // show input autocomplete with selected mode
                               // then get the Prediction selected
                               Prediction p = await PlacesAutocomplete.show(
-                                  context: context, apiKey: QUERY4);
+                                  context: context, apiKey: KEY);
                               final locationData =
                                   displayPrediction(p).then((location) {
                                 setState(() {
                                   FocusScope.of(context).unfocus();
                                   _pickedLocation = location[0];
-                                  _pickedLocationAddress = location[1];
                                   _locationController.text = location[1];
                                 });
                               });
@@ -163,9 +139,6 @@ class _ExploreScreenTestState extends State<ExploreScreenTest> {
                                   fontWeight: FontWeight.bold),
                             ),
                           ),
-
-                          //height: size.height * 0.09,
-                          //height: 100,
                           TextField(
                             decoration: InputDecoration(
                                 labelText: 'Select Destination',
@@ -178,13 +151,12 @@ class _ExploreScreenTestState extends State<ExploreScreenTest> {
                               // show input autocomplete with selected mode
                               // then get the Prediction selected
                               Prediction p = await PlacesAutocomplete.show(
-                                  context: context, apiKey: QUERY4);
+                                  context: context, apiKey: KEY);
                               final locationData =
                                   displayPrediction(p).then((location) {
                                 setState(() {
                                   FocusScope.of(context).unfocus();
                                   _pickedDestination = location[0];
-                                  _pickedDestinationAddress = location[1];
                                   _destinationController.text = location[1];
                                 });
                               });
@@ -193,9 +165,6 @@ class _ExploreScreenTestState extends State<ExploreScreenTest> {
                         ],
                       ),
                     ),
-                    // SizedBox(height: 20),
-                    // SizedBox(height: size.height * 0.03),
-
                     Expanded(
                       child: Padding(
                         padding:
@@ -204,14 +173,10 @@ class _ExploreScreenTestState extends State<ExploreScreenTest> {
                           alignment: Alignment.bottomCenter,
                           child: Container(
                             width: size.width,
-                            //height: 55,
-                            //height: size.height * 0.08,
                             child: FloatingActionButton.extended(
                               onPressed: () {
                                 if (_pickedLocation != '' &&
-                                    _pickedLocation != null &&
-                                    _pickedDestination != '' &&
-                                    _pickedDestination != null) {
+                                    _pickedDestination != '') {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -266,32 +231,10 @@ class _ExploreScreenTestState extends State<ExploreScreenTest> {
 
 Future<List<String>> displayPrediction(Prediction p) async {
   if (p != null) {
-    // print(p.description);
-    // print('----\n\n');
-    //print(p.placeId);
-    // returns place id of the full location input and details like city.
-    //PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
-    // print(detail);
-    // print(p.placeId);
-    // print(detail.result.geometry.location);
-
-    // var placeId = p.placeId;
-    // double lat = detail.result.geometry.location.lat;
-    // double lng = detail.result.geometry.location.lng;
-
-    // String street = detail.result.geometry.location.toString();
-    // String loc = detail.result.formattedAddress.toString();
-    //var coordinates = new Coordinates(lat, lng);
-    //var address = await Geocoder.local.findAddressesFromQuery(p.description);
-
-    //print(p.description);
-
     var placeId;
 
-    var address = await Geocoder.google(kGoogleApiKey)
-        .findAddressesFromQuery(p.description);
-
-    // if no locality/city is entered, it is already a locality, so the palce id of the original chosen prediction instead.
+    var address =
+        await Geocoder.google(KEY).findAddressesFromQuery(p.description);
     if (address.first.locality != null) {
       // get place id of the city
       PlacesSearchResponse response =

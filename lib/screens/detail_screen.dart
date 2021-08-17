@@ -24,7 +24,6 @@ class _DetailScreenState extends State<DetailScreen> {
 
   @override
   void dispose() {
-    //SystemChrome.restoreSystemUIOverlays();
     SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
     super.dispose();
   }

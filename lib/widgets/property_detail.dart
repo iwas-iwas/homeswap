@@ -4,18 +4,13 @@ import 'package:conspacesapp/widgets/helper/utils.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:geocoder/geocoder.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:intl/intl.dart';
 import '../constants.dart';
 import '../widgets/helper/location_helper.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:auto_size_text/auto_size_text.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:google_maps_webservice/places.dart';
-import 'package:flutter_google_places/flutter_google_places.dart';
 
 class Detail extends StatefulWidget {
   Detail(
@@ -27,8 +22,6 @@ class Detail extends StatefulWidget {
       this.currentUserId,
       this.propertyId,
       this.fromSwapsorListingsUnique,
-      // this.latitude,
-      // this.longitude,
       this.bathrooms,
       this.bedrooms,
       this.kitchen,
@@ -99,35 +92,13 @@ class _DetailState extends State<Detail> {
     //bool isPremium = false;
     bool isPremium = true;
     bool atleastOneSpace = false;
-
-    // PurchaserInfo purchaserInfo;
-
-    // try {
-    //   purchaserInfo = await Purchases.getPurchaserInfo();
-    //   if (purchaserInfo.entitlements.all['all_features'] != null) {
-    //     isPremium = purchaserInfo.entitlements.all['all_features'].isActive;
-    //   } else {
-    //     isPremium = false;
-    //   }
-    // } on PlatformException catch (e) {
-    //   print(e);
-    // }
-
-    //TODO: catch if google retruns wrong status, wait for x seconds and repeat or return empty string
-
     PlacesDetailsResponse detail =
         await widget._places.getDetailsByPlaceId(widget.fromListingsUniqueId);
 
     var addressInitial = detail.result.formattedAddress;
 
-    // if (addressInitial != null) {
-    //   var address = await Geocoder.google(PLACES_API_KEY)
-    //       .findAddressesFromQuery(addressInitial);
-    //   // get full location address aswell, but only display it when comming from listings unique or active swaps
-    // }
-
     var address =
-        await Geocoder.google(QUERY4).findAddressesFromQuery(addressInitial);
+        await Geocoder.google(KEY).findAddressesFromQuery(addressInitial);
 
     double lat = detail.result.geometry.location.lat;
     double lng = detail.result.geometry.location.lng;
@@ -145,7 +116,6 @@ class _DetailState extends State<Detail> {
     }
 
     setState(() {
-      //_isPremium = isPremium;
       _location = address.first.locality;
       _fullLocation = address.first.addressLine;
       _lat = lat;
@@ -153,23 +123,6 @@ class _DetailState extends State<Detail> {
       _atleastOneSpace = atleastOneSpace;
     });
   }
-
-  // Future<List<String>> getLocations() async {
-  //   PlacesDetailsResponse detail =
-  //       await widget._places.getDetailsByPlaceId(widget.fromListingsUnique);
-
-  //   var addressInitial = detail.result.formattedAddress;
-
-  //   if (addressInitial != null) {
-  //     var address = await Geocoder.google(PLACES_API_KEY)
-  //         .findAddressesFromQuery(addressInitial);
-  //     // get full location address aswell, but only display it when comming from listings unique or active swaps
-
-  //     return [address.first.locality, address.first.addressLine];
-  //   }
-
-  //   return ['', ''];
-  // }
 
   void _presentDatePicker(modalState) {
     showDateRangePicker(
@@ -200,9 +153,7 @@ class _DetailState extends State<Detail> {
 
   Future<int> dateRangeAvailabilityCheck(
       currentUserId, selectedDate, requestSendToThisUser) async {
-    // CHECK DATE RANGE
-
-    // ########### check if current user has active overlap  ########### //
+    // check if current user has active overlap
     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
         .collection('users')
         .doc(currentUserId)
@@ -216,15 +167,12 @@ class _DetailState extends State<Detail> {
 
     for (int i = 0; i < querySnapshot.docs.length; i++) {
       var a = querySnapshot.docs[i];
-      // mit der ID kann ich theoreisch fromDoc callen
-      // print(a.id);
-      // print(a.data()['selectedStartDate']);
       selectedEndDates.add(a.data()['selectedEndDate']);
     }
 
     bool unavailable = checkOverlap(selectedEndDates, selectedDate.start);
 
-    // ########### check if receiving has active overlap  ########### //
+    // check if receiving has active overlap
 
     QuerySnapshot querySnapshotTwo = await FirebaseFirestore.instance
         .collection('users')
@@ -254,27 +202,11 @@ class _DetailState extends State<Detail> {
       return 2;
     }
 
-    // // CHECK GREATER TEN SEND REQUESTS
-    // QuerySnapshot sendRequests = await FirebaseFirestore.instance
-    //     .collection('users')
-    //     .doc(currentUserId)
-    //     .collection('requests')
-    //     .where('type', isEqualTo: 'send')
-    //     .where('status', isEqualTo: "pending")
-    //     .get();
-
-    // // if date overlap returned false, check if too many send request. if not, all clear and return 3, which makes the request go to firebsae and show success snackbar.
-    // if (sendRequests.docs.length > 8) {
-    //   return 1;
-    // }
-
     // already pending or active
     QuerySnapshot alreadySendRequestToUser = await FirebaseFirestore.instance
         .collection('users')
         .doc(currentUserId)
         .collection('requests')
-        //.where('type', isEqualTo: 'send')
-        ///.where('status', isEqualTo: "pending")
         .where('RequestSendToUser', isEqualTo: requestSendToThisUser)
         .get();
 
@@ -282,21 +214,6 @@ class _DetailState extends State<Detail> {
     if (alreadySendRequestToUser.docs.isNotEmpty) {
       return 0;
     }
-
-    // wenn die aktuelle person einer person eine swap req schicken will, mit dieser person aber aber schon eine aktive req hat, dann ablehnen.
-
-    // QuerySnapshot alreadyActiveWithThatUser = await FirebaseFirestore.instance
-    //     .collection('users')
-    //     .doc(currentUserId)
-    //     .collection('requests')
-    //     .where('status', isEqualTo: "accepted")
-    //     .where('RequestSendToUser', isEqualTo: currentUserId)
-    //     .get();
-
-    // // if date overlap and not too many send requests check if the user already send a request to the user (need to check received aswell prbly)
-    // if (alreadyActiveWithThatUser.docs.isNotEmpty) {
-    //   return 0;
-    // }
 
     return 3;
   }
@@ -308,41 +225,9 @@ class _DetailState extends State<Detail> {
     });
     dateRangeAvailabilityCheck(currentUserId, selectedDate, propertyUserId)
         .then((unavailable) async {
-      // SnackBar snackBar = SnackBar(
-      //   content: Text(
-      //     'will be overwritten.',
-      //     style: TextStyle(color: Colors.white),
-      //   ),
-      //   backgroundColor: Colors.black,
-      // );
-      //print('unavailable: ${unavailable}');
-
-      // if (unavailable == 1) {
-      //   SnackBar snackBar = swapRequestSnackbar(
-      //       'Failed to send Request. You have too many open send requests.');
-      //   // SnackBar snackBar = SnackBar(
-      //   //   content: Text(
-      //   //     'Failed to send Request. You have too many open send requests.',
-      //   //     style: TextStyle(color: Colors.white),
-      //   //   ),
-      //   //   backgroundColor: Color(0xFF4845c7),
-      //   // );
-      //   modalState(() {
-      //     _isLoading = false;
-      //   });
-      //   Navigator.of(context).pop();
-      //globalKey.currentState.showSnackBar(snackBar);
-      //} else
       if (unavailable == 2) {
         SnackBar snackBar = swapRequestSnackbar(
             'Failed to send Request. There is an overlap with your desired period and an active swap by you or the swap partner.');
-        // SnackBar snackBar = SnackBar(
-        //   content: Text(
-        //     'Failed to send Request. There is an overlap with your desired period and an active swap by you or the swap partner.',
-        //     style: TextStyle(color: Colors.white),
-        //   ),
-        //   backgroundColor: Color(0xFF4845c7),
-        // );
         setState(() {
           _isLoading = false;
         });
@@ -352,13 +237,6 @@ class _DetailState extends State<Detail> {
       } else if (unavailable == 0) {
         SnackBar snackBar = swapRequestSnackbar(
             "Request could not be sent. You cannot have multiple pending or active requests with the same user.");
-        // SnackBar snackBar = SnackBar(
-        //   content: Text(
-        //     "Request could not be sent. You cannot have multiple pending or active requests with the same user.",
-        //     style: TextStyle(color: Colors.white),
-        //   ),
-        //   backgroundColor: Color(0xFF4845c7),
-        // );
         setState(() {
           _isLoading = false;
         });
@@ -372,7 +250,6 @@ class _DetailState extends State<Detail> {
             .collection('requests')
             .add({
           'type': 'received',
-          //'requestedBy': currentUserId,
           'RequestSendToUser': currentUserId,
           'swapPartnerProperty': _selectedProperty, // SWAPPARTNER Property
           'myProperty': propertyId, // MYPROPERTY
@@ -467,14 +344,6 @@ class _DetailState extends State<Detail> {
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
-                        // Container(
-                        //   height: 120,
-                        //padding: EdgeInsets.all(6),
-                        // Expanded(
-                        //   // height: 150.0,
-                        //   // width: 200.0,
-                        //   child: Column(
-                        //     children: [
                         Container(
                           height: 120,
                           child: ListView.builder(

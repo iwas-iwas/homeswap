@@ -1,7 +1,4 @@
-// This will be our second screen, where we will block access to certain users. This is a requirement on iOS if you develop apps for kids.
-
 import 'dart:math';
-
 import 'package:conspacesapp/payment/components.dart';
 import 'package:conspacesapp/payment/upgrade.dart';
 import 'package:flutter/material.dart';

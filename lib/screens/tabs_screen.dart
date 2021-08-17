@@ -5,10 +5,6 @@ import './user_listings_screen.dart';
 import 'settings/settings_screen.dart';
 
 class TabsScreen extends StatefulWidget {
-  // bool chatScreenIndex;
-
-  // TabsScreen({this.chatScreenIndex = false});
-
   @override
   _TabsScreenState createState() => _TabsScreenState();
 }
@@ -17,26 +13,16 @@ class TabsScreen extends StatefulWidget {
 
 class _TabsScreenState extends State<TabsScreen> {
   final List<Map<String, Object>> _pages = [
-    {'page': ExploreScreenTest(), 'title': 'Explore'},
+    {'page': ExploreScreen(), 'title': 'Explore'},
     {'page': SwapsScreen(), 'title': 'Swaps'},
     {'page': UserListingsScreen(), 'title': 'Listings'},
-    // at the moment savedscreen constructor expects a string, which is given in search_field.dart
-    //{'page': SavedScreen(), 'title': 'Saved'},
-    //{'page': ChatScreen(), 'title': 'Chat'},
     {'page': SettingsScreen(), 'title': 'Profile'},
-    //{'page': WelcomeScreen(), 'title': 'Auth'},
   ];
 
   int _selectedPageIndex = 0;
-  Widget _currentPage = ExploreScreenTest();
-
-  // Select Page: SetState to change the Widget-index of _pages to render the specific Screen based on a user selecting one of the two tabs
-  // flutter automatically provides the index of the clicked tab through ontap argument in the bottom navitation bar widget
+  Widget _currentPage = ExploreScreen();
   void _selectPage(int index) {
     setState(() {
-      // in case a user returns from creating a chat, set the rendering of chatscreen to false
-      // otherwise the bottom sheet indexing stops working ebcause chatscreenindex is stuck on true
-      //widget.chatScreenIndex = false;
       _selectedPageIndex = index;
       _currentPage = _pages[_selectedPageIndex]['page'];
     });
@@ -48,8 +34,6 @@ class _TabsScreenState extends State<TabsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      //drawer: AppDrawer(),
-      //body: widget.chatScreenIndex ? ChatScreen() : _currentPage,
       body: _currentPage,
       bottomNavigationBar: BottomNavigationBar(
         onTap: _selectPage,

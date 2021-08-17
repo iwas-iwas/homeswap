@@ -5,14 +5,10 @@ import 'package:conspacesapp/screens/auth_screen.dart';
 import 'package:conspacesapp/screens/settings/contact_us.dart';
 import 'package:conspacesapp/screens/settings/delete_user.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:settings_ui/settings_ui.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../constants.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -30,13 +26,9 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-//bool lockInBackground = true;
-//bool notificationsEnabled = true;
-
   var _userName;
   var _userImage;
   var _userEmail;
-  File _storedImage;
   bool _isAnon = false;
   bool _isPremium = true;
 
@@ -150,10 +142,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Size size = MediaQuery.of(context).size;
     if (_isAnon)
       return Scaffold(
-        //key: _scaffoldKey,
-        //backgroundColor: Theme.of(context).primaryColor,
         backgroundColor: Colors.white,
-        //body: AuthForm(_submitAuthForm, _isLoading, _scaffoldKey),
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -232,16 +221,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       SettingsSection(
                         title: 'Account',
                         tiles: [
-                          //SettingsTile(title: 'Email', leading: Icon(Icons.email)),
-                          // SettingsTile(
-                          //     title: 'Change password', leading: Icon(Icons.lock)),
                           SettingsTile(
                             title: 'Sign out',
                             leading: Icon(Icons.exit_to_app),
                             onTap: () async {
                               {
-                                //Navigator.of(context).pop();
-                                //Navigator.of(context).pushReplacementNamed('/');
                                 await FirebaseAuth.instance.signOut();
                                 Navigator.popUntil(
                                     context,
@@ -452,16 +436,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     SettingsSection(
                       title: 'Account',
                       tiles: [
-                        //SettingsTile(title: 'Email', leading: Icon(Icons.email)),
-                        // SettingsTile(
-                        //     title: 'Change password', leading: Icon(Icons.lock)),
                         SettingsTile(
                           title: 'Sign out',
                           leading: Icon(Icons.exit_to_app),
                           onTap: () async {
                             {
-                              //Navigator.of(context).pop();
-                              //Navigator.of(context).pushReplacementNamed('/');
                               await FirebaseAuth.instance.signOut();
                               Navigator.popUntil(
                                   context,

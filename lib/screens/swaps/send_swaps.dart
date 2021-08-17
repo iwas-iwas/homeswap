@@ -1,4 +1,4 @@
-import 'package:conspacesapp/screens/swaps/SendRequest.dart';
+import 'package:conspacesapp/screens/swaps/send_swap_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -8,7 +8,7 @@ import '../../widgets/property_style.dart';
 import '../../widgets/property_detail.dart';
 import 'package:intl/intl.dart';
 
-import 'ReceivedRequest.dart';
+import 'received_swap_detail.dart';
 
 class SendSwapsScreen extends StatelessWidget {
   @override
